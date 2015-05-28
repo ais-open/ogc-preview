@@ -12,7 +12,9 @@ deploy:
   provider: releases
   api_key:
     secure: gLsKd6rLgjJnDAhTtXFo+am9nU9V0OpinGdlybwnA5zAjOXiPkMAazm4V7MF+VACZMGnOdVsnWvPb6JATiNiJLGnyQZnH9XjvY7T8d6jfO3gmNERl/c/yQzp8/sUPl5UxqNF9wvh++jjdUdrixhl+MnI7C+X/p7enRd+bsdqiD/TwXtnNBI2mQR6W8wm0Zpl4Z/9RaKQ3ELshAHRAYxCQUyZSmF33pbrMHlv+o3RaaYeq3YFHW24zgdGixqQOJ9HACdwsNDisXQD2cEcSctNttczmlFqW9jguyy/iKHlTi4iN0r7zbqQdcJhG12bG8r5FR9UT1Ceco1/A6qxTqf8WHzqasHAvW+gUluh0u70fbAC0s9M8Kt8KMg64PrVU377Jr6FwD91l/1o8i9d048P1s1/ps8tbXLIlfQDp1TlJvG388QMPOAU9WhuyOxsSW18yD8g/7H65Zjx39AOQXw1qYpBVibPWjmE6Z29rA7Z/cg6HffWX+iNnspwmK+DpoL+lIC31yOS2PvKc0Vn+srEfkgXB0NfDzwIJLeT2hdSELbolBpw4n4gIrSdU3w/ct2kbAJGYzpi6n3soEhUlGYX/uaZhnyizHfyNUfKoDsxgopkWl55tVd2/s+eMp2EYNsews+ldVyOiVRJeBcb9G5dhtrYd6ECTMmy+NwmUpz9iIA=
-  file: 'artifacts/ogcpreview.war'
+  file: 'artifacts/ogcpreview.*'
+  file_glob: true
   on:
     repo: AppliedIS/ogc-preview
     tags: true
+
