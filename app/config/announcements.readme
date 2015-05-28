@@ -1,0 +1,27 @@
+  announcements.json Usage:
+
+  This file can be auto-generated and linked in to provide service announcements. 3 keys are supported:
+  category: one of 3 values "info", "success", "failure"
+  pubDate: an ISO 8601 string indicating when this message will become visible. Allows for posting messages for planned events.
+  description: a string containing the message to be displayed
+
+
+  Sample message objects added to message array within announcements.json:
+
+  [
+  {
+    "category": "info",
+    "pubdate": "2015-11-11T00:00:00",
+    "description": "This is a notification announcement."
+  },
+  {
+    "category": "failure",
+    "pubdate": "2015-01-01T00:00:00",
+    "description": "This is a failure announcement."
+  },
+  {
+    "category": "success",
+    "pubdate": "2015-03-03T00:00:00",
+    "description": "This is a success announcement."
+  }
+  ]

@@ -1,0 +1,8 @@
+artifacts/
+bower_components/
+coverage/
+dist/
+node_modules/
+.idea/
+.tmp/
+ogcpreview.*

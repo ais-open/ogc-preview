@@ -1,0 +1,108 @@
+/*! --------------------------------
+Developed by David Benson
+Applied Information Sciences
+Oct 21, 2013
+---------------------------------*/
+.announcement-banner {
+  color: @theme2Text;
+  height: 35px;
+  left:0;
+  line-height: 35px;
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  top: 14px;
+  width: 100%;
+  z-index: 1040;
+
+  * {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  > .announcement-body {
+    position: relative;
+    width: 100%;
+  }
+
+  .title {
+    font-weight: bold;
+    margin-right: 10px;
+  }
+
+  .message {
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 170px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    top: 0;
+    white-space: nowrap;
+
+    i {
+      margin: 0 10px;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .actions {
+    bottom: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+  .pager {
+    display: inline-block;
+    margin-right: 10px;
+    vertical-align: top;
+  }
+
+  .btn-previous,
+  .btn-next {
+    border-radius: 85px;
+    font-size: 12px;
+    padding: 0px 3px;
+  }
+
+  .counter {
+    display: inline-block;
+    font-weight: bold;
+    text-align: center;
+    width: 65px;
+  }
+
+  .close-btn {
+    -webkit-appearance: none;
+    background: transparent;
+    border: 0;
+    color: @theme2Text;
+    font-size: 24px;
+    font-weight: bold;
+    opacity: 1;
+    padding: 0 10px;
+
+    &:hover,
+    &:focus {
+      cursor: pointer;
+      opacity: 0.8;
+    }
+  }
+}
+
+.announcement-state-info {
+  background: @theme2;
+}
+
+.announcement-state-failure {
+  background: @themeRemove;
+}
+
+.announcement-state-success {
+  background: @themeSuccess;
+}

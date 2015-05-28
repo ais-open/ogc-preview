@@ -1,0 +1,87 @@
+/*! --------------------------------
+Developed by David Benson
+Applied Information Sciences
+Oct 21, 2013
+---------------------------------*/
+
+.leaflet-container {
+  background-color: #000;
+}
+.leaflet-container .leaflet-control-mouseposition {
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 4px 0 0 0;
+  color: #333333;
+  font: 11px/1.5 monospace;
+  margin: 0;
+  width: 225px;
+  padding: 0px 6px;
+  text-align: center;
+}
+
+.leaflet-container .leaflet-control-layers {
+    height: 36px;
+
+    form {
+      background-color: #FFFFFF;
+      border-radius: 6px 6px 6px 6px;
+      margin: -6px 30px -6px -6px;
+      padding: 6px 10px 6px 6px;
+    }
+  &:hover {
+    background-image: url(../images/layers.png);
+    // Yeah, I know it is a hack... what is the best way to force this position on hover?
+    background-position: 96% 50%;
+    background-repeat: no-repeat;
+  }
+}
+
+.leaflet-control-legend-toggle
+{
+  width:36px;
+  height:36px;
+  display: inline-block;
+  vertical-align: middle;
+  //position:relative;
+  background: url('../images/icon-sprite2.png') no-repeat 7px -240px;
+
+  padding: 3px;
+  border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
+  cursor: auto;
+  text-align: center;
+  background-color: #FFFFFF;
+  cursor: pointer;
+}
+
+.leaflet-control-legend-toggle-active {
+  background-color: @theme;
+}
+
+.leaflet-container .leaflet-control-legend {
+  border-radius: 10px 0 0 10px;
+  display: inline-block;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0 0 10px 0;
+  padding: 10px;
+  max-height: 400px;
+  width: 225px;
+  line-height: 20px;
+  color: #f0f0f0;
+  background-color: rgba(0, 0, 0, 0.8);
+  scrollbar-base-color: #222;
+  scrollbar-track-color: #222;
+  scrollbar-arrow-color: #fff;
+  scrollbar-face-color: #555;
+  scrollbar-3dlight-color: #555;
+  scrollbar-darkshadow-color: #555;
+  scrollbar-shadow-color: #555;
+  scrollbar-highlight-color: #555;
+
+  strong {
+    font-size: 14px;
+    font-weight: bold;
+  }
+}

@@ -1,0 +1,79 @@
+<div class="section" ng-controller="opDateTimeController as fbDTCtrl">
+    <h4 class="header">
+        <a href="" ng-click="dateExpanded = !dateExpanded">
+            <span class="icon" ng-bind-html="dateExpanded ? '&#x25bc;' : '&#x25ba;'"></span>
+            Date/Time
+            <span ng-if="!dateExpanded"  class="detail">{{friendlyDate()}}</span>
+        </a>
+    </h4>
+
+    <div ng-show="dateExpanded" class="list-group">
+        <a class="list-group-item" ng-class="{active: dateKey == 'duration'}" href="" ng-click="setDateKey('duration')">Duration...</a>
+        <div class="details-box" ng-show="dateKey == 'duration'">
+            <div class="row inline-row">
+                <div class="col-sm-2">
+                    <p class="text-right space">Last</p>
+                </div>
+                <div class="col-sm-3">
+                    <input class="form-control" ng-class="{invalid: !valid.duration}" type="text" ng-model="duration" ng-change="setDuration()"/>
+                </div>
+                <div class="col-sm-7">
+                    <div class="tr-options" style="margin-top:6px;">
+                        <a ng-click="setDurationKey('h')" href="" ng-class="{active: durationKey == 'h'}">Hours</a>
+                        <a ng-click="setDurationKey('d')" href="" ng-class="{active: durationKey == 'd'}">Days</a>
+                        <a ng-click="setDurationKey('w')" href="" ng-class="{active: durationKey == 'w'}">Weeks</a>
+                    </div>
+                </div>
+            </div>
+            <!--
+            <div ng-show="!valid.duration" class="row inline-row">
+                <div class="col-sm-2">
+                    <p>{{validationError}}</p>
+                </div>
+            </div>
+            -->
+        </div>
+        <a class="list-group-item" ng-class="{active: dateKey == 'range'}" href="" ng-click="setDateKey('range')">Range...</a>
+        <div class="details-box" ng-show="dateKey == 'range'">
+            <div class="row inline-row start">
+                <div class="col-sm-6">
+                    <div class="float-label white">
+                        <input type="text" ng-model="startDate" required ng-change="updateStart($event)" />
+                        <label>Start Date</label>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="float-label white">
+                        <input type="text" ng-model="startTime" required ng-change="updateStart($event)" />
+                        <label>Start Time</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row inline-row end">
+                <div class="col-sm-6">
+                    <div class="float-label white">
+                        <input type="text" ng-model="endDate" required ng-change="updateEnd($event)"  />
+                        <label>End Date</label>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="float-label white">
+                        <input type="text" ng-model="endTime" required ng-change="updateEnd($event)"  />
+                        <label>End Time</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tr-options range-options">
+                <a ng-click="setDateRange(item.date);" href="" ng-repeat="item in datelist | orderBy: index" ng-class="{active: dateRange[0] && dateRange[1] && !dateRange[0].diff(item.date[0], 's') && !dateRange[1].diff(item.date[1], 's')}">{{item.name}}</a>
+            </div>
+            <div class="tr-options range-options">
+                <a href="" ng-click="retreatDateRange()"><div class="range-controls reverse"></div>&nbsp;&nbsp;Step Back</a> | <a href="" ng-click="advanceDateRange()">Step Forward&nbsp;&nbsp;<div class="range-controls forward"></div></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+  

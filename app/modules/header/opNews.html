@@ -1,0 +1,17 @@
+<div class="modal-header">
+    <a href="" class="close modal-close pull-right" ng-click="$close()">&times;</a>
+    <h3 class="modal-title">News ({{messages.length}})</h3>
+</div>
+<div class="modal-body news-body">
+    <div class="items">
+        <div ng-if="!messages.length">No announcements are available</div>
+        <div class="item" ng-repeat="msg in messages">
+            <div class="item-header announcement-state-{{msg.state}}">
+                <i class="icon-announce icon-announce-{{msg.icon}}"></i>
+                <span class="item-title">{{msg.title}}</span>
+                <span class="item-date">{{msg.formattedDate}}</span>
+            </div>
+            <div class="item-description">{{msg.description}}</div>
+        </div>
+    </div>
+</div>

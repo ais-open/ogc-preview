@@ -1,0 +1,54 @@
+<!doctype html>
+<html class="no-js">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Feature Results</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+
+    <!-- build:css(.tmp) styles/lib.css -->
+    <link rel="stylesheet" href="styles/lib.css"> 
+    <!-- endbuild -->
+    <!-- build:css(.tmp) styles/app.css -->
+    <link rel="stylesheet" href="styles/app.css">
+    <!-- endbuild -->
+
+</head>
+
+<body ng-app="opApp" style="padding-top:0px; font-size:12px;">
+
+<!--[if lt IE 9]>
+<br />
+<p style="text-align:center;">We're sorry, the browser you are using is not supported. Please use IE 9+, Firefox 10+, or Chrome.</p>
+<![endif]-->
+<!--[if gt IE 8]><!-->
+
+<!-- Add your site or application content here -->
+<op-results></op-results>
+
+<!-- build:js({.tmp,app}) scripts/results-vendor.js -->
+<script src="bower_components/jquery/jquery.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/angular-resource/angular-resource.js"></script>
+<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script src="bower_components/angular-animate/angular-animate.js"></script>
+<script src="bower_components/angular-ui-bootstrap-bower/ui-bootstrap-tpls.js"></script>
+<script src="bower_components/momentjs/moment.js"></script>
+<script src="bower_components/lodash/dist/lodash.compat.js"></script>
+<script src="lib/mustache.min.js"></script>
+<script src="lib/jquery.columns.min.js"></script>
+<script src="lib/jquery.resizableColumns.js"></script>
+<script src="lib/jquery.placeholder.js"></script>
+<!-- endbuild -->
+
+<!-- build:js({.tmp,app}) scripts/results-scripts.js -->
+<script src="modules/results/opResultsApp.js"></script>
+<script src="modules/results/opResults.js"></script>
+<script src="modules/results/opResultsTable.js"></script>
+<!-- endbuild -->
+
+<!-- <![endif]-->
+</body>
+</html>

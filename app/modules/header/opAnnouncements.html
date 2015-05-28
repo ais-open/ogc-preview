@@ -1,0 +1,31 @@
+<div class="announcement-banner announcement-state-{{selected.state}}" ng-if="enabled">
+    <div class="announcement-body">
+        <div class="message" ng-click="showAll()"
+             tooltip-append-to-body="true" tooltip-placement="bottom"
+             tooltip-html-unsafe="{{selected.description}}">
+            <i class="icon-announce icon-announce-{{selected.icon}}"></i>
+            <span class="title">{{selected.title}}</span>
+            <span class="description" ng-bind-html="selected.description"></span>
+            <a ng-if="selected.link" href="{{selected.link}}" target="_blank">
+                More Info
+            </a>
+        </div>
+
+        <div class="actions">
+            <div class="pager" ng-if="messages.length > 1">
+                <a href="" class="btn btn-default btn-previous" ng-click="previous()">
+                    <i class="icon-sm icon-dark-sm-left"></i>
+                </a>
+
+                <span class="counter">{{index + 1}} of {{messages.length}}</span>
+
+                <a href="" class="btn btn-default btn-next" ng-click="next()">
+                    <i class="icon-sm icon-dark-sm-right"></i>
+                </a>
+            </div>
+
+            <button class="close-btn" ng-click="close()">&times;</button>
+        </div>
+
+    </div>
+</div>

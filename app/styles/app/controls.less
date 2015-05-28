@@ -1,0 +1,788 @@
+/*! --------------------------------
+Developed by David Benson
+Applied Information Sciences
+Oct 21, 2013
+---------------------------------*/
+
+/* ############################### Float Label ############################### */
+.float-label {
+  position: relative;
+  border-radius: 4px;
+  margin: 0 8px 8px;
+  min-height: 36px;
+
+  &.transparent .bg {
+    background: Transparent;
+  }
+  &.white {
+    background: #fff;
+  }
+  &.bool {
+    .tr-options {
+      margin-top: 0px;
+    }
+    h6 {
+      margin: 2px 8px;
+      //text-transform: none;
+    }
+  }
+
+  label {
+    position: absolute;
+    color: @themeText;
+    z-index: 10;
+    top: 8px;
+    left: 8px;
+    white-space: nowrap;
+    font-weight: normal;
+  }
+
+  .bg {
+    background: none repeat scroll 0 0 #FFFFFF;
+    border-radius: 4px;
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition-property: bottom;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out-quart;
+  }
+  a.clear {
+    font-size: 25px;
+    padding: 0 4px;
+    position: absolute;
+    right: 0;
+    border-radius: 0 4px 4px 0;
+    text-align: center;
+    opacity: 0;
+    text-decoration: none;
+    transition-property: opacity;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-in-quart;
+    background-color: #FFFFFF;
+    line-height: 32px;
+    margin: 2px;
+  }
+  input:valid ~ a.clear,
+  textarea:valid ~ a.clear {
+    color: @themeText;
+    &:hover {
+      color: @themeDarkLink;;
+    }
+  }
+  &:hover input:valid ~ a.clear,
+  &:hover textarea:valid ~ a.clear {
+    z-index: 100;
+    opacity: 1;
+    transition-property: opacity;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out-quart;
+  }
+  .range {
+    background: #FFFFFF;
+    border-radius: 4px 4px 4px 4px;
+    float: left;
+    margin-top: 18px;
+    padding: 6px 8px;
+    text-align: center;
+    width: 45%;
+
+    & ~ .range {
+      float: right;
+    }
+    & ~ a.clear {
+      background-color: transparent;
+      line-height: 16px;
+      top: 0;
+    }
+  }
+  .range-text {
+    color: #fff;
+    text-align: center;
+    font-size: 18px;
+    padding: 20px 3px 0;
+  }
+
+  .units {
+    background: none repeat scroll 0 0 #f8f8f8;
+    border-left: 1px solid #CCCCCC;
+    box-shadow: 4px 2px 10px #D8D8D8 inset;
+    color: #000000;
+    display: block;
+    line-height: 40px;
+    padding: 0;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    width: 25%;
+    z-index: 11;
+    top: 0px;
+    bottom: 0px;
+    border-radius: 0 4px 4px 0;
+
+    & ~ input, & ~ textarea {
+      width: 75%;
+    }
+  }
+  .options {
+    height: 0px;
+    overflow: hidden;
+    clear: both;
+    font-size: 12px;
+    transition-property: height;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out-quart;
+    text-align: center;
+    background-color: #333;
+
+    a {
+      margin: 2px 4px;
+      border-radius: 10px 10px 10px 10px;
+      padding: 2px 8px;
+      display: inline-block;
+
+      &.active {
+        background-color: @theme;
+        color: #000;
+      }
+
+      &.not {
+        float:right;
+        margin-left:-40px;
+        line-height:16px;
+
+        &:before {
+          background-color: #FFFFFF;
+          border: 2px solid #FFFFFF;
+          border-radius: 4px 4px 4px 4px;
+          content: "";
+          display: inline-block;
+          height: 11px;
+          margin-right: 4px;
+          margin-top: -3px;
+          vertical-align: middle;
+          width: 11px;
+        }
+        &.active:before {
+          background-color: #000;
+        }
+      }
+    }
+  }
+  input:focus ~ .options, textarea:focus ~ .options, .options:hover, .options:focus {
+    transition-property: height;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out-quart;
+    height: 24px;
+    border-top: 1px solid #333333;
+  }
+  input:focus ~ .options ~ .bg, textarea:focus ~ .options ~ .bg, .options:hover ~ .bg {
+    transition-property: bottom;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out-quart;
+    bottom: 24px;
+  }
+  input, textarea {
+
+    width: 100%;
+    margin-top: 10px;
+    position: relative;
+    z-index: 100;
+    font-size: 18px;
+    padding: 2px 8px;
+    font-weight: 200;
+    border: 0px solid transparent;
+    outline: none;
+    background: Transparent;
+    background: rgba(255, 255, 255, .01);
+    box-shadow: none;
+    color: #000;
+
+    &:focus ~ label {
+      top: 1px;
+      left: 6px;
+      font-size: 10px;
+      font-weight: bold;
+      transition-property: top;
+      transition-duration: 0.1s;
+      transition-timing-function: ease-out-quart;
+    }
+  }
+  input:valid ~ label,
+  textarea:valid ~ label,
+  &.bool > label,
+  .range ~ label,
+  .select2-dropdown-open ~ label {
+    top: 1px;
+    left: 6px;
+    font-size: 10px;
+    font-weight: bold;
+  }
+  textarea {
+    height: 120px;
+    resize: vertical;
+    overflow-x: hidden;
+  }
+  .invalid {
+    border: 2px solid red;
+  }
+}
+
+.lt-ie10 .float-label label {
+  top: 1px;
+  left: 6px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* ############################### results ############################### */
+
+.tab-header{
+  background-color: #333333;
+  top: 0;
+  box-shadow: 0 4px 8px #000000 inset;
+  display: block;
+  left: 0;
+  margin: 0;
+  position: fixed;
+  right: 0;
+  z-index: 1;
+  height:40px;
+  overflow:hidden;
+  padding:0;
+
+  &:after{
+    content: "";
+    clear:left;
+    display: block;
+  }
+  li {
+    display: inline-block;
+    select{
+      margin-top: 12px;
+    }
+    a{
+      display: block;
+      background: rgba(255,255,255,0.3);
+      padding:4px 8px 8px;
+      margin-top:10px;
+      color:#000;
+      border-radius:4px 4px 0 0;
+      max-width: 300px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow:hidden;
+      border-top:4px solid #666;
+      margin-left:4px;
+
+      &:hover{
+        background: rgba(255,255,255,0.6);
+        text-decoration: none;
+      }
+    }
+    &.active a{
+      background-color: #F0F0F0;
+      border-color:@theme;
+      text-decoration: none;
+    }
+  }
+}
+
+.op-results{
+  padding:100px 15px 15px;
+  .table > thead > tr > td,
+  .table > thead > tr > th,
+  .table > tbody > tr > td{
+    padding: 2px 4px;
+    white-space: nowrap;
+  }
+}
+.ui-columns-search {
+  .clear {
+    opacity: 0;
+    position: absolute;
+    top: 5px;
+    right: 2px;
+    font-size: 24px;
+    cursor: pointer;
+    background-color: #fff;
+    line-height: 20px;
+    border-radius: 0 20px 20px 0;
+    padding: 0 4px;
+    transition-property: opacity;
+    transition-duration: 0.2s;
+  }
+  &:hover input:valid ~ .clear{
+    opacity: 1;
+    transition-property: opacity;
+    transition-duration: 0.2s;
+  }
+}
+
+.op-result-header.nav{
+  background-color: #F0F0F0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 40px;
+  z-index: 2;
+}
+
+
+/* ############################### Time Range ############################### */
+
+.invalid {
+  border: 2px solid red;
+}
+
+.tr-options {
+  font-size: 12px;
+  text-align: center;
+  //background-color:#333;
+  margin-bottom: 6px;
+  margin-top: -2px;
+
+  a {
+    margin: 2px;
+    border-radius: 10px 10px 10px 10px;
+    padding: 2px 6px;
+    display: inline-block;
+
+    &.active {
+      background-color: @theme;
+      color: #000;
+    }
+  }
+}
+
+.timeRange {
+  background: #ffffff;
+  border-radius: 4px;
+  color: #000;
+  text-align: center;
+  padding: 0 8px 8px;
+  margin: 8px;
+  line-height: 18px;
+  cursor: pointer;
+
+  .caret {
+    margin-top: 8px;
+    margin-left: 2px;
+  }
+  label {
+    color: @themeText;
+    display: block;
+    font-size: 10px;
+    font-weight: bold;
+    margin: 0;
+    text-align: left;
+  }
+}
+
+.range-controls {
+  width: 16px;
+  height: 16px;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  display: inline-block;
+  vertical-align: middle;
+  background-image: url("../images/date-sprites.png");
+
+  &.reverse {
+    background-position: 0px 0;
+  }
+  &.forward {
+    background-position: -16px 0;
+  }
+}
+
+a:hover .range-controls {
+  &.reverse {
+    background-position: 0px -16px;
+  }
+  &.forward {
+    background-position: -16px -16px;
+  }
+}
+
+/* ############################# Layer Options ########################### */
+.layer-options {
+  font-size: 12px;
+  text-align: center;
+  position: relative;
+  margin-top: 8px;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #444;
+  box-shadow: 0 1px 1px #222;
+
+  a {
+    border-radius: 10px 10px 10px 10px;
+    padding: 2px 6px;
+    display: inline-block;
+
+    &.active {
+      background-color: @theme;
+      color: #000;
+    }
+  }
+}
+
+.icons {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: #333;
+
+  a {
+    padding: 0 4px;
+    opacity: 0;
+  }
+  a.open {
+    opacity: 1;
+  }
+}
+
+&:hover {
+  .icons a{
+    opacity: 1;
+  }
+}
+
+.layer-list {
+  padding-top: 5px;
+}
+
+.layer-footer {
+  text-align: center;
+  color: @theme;
+  padding-top: 5px;
+  border-top: 1px solid #444;
+  box-shadow: inset 0 1px 1px #222;
+}
+
+.layer-loading-spinner {
+  padding-top: 20px;
+  width: 16px;
+  height: 16px;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  vertical-align: bottom;
+  display: inline-block;
+  background-image: url("../images/loadingdark.gif");
+}
+
+/* ############################### Lightbox ############################### */
+
+#lightbox-backdrop {
+  position: fixed;
+  z-index: 1500;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, .5);
+  #lightbox {
+    position: fixed;
+    top: 50%;
+    margin-top: -325px;
+    margin-left: -26%;
+    left: 50%;
+    width: 50%;
+    max-height: 600px;
+    background: #fff;
+    padding: 25px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    img {
+      max-height: 90%;
+    }
+  }
+}
+
+/* ############################### Shape Uplaod ############################### */
+form.shape-upload {
+  position: relative;
+  text-align: center;
+  margin-bottom: 10px;
+  input[type="file"] {
+    height: 35px;
+    cursor: pointer;
+    position: absolute;
+    opacity: 0.01;
+    width: 100%;
+    top: 0;
+    left: 0;
+  }
+}
+
+/* ############################### Breadcrumb ############################### */
+
+.breadcrumb {
+  margin: 0;
+}
+
+/* ############################### Results Table ############################### */
+
+.results-table {
+  border-bottom: 1px solid #ccc;
+
+  tr.result-row:hover,
+  tr.result-row.hovering {
+    cursor: pointer;
+    background-color: lighten(@theme, 30%); //#eee;
+  }
+
+  tr.selected, tr.result-row.selected:hover {
+    background-color: @theme;
+    & > td {
+      border-top-color: @theme;
+    }
+  }
+
+  & > tbody > tr > th,
+  & > tbody > tr > td {
+    padding: 2px;
+    vertical-align: middle;
+  }
+  & > thead > tr > th,
+  & > thead > tr > td {
+    padding-left: 2px;
+    padding-right: 2px;
+    border-bottom: 1px solid #222;
+    vertical-align: middle;
+  }
+
+  & tr > td:first-child,
+  & tr > th:first-child {
+    padding-left: 10px;
+  }
+
+  tr.tr-fixed, tr.tr-float {
+    background: #444;
+    color: #fff;
+    th {
+      //min-width:80px;
+      a {
+        color: #fff;
+        &:hover {
+          color: #ccc;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+
+  tr.tr-float {
+    position: fixed;
+    z-index: 100;
+    padding: 0;
+    margin: 0;
+    border-top: 1px solid #555555;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+
+    th {
+      border-bottom: 0 solid Transparent;
+    }
+  }
+
+  a.download-link {
+    font-size: 21px;
+    line-height: 18px;
+    vertical-align: middle;
+
+    &:hover {
+
+      color: @themeDarkLink;
+    }
+  }
+  /*.test{
+      //display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 500px;
+  }*/
+  input[type="checkbox"] {
+    vertical-align: middle;
+    margin-top: 0;
+  }
+}
+
+.lt-ie9 .results-table tr.tr-float {
+  display: none;
+}
+
+/* ############################### Splitter ############################### */
+.hsplitbar {
+  width: 100%;
+  height: 16px;
+  background-color: #333;
+  text-align: center;
+  line-height: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 12px;
+
+  &.split-up {
+    top: 0;
+  }
+  &.split-down {
+    top: auto;
+    bottom: 0;
+  }
+  a.dropup, a.dropdown {
+    color: #fff;
+    background-color: #444444;
+    padding: 1px 20px;
+
+    &:hover {
+      background-color: #505050;
+      text-decoration: none;
+    }
+  }
+}
+
+
+/* ############################### Classification ############################### */
+.table tr.row-details {
+  background-color: #fcfcfc;
+  border-bottom: 2px solid #ccc;
+
+  & > td {
+    width: 100%;
+    position: relative;
+    border-top-color: @theme;
+  }
+
+  .has-sidebar {
+    position: relative;
+    margin: -2px 0 -2px -10px;
+    padding: 2px 0;
+    background: url('../images/grey-bg.png') repeat-y 0 0;
+    & > div:last-child{
+      margin-left:315px;
+    }
+  }
+
+  &:hover a[href]:not(.btn) {
+    color: @themeDarkLink;
+  }
+
+  .report-list {
+    //background-color: #eee;
+    box-shadow: -40px -40px 60px #e0e0e0 inset;
+    margin: -2px 0 -12px 0;
+    padding: 10px 20px;
+    float: left;
+    width: 300px;
+
+    .label {
+      color: #555;
+      font-size: 11px;
+      margin-top: 10px;
+      line-height: 11px;
+    }
+
+    .value {
+      font-size: 14px;
+      font-weight: bold;
+    }
+  }
+
+  .file-details {
+    background-color: #EEEEEE;
+    border-radius: 0 0 0 10px;
+    margin: -2px -2px 0 10px;
+    padding: 6px 20px 0;
+    text-align: right;
+
+    .size {
+      font-style: italic;
+      font-size: 10px;
+      font-weight: bold;
+      color: #666;
+      margin-bottom: 10px;
+    }
+  }
+
+  .field {
+    width: 450px;
+    display: inline-block;
+    overflow: hidden;
+
+    div:first-child {
+      color: #bbb;
+      font-weight: bold;
+      text-align: right;
+    }
+  }
+
+}
+
+input.permalink {
+  background: none repeat scroll 0 0 #f8f8f8;
+  border: 1px solid #CCCCCC;
+  border-radius: 2px 2px 2px 2px;
+  color: #444444;
+  font-size: 11px;
+  padding: 0 2px;
+  text-overflow: ellipsis;
+  width: 150px;
+}
+
+.x-classification {
+  //border-top: 2px solid #ccc;
+  color: #000000;
+  font-size: 12px;
+  font-weight: bold;
+  //margin-left: -10px;
+  text-align: center;
+  position: absolute;
+  //height:50px;
+  //width:100%;
+  left: 100px;
+  right: 100px;
+  height: 2px;
+  overflow: visible;
+
+  &.unclass {
+    @color: #0FAF00;
+    color: @color;
+    border-color: @color;
+    //background-image: -moz-linear-gradient(center top , fadeOut(@color, 80%), rgba(255, 255, 255, 0));
+    //background-image: -webkit-linear-gradient(center top , fadeOut(@color, 80%), rgba(255, 255, 255, 0));
+    //background-image: -ms-linear-gradient(center top , fadeOut(@color, 80%), rgba(255, 255, 255, 0));
+  }
+  &.sec {
+    @color: #FF0000;
+    color: @color;
+    border-color: @color;
+    //background-image: -moz-linear-gradient(center top , fadeOut(@color, 80%), rgba(255, 255, 255, 0));
+    //background-image: -webkit-linear-gradient(center top , fadeOut(@color, 80%), rgba(255, 255, 255, 0));
+    //background-image: -ms-linear-gradient(center top , fadeOut(@color, 80%), rgba(255, 255, 255, 0));
+
+  }
+  &.conf {
+    @color: #0033CC;
+    color: @color;
+    border-color: @color;
+    //background-image: -moz-linear-gradient(center top , fadeOut(@color, 80%), rgba(255, 255, 255, 0));
+    //background-image: -webkit-linear-gradient(center top , fadeOut(@color, 80%), rgba(255, 255, 255, 0));
+    //background-image: -ms-linear-gradient(center top , fadeOut(@color, 80%), rgba(255, 255, 255, 0));
+  }
+  &.tops {
+    @color: #FFA800;
+    color: @color;
+    border-color: @color;
+    //background-image: -moz-linear-gradient(center top , fadeOut(@color, 80%), rgba(255, 255, 255, 0));
+    //background-image: -webkit-linear-gradient(center top , fadeOut(@color, 80%), rgba(255, 255, 255, 0));
+    //background-image: -ms-linear-gradient(center top , fadeOut(@color, 80%), rgba(255, 255, 255, 0));
+  }
+}

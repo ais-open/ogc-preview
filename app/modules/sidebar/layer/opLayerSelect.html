@@ -1,0 +1,40 @@
+<div class="section" ng-controller="opLayerController as fbLayerCtrl">
+    <h4 class="header">
+        <a href="" ng-click="layerExpanded = !layerExpanded">
+            <span class="icon" ng-bind-html="layerExpanded ? '&#x25bc;' : '&#x25ba;'"></span>
+            Layers
+            <span ng-show="!layerExpanded"  class="detail">{{friendlyLayer()}}</span>
+        </a>
+    </h4>
+
+
+    <div ng-show="layerExpanded">
+        <div style="overflow:hidden;">
+            <div class="text-center" ng-if="layersLoading" style="padding: 15px">Identifying server layers...&nbsp;&nbsp;<div class="layer-loading-spinner"></div></div>
+            <div class="layer-options" ng-if="!layersLoading">
+                <a ng-click="setFilter('')" href="" ng-class="{active: filter === ''}">All</a>
+                <a ng-click="setFilter('active')" href="" ng-class="{active: filter === 'active'}">Selected</a>
+                <!--<a ng-repeat="tag in tags" ng-click="setFilter(tag)" ng-class="{active: filter==='{{tag}}'}" href="">{{tag}}</a>-->
+            </div>
+
+           <span ng-if="!layersLoading">
+               <span ng-repeat="group in layerGroups.getGroups()" ng-show="isGroupVisible(group.getTag())" >
+                 <a ng-if="layerGroups.getCount() > 1" ng-click="group.toggleChecked()" href="" class="check-header">{{ group.getTag() }}</a>
+                 <!-- Using ng-if per David Benson - "Bootstrap uses first-child/last-child and potentially has padding issues" -->
+                 <label class="checkbox" ng-repeat="layer in group.getLayers() | orderBy:'title'" ng-if="isLayerVisible(layer.uid)">
+                     <!--tooltip-placement="right" tooltip-append-to-body="true" tooltip-html-unsafe="<b>{{layer.title}}</b><br/>{{layer.abstract | plainTextToHtml}}"-->
+                     <input type="checkbox" ng-model="layer.active" name="layers" ng-click="datasetStateChanged(layer.uid)"/>
+                     <span ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}}</span>
+
+                     <span class="icons">
+                         <div ng-if="layer.active && layer.loading" class="spinner"><div class="spinner-image"></div></div>
+                         <a op-popup="<b>{{layer.title}}</b><br/>{{layer.abstract | plainTextToHtml}}<p>Legend:<br/><img src='{{layer.legendGraphic}}' /></p>" href=""><i class="icon-help"></i></a>
+                     </span>
+                 </label>
+               </span>
+           </span>
+            <a href="" ng-show="DEBUG" class="btn btn-info btn-sm pull-right" ng-click="updateLayers(true);" style="margin-left:10px;"><i class="glyphicon glyphicon-refresh"></i> Refresh Datasets</a>
+        </div>
+    </div>
+</div>
+<!-- -->

@@ -1,0 +1,316 @@
+/*! --------------------------------
+Developed by David Benson
+Applied Information Sciences
+Oct 21, 2013
+---------------------------------*/
+body {
+  position: relative;
+  background: #f0f0f0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.pagination > li > a {
+  cursor: pointer;
+  &:focus {
+    background-color: #fff;
+    color: #888;
+  }
+}
+
+.pagination .active a {
+  color: #000;
+  &:hover {
+    color: #000;
+  }
+}
+
+.progress {
+  position: relative;
+  .progress-bar {
+    color: #000;
+  }
+  .centered {
+    left: 0;
+    position: absolute;
+    right: 0;
+    text-align: center;
+  }
+}
+
+.panel > .panel-heading {
+  color: #000;
+}
+
+input.form-control {
+  font-size: 18px;
+  font-weight: 200;
+  color: #000;
+  box-shadow: none;
+
+  &:focus {
+    border-color: Transparent;
+    box-shadow: none;
+  }
+}
+
+.btn .glyphicon {
+  font-size: 12px;
+}
+
+.dropdown-menu > li {
+  > p {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: normal;
+    line-height: 1.428571429;
+    white-space: nowrap; // prevent links from randomly breaking onto new lines
+    margin: 0;
+  }
+  .progress {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}
+
+.btn.btn-table {
+  margin: -5px 0;
+}
+
+.nav.navbar-nav > li {
+  & > a {
+    line-height: 24px;
+    padding-bottom: 0;
+    padding-top: 24px;
+    text-transform: uppercase;
+  }
+  & > .progress {
+    margin-top: 22px;
+    margin-bottom: 0px;
+    margin-right: 10px;
+    margin-left: 10px;
+    width: 120px;
+    display: inline-block;
+  }
+  & > .navbar-text {
+    line-height: 32px;
+    padding-bottom: 0;
+    padding-top: 15px;
+  }
+  .glyphicon {
+    vertical-align: text-top;
+  }
+}
+
+.navbar-nav.navbar-right:last-child{
+  margin-right:0px;
+}
+
+.navbar-brand {
+  line-height: 12px;
+  padding: 20px 15px 10px;
+
+  .beta {
+    color: #FFFFFF;
+    font-size: 10px;
+    vertical-align: super;
+  }
+}
+
+.lt-ie9 .breadcrumb > li {
+  display: inline;
+}
+
+a, a:focus, a:hover, a:active, input, input:focus {
+  outline: 0;
+}
+
+a:focus {
+  text-decoration: none;
+}
+
+.nav li .navbar-text {
+  display: block;
+  margin: 0;
+  padding: 0 15px;
+  position: relative;
+  line-height: 45px;
+}
+.nav li .alert {
+  line-height: 30px;
+  margin: 8px 0 0;
+  display:inline-block;
+  padding: 0 15px;
+  &:hover a{
+    color: #444; //darken(@theme2, 15%);
+  }
+}
+
+.modal {
+  bottom: 0;
+  display: none;
+  left: 0;
+  overflow-x: auto;
+  overflow-y: auto;
+  position: fixed;
+  right: 0;
+  top: 15px;
+  z-index: 1040;
+
+  .scroll-modal {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+}
+
+/*
+.vscroll {
+  height:100%;
+  overflow-x:hidden;
+  overflow-y:auto;
+}*/
+.inline-row {
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 8px;
+  > div {
+    padding: 0;
+  }
+}
+
+.space {
+  margin: 10px;
+}
+
+.list-group {
+  margin-bottom: 0;
+}
+
+.list-group-item:first-child {
+  border-radius: 0px;
+}
+
+a.list-group-item.active, a.list-group-item.active:hover, a.list-group-item.active:focus {
+  color: #222222;
+}
+
+a.list-group-item:hover, a.list-group-item:focus {
+  color: @themeText;
+}
+
+a {
+  color: @themeText;
+  &:hover {
+    color: @darkText;
+  }
+  &:active {
+    color: @themeText;
+  }
+  /*&:focus{
+    color: @themeDarkLink;
+  }*/
+
+}
+
+.navbar-inverse {
+  border-width: 0px;
+  .navbar-nav > .active > a, .navbar-nav > .active {
+    & > a:focus, & > a:hover, & > a {
+      background-color: @theme;
+      color: #222;
+      font-weight: bold;
+    }
+  }
+  .navbar-brand {
+    color: @theme;
+  }
+}
+
+.caret-lg {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 2px;
+  vertical-align: middle;
+  border-top: 8px solid #000000;
+  border-right: 8px solid transparent;
+  border-left: 8px solid transparent;
+  // Firefox fix for https://github.com/twbs/bootstrap/issues/9538. Once fixed,
+  // we can just straight up remove this.
+  border-bottom: 0 dotted;
+}
+
+.dropleft .caret {
+  border: 4px solid Transparent;
+  border-right: 4px solid #000000;
+  border-left-style: dotted;
+  content: "";
+
+  &.caret-white {
+    border: 4px solid Transparent;
+    border-right: 4px solid #fff;
+    border-left-style: dotted;
+  }
+}
+
+.dropup .caret-lg {
+  border-bottom: 8px solid #000000;
+  border-top: 0 dotted;
+}
+
+.caret.caret-white, .caret-lg.caret-white {
+  border-top-color: #fff;
+  border-bottom-color: #fff;
+}
+
+.modal-dialog{
+  margin: 100px auto;
+  width:900px;
+}
+
+// Bootstrap navbar-fixed-top fix
+// http://getbootstrap.com/components/#navbar-fixed-top
+body {
+  padding-top: 50px;
+}
+
+// Bootstrap 3 fix for issue:
+// http://stackoverflow.com/questions/18392477/how-to-make-bootstrap-3-fluid-layout-without-horizontal-scrollbar
+.container-fluid {
+  padding: 0 15px;
+}
+
+@tooltip-max-width: 500px;
+
+.popover{
+  font-size:12px;
+  color:#fff;
+  padding-right:10px;
+  max-width:450px;
+  overflow:hidden;
+
+  dt{
+    margin-top:4px;
+  }
+  em{
+    display:block;
+    margin-top:4px;
+  }
+  .close{
+    color: #FFFFFF;
+    padding: 0 4px;
+    margin-right:-8px;
+  }
+  a{
+    color:@themeDarkLink;
+  }
+}
+
+dl {
+  margin-bottom: 0;
+}
+
+.placeholder{
+  color:#999;
+  font-style: italic;
+}
