@@ -8,16 +8,15 @@ OGC Preview depends on Grunt as the test runner and build system. The following 
 
 ### Initialize:
 
-npm install
-
-bower install
+  npm install
+  bower install
 
 ### Development Server:
 
-grunt server
+  grunt server
 
 ### Build artifacts:
 
-grunt build
+  grunt build
 
 ## Developed by Applied Information Sciences
