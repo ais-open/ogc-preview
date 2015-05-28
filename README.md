@@ -6,17 +6,17 @@ Discover, browse and export data from OGC service layers exposed by way of WMS/W
 ## Usage
 OGC Preview depends on Grunt as the test runner and build system. The following commands assume npm, bower and grunt-cli installed globally.
 
-### Initialize:
+#### Initialize:
 
-  npm install
-  bower install
+    $ npm install
+    $ bower install
 
-### Development Server:
+#### Development Server:
 
-  grunt server
+    $ grunt server
 
-### Build artifacts:
+#### Build artifacts:
 
-  grunt build
+    $ grunt build
 
 ## Developed by Applied Information Sciences
