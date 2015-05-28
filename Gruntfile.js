@@ -258,7 +258,8 @@ module.exports = function (grunt) {
                             '.htaccess',
                             'images/{,*/}*',
                             'styles/fonts/*',
-                            'modules/*.json'
+                          'modules/*.json',
+                          'config/*'
                             //'WEB-INF/**'
                         ]
                     },
