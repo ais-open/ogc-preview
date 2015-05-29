@@ -1,7 +1,7 @@
 artifacts/
 bower_components/
 coverage/
-dist/
+dist*/
 node_modules/
 .idea/
 .tmp/
