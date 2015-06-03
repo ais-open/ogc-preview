@@ -1,10 +1,13 @@
-'use strict';
+/**
+ * Created by Jonathan.Meyer on 5/29/2014.
+ */
 
 angular.module('opApp').controller('opLayerController',
     function ($scope, $location, $timeout, $window, moment, toaster, L, opConfig, opLayerService, opWebMapService,
               opWebFeatureService, opStateService, opFilterService, opExportService, opPopupWindow) {
+        'use strict';
 
-        var LayerGroups = (function () {
+        var LayerGroups = function () {
             var self = {};
             var _groups = [];
 
@@ -49,9 +52,9 @@ angular.module('opApp').controller('opLayerController',
             };
 
             return self;
-        });
+        };
 
-        var LayerGroup = (function (tag) {
+        var LayerGroup = function (tag) {
             var self = {};
             var _tag = tag;
             var _layers = [];
@@ -113,7 +116,7 @@ angular.module('opApp').controller('opLayerController',
             };
 
             return self;
-        });
+        };
 
         $scope.DEBUG = opStateService.isDebug();
 
@@ -193,7 +196,7 @@ angular.module('opApp').controller('opLayerController',
                     recognized.push(layers[i]);
                 }
                 else {
-                    unrecognized.push(layers[i])
+                    unrecognized.push(layers[i]);
                 }
             }
 
@@ -212,7 +215,7 @@ angular.module('opApp').controller('opLayerController',
                 layerGroups.addLayer(unrecognized[i], 'UNCATEGORIZED');
             }
 
-            return layerGroups
+            return layerGroups;
         };
 
         var applyLayerFilters = function (layer, startTime, stopTime) {
@@ -222,8 +225,8 @@ angular.module('opApp').controller('opLayerController',
             if (!angular.isDefined(layer.params) ||
                 layer.params === null ||
                 (layer.params !== params &&
-                    (!angular.isDefined(params.time) || params.time !== layer.params.time) &&
-                    (!angular.isDefined(params.cql_filter) || params.cql_filter !== layer.params.cql_filter))) {
+                (!angular.isDefined(params.time) || params.time !== layer.params.time) &&
+                (!angular.isDefined(params.cql_filter) || params.cql_filter !== layer.params.cql_filter))) {// jshint ignore:line
                 layer.params = params;
                 layer.mapHandle.setParams(params);
             }
@@ -318,19 +321,19 @@ angular.module('opApp').controller('opLayerController',
             var layer = getLayerByUid($scope.layers, layerUid);
 
             if (layer.active && layer.mapHandle !== null && layer.mapHandle !== undefined){
-                console.log("disabling already enabled layer: '" + layer.name + "'");
+                console.log('disabling already enabled layer: \'' + layer.name + '\'');
                 removeLayer(layer);
 
                 // Disabling complete.  Get out of here
                 return;
             }
 
-            console.log("enabling layer: '" + layer.name + "'");
-            //toaster.pop('wait', 'Date/Time', "Identifying time metadata for " + layer.title);
+            console.log('enabling layer: \'' + layer.name + '\'');
+            //toaster.pop('wait', 'Date/Time', 'Identifying time metadata for ' + layer.title);
 
             // lets try adding layer to map
             // Oh, BTW zIndex is critical, as without overlays appear under baselayers when basselayers are switched
-            if (zIndex >= maxZIndex) { zIndex = 50 }
+            if (zIndex >= maxZIndex) { zIndex = 50; }
             var wmsLayer = L.tileLayer.wms(opConfig.server.url + '/wms',
                 opWebMapService.getLeafletWmsParams(layer.name, layer.workspace, { tileSize: 512, zIndex: zIndex }));
             zIndex += 1;
@@ -345,14 +348,13 @@ angular.module('opApp').controller('opLayerController',
 
                     // Verify time was set for this layer.. result will be undefined if not
                     if (result.time) {
-                        var time =
-                            console.log("Time fields identified. " +
-                                "Start: '" + result.time.start.field + "', " +
-                                "Stop: '" + result.time.stop.field + "'");
+                        console.log('Time fields identified. ' +
+                            'Start: \'' + result.time.start.field + '\', ' +
+                            'Stop: \'' + result.time.stop.field + '\'');
                         if (result.time.start.value && result.time.stop.value) {
-                            console.log("Time values identified. " +
-                                "Start: '" + result.time.start.value + "', " +
-                                "Stop: '" + result.time.stop.value + "'");
+                            console.log('Time values identified. ' +
+                                'Start: \'' + result.time.start.value + '\', ' +
+                                'Stop: \'' + result.time.stop.value + '\'');
                         }
                         else {
                             console.log('Time values were not identified as layer is not configured for WMS time');
@@ -360,8 +362,8 @@ angular.module('opApp').controller('opLayerController',
                     }
                 },
                 function (reason) {
-                    console.log("Couldn't identify time values for this layer... how embarrassing: " + reason);
-                    toaster.pop('note', 'Date/Time', 'Unable to detect time fields for layer "' + layer.title + '".  Date/Time filtering will not be applied to this layer.');
+                    console.log('Couldn\'t identify time values for this layer... how embarrassing: ' + reason);
+                    toaster.pop('note', 'Date/Time', 'Unable to detect time fields for layer \'' + layer.title + '\'.  Date/Time filtering will not be applied to this layer.');
                 }
             )
                 /* Regardless of time enablement, add layer to the map.  We are chaining behind time checking to ensure
@@ -385,37 +387,41 @@ angular.module('opApp').controller('opLayerController',
                 });
         };
 
+        var layerLoadCompleteHandler = function(layer){
+            if(layer.timeout){
+                $timeout.cancel(layer.timeout);
+            }
+            layer.timeout = $timeout(function(){
+                layer.loading = false;
+                console.log('Tiles loaded for layer ' + layer.name);
+            }, 0, true);
+        };
+
         var updateLayerLoadComplete = function(e) {
             for (var i=0; i < $scope.layers.length; i++) {
                 var layer = $scope.layers[i];
                 if (layer.mapHandle === e.target) {
-                    (function(layer){
-                        if(layer.timeout){
-                            $timeout.cancel(layer.timeout)
-                        }
-                        layer.timeout = $timeout(function(){
-                            layer.loading = false;
-                            console.log('Tiles loaded for layer ' + layer.name);
-                        }, 0, true);
-                    })(layer);
+                    layerLoadCompleteHandler(layer);
                     break;
                 }
             }
+        };
+
+        var layerLoadStartHandler = function(layer){
+            if(layer.timeout){
+                $timeout.cancel(layer.timeout);
+            }
+            layer.timeout = $timeout(function(){
+                layer.loading = true;
+                console.log('Loading tiles for layer ' + layer.name);
+            }, 0, true);
         };
 
         var updateLayerLoadStart = function(e) {
             for (var i=0; i < $scope.layers.length; i++) {
                 var layer = $scope.layers[i];
                 if (layer.mapHandle === e.target) {
-                    (function(layer){
-                        if(layer.timeout){
-                            $timeout.cancel(layer.timeout)
-                        }
-                        layer.timeout = $timeout(function(){
-                            layer.loading = true;
-                            console.log('Loading tiles for layer ' + layer.name);
-                        }, 0, true);
-                    })(layer);
+                    layerLoadStartHandler(layer);
                     break;
                 }
             }
@@ -436,7 +442,7 @@ angular.module('opApp').controller('opLayerController',
 
                 opPopupWindow.broadcast( opStateService.getResultsWindow(), 'updateFilters',
                     _.filter($scope.layers, function (l){
-                        return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name)
+                        return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name);
                     }));
             }
         };
@@ -457,7 +463,7 @@ angular.module('opApp').controller('opLayerController',
 
             opPopupWindow.broadcast( opStateService.getResultsWindow(), 'updateFilters',
                 _.filter($scope.layers, function (l){
-                    return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name)
+                    return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name);
                 }));
         };
 
@@ -488,7 +494,7 @@ angular.module('opApp').controller('opLayerController',
                 for (var j = 0; j < $scope.layers.length; j++) {
                     var layer = $scope.layers[j];
 
-                    if (layer.name === dataset.name && layer.workspace == dataset.workspace) {
+                    if (layer.name === dataset.name && layer.workspace === dataset.workspace) {
                         // Yay, we found our layer in configured datasource... we can break out now.
                         layer.active = true;
                         $scope.datasetStateChanged(layer.uid);
@@ -498,7 +504,7 @@ angular.module('opApp').controller('opLayerController',
                 }
 
                 if (!found) {
-                    toaster.pop('error', 'Configuration Error', "Unable able to find '" + dataset + "' in selected data source.");
+                    toaster.pop('error', 'Configuration Error', 'Unable able to find \'' + dataset + '\' in selected data source.');
                 }
             }
 
@@ -556,7 +562,7 @@ angular.module('opApp').controller('opLayerController',
                 opStateService.setResultsWindow(win);
                 opPopupWindow.broadcast( opStateService.getResultsWindow(), 'updateFilters',
                     _.filter($scope.layers, function (l){
-                        return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name)
+                        return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name);
                     }));
             }
         });
@@ -564,7 +570,7 @@ angular.module('opApp').controller('opLayerController',
             opStateService.setResultsWindow(win);
             opPopupWindow.broadcast( opStateService.getResultsWindow(), 'updateFilters',
                 _.filter($scope.layers, function (l){
-                    return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name)
+                    return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name);
                 }));
         });
     });

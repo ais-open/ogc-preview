@@ -2,7 +2,6 @@
  * Created by meyerjd on 8/5/2014.
  */
 
-
 L.Control.LegendToggle = L.Control.extend({
     options: {
         position: 'topright'
@@ -14,6 +13,8 @@ L.Control.LegendToggle = L.Control.extend({
 
 
     _toggleClass: function(el, name) {
+        'use strict';
+
         if (L.DomUtil.hasClass(el, name)) {
             L.DomUtil.removeClass(el, name);
         } else {
@@ -22,6 +23,8 @@ L.Control.LegendToggle = L.Control.extend({
     },
 
     _toggleLegend: function (e) {
+        'use strict';
+
         L.DomEvent.stopPropagation(e);
         L.DomEvent.preventDefault(e);
 
@@ -32,6 +35,8 @@ L.Control.LegendToggle = L.Control.extend({
     },
 
     updateLegend: function(layers) {
+        'use strict';
+
         var self = this;
         if (layers) {
             this._currentLegends = layers;
@@ -74,6 +79,8 @@ L.Control.LegendToggle = L.Control.extend({
     },
 
     onAdd: function (map) {
+        'use strict';
+
         this._map = map;
         var controlDiv = L.DomUtil.create('div', 'leaflet-control-legend-toggle leaflet-control-legend-toggle-active');
         controlDiv.setAttribute('title','Toggle Layer Legend');
@@ -85,5 +92,7 @@ L.Control.LegendToggle = L.Control.extend({
 });
 
 L.control.layerLegend = function (options) {
+    'use strict';
+
     return new L.Control.LegendToggle(options);
 };

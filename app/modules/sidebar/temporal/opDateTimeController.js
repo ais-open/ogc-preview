@@ -4,6 +4,8 @@
 
 angular.module('opApp').controller('opDateTimeController',
     function ($scope, $timeout, toaster, opConfig, opStateService) {
+        'use strict';
+
         var dateRangeCreated = false;
         $scope.initializing = false;
 
@@ -99,7 +101,7 @@ angular.module('opApp').controller('opDateTimeController',
         };
 
         var isInt = function (value) {
-            return !isNaN(value) && parseInt(Number(value)) == value;
+            return !isNaN(value) && parseInt(Number(value)) === value;
         };
 
         $scope.setDuration = function () {
@@ -126,7 +128,7 @@ angular.module('opApp').controller('opDateTimeController',
                         break;
                 }
                 if (max) {
-                    $scope.validationError = "Please reduce duration value to be less than or equal to " + max + ".";
+                    $scope.validationError = 'Please reduce duration value to be less than or equal to ' + max + '.';
                     $scope.valid.duration = false;
                     console.log($scope.validationError);
                     return;
@@ -139,7 +141,7 @@ angular.module('opApp').controller('opDateTimeController',
                 }
             }
             else {
-                $scope.validationError = "Please enter whole number value for duration";
+                $scope.validationError = 'Please enter whole number value for duration';
                 $scope.valid.duration = false;
 
                 console.log($scope.validationError);
@@ -179,7 +181,7 @@ angular.module('opApp').controller('opDateTimeController',
             }
         };
 
-        $scope.updateStart = function (e) {
+        $scope.updateStart = function () {
             if($scope.rangeTimeout){
                 $timeout.cancel($scope.rangeTimeout);
             }
@@ -194,7 +196,7 @@ angular.module('opApp').controller('opDateTimeController',
                         enforceDateRangeLimits($scope.dateRange, oldRange, opConfig.maxDaysBack);
 
                         if (!$scope.initializing) {
-                            opStateService.setTimeRange($scope.dateRange[0], $scope.dateRange[1])
+                            opStateService.setTimeRange($scope.dateRange[0], $scope.dateRange[1]);
                         }
                     }
                     else {
@@ -208,11 +210,12 @@ angular.module('opApp').controller('opDateTimeController',
             var compareFormat =  'MM/DD/YYYYHH:mm:ss';
 
             if (Math.abs(newDateRange[0].diff(newDateRange[1], 'days', true)) > maxDaysBack) {
+                var message;
                 if (angular.isDefined(previousDateRange)) {
                     if (previousDateRange[0].format(compareFormat) !== newDateRange[0].format(compareFormat) &&
                         previousDateRange[1].format(compareFormat) === newDateRange[1].format(compareFormat)) {
                         newDateRange[1] = moment(newDateRange[0]).add('days', maxDaysBack);
-                        var message = 'Start date is more than ' + maxDaysBack + ' days before ' +
+                        message = 'Start date is more than ' + maxDaysBack + ' days before ' +
                             'End Date.  End Date has been adjusted to not exceed this period.';
                         console.log(message);
                         toaster.pop('note', message);
@@ -220,21 +223,18 @@ angular.module('opApp').controller('opDateTimeController',
                     else if (previousDateRange[0].format(compareFormat) === newDateRange[0].format(compareFormat) &&
                         previousDateRange[1].format(compareFormat) !== newDateRange[1].format(compareFormat)) {
                         newDateRange[0] = moment(newDateRange[1]).subtract('days', maxDaysBack);
-                        var message = 'End date is more than ' + opConfig.maxDaysBack + ' days after ' +
+                        message = 'End date is more than ' + opConfig.maxDaysBack + ' days after ' +
                             'Start Date.  Start Date has been adjusted to not exceed this period.';
                         console.log(message);
                         toaster.pop('note', message);
                     }
-                }
-                else {
-
                 }
             }
         };
 
 
 
-        $scope.updateEnd = function (e) {
+        $scope.updateEnd = function () {
             if($scope.rangeTimeout){
                 $timeout.cancel($scope.rangeTimeout);
             }
@@ -249,7 +249,7 @@ angular.module('opApp').controller('opDateTimeController',
                             enforceDateRangeLimits($scope.dateRange, oldRange, opConfig.maxDaysBack);
 
                             if (!$scope.initializing) {
-                                opStateService.setTimeRange($scope.dateRange[0], $scope.dateRange[1])
+                                opStateService.setTimeRange($scope.dateRange[0], $scope.dateRange[1]);
                             }
                         }
                         else {

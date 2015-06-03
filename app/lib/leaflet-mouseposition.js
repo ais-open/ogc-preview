@@ -1,3 +1,8 @@
+/**
+ * Created by David Benson
+ */
+
+
 L.Control.MousePosition = L.Control.extend({
   options: {
     position: 'bottomleft',
@@ -7,10 +12,11 @@ L.Control.MousePosition = L.Control.extend({
     numDigits: 5,
     lngFormatter: undefined,
     latFormatter: undefined,
-    prefix: ""
+    prefix: ''
   },
 
   onAdd: function (map) {
+    'use strict';
     this._container = L.DomUtil.create('div', 'leaflet-control-mouseposition');
     L.DomEvent.disableClickPropagation(this._container);
     map.on('mousemove', this._onMouseMove, this);
@@ -19,10 +25,12 @@ L.Control.MousePosition = L.Control.extend({
   },
 
   onRemove: function (map) {
-    map.off('mousemove', this._onMouseMove)
+    'use strict';
+    map.off('mousemove', this._onMouseMove);
   },
 
   _onMouseMove: function (e) {
+    'use strict';
     var value;
     if (this.options.valFormatter){
       value = this.options.valFormatter(e.latlng);
@@ -38,16 +46,18 @@ L.Control.MousePosition = L.Control.extend({
 });
 
 L.Map.mergeOptions({
-    positionControl: false
+  positionControl: false
 });
 
 L.Map.addInitHook(function () {
-    if (this.options.positionControl) {
-        this.positionControl = new L.Control.MousePosition();
-        this.addControl(this.positionControl);
-    }
+  'use strict';
+  if (this.options.positionControl) {
+    this.positionControl = new L.Control.MousePosition();
+    this.addControl(this.positionControl);
+  }
 });
 
 L.control.mousePosition = function (options) {
-    return new L.Control.MousePosition(options);
+  'use strict';
+  return new L.Control.MousePosition(options);
 };

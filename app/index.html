@@ -10,42 +10,10 @@
 
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 
-  <!-- build:css(.tmp) styles/lib.css -->
   <link rel="stylesheet" href="styles/lib.css">
-  <!-- endbuild -->
-  <!-- build:css(.tmp) styles/app.css -->
   <link rel="stylesheet" href="styles/app.css">
-  <!-- endbuild -->
 
-</head>
-
-
-<!--[if IE 9]>
-<body class="lt-ie10"> <![endif]-->
-<!--[if gt IE 10]><!-->
-<body> <!--<![endif]-->
-<div ng-app="opApp">
-
-  <!--[if lt IE 9]>
-  <br />
-  <p style="text-align:center;">We're sorry, the browser you are using is not supported. Please use IE 9+, Firefox 10+, or Chrome.</p>
-  <![endif]-->
-  <!--[if gt IE 8]><!-->
-
-  <script type="text/javascript">
-    L_PREFER_CANVAS = true;
-    //L_DISABLE_3D = true;
-
-    // IE shim for console
-    console_function = function (){};
-    window.console = window.console || {log: console_function, debug: console_function};
-  </script>
-
-  <!-- Add your site or application content here -->
-  <op-header></op-header>
-  <ng-view></ng-view>
-
-  <!-- build:js({.tmp,app}) scripts/vendor.js -->
+  <!-- inject:js -->
   <script src="bower_components/jquery/jquery.js"></script>
   <script src="bower_components/angular/angular.js"></script>
   <script src="bower_components/sass-bootstrap/dist/js/bootstrap.js"></script>
@@ -58,20 +26,16 @@
   <script src="bower_components/momentjs/moment.js"></script>
   <script src="bower_components/lodash/dist/lodash.compat.js"></script>
   <script src="bower_components/restangular/dist/restangular.js"></script>
-    <script src="bower_components/angular-local-storage/dist/angular-local-storage.js"></script>
+  <script src="bower_components/angular-local-storage/dist/angular-local-storage.js"></script>
   <script src="bower_components/leaflet-dist/leaflet.js"></script>
   <script src="bower_components/AngularJS-Toaster/toaster.js"></script>
-  <!-- endbuild -->
 
-  <!-- build:js({.tmp,app}) scripts/lib.js -->
   <script src="lib/jquery.dataTables.js"></script>
   <script src="lib/leaflet-mouseposition.js"></script>
   <script src="lib/leaflet-legend.js"></script>
   <script src="lib/leaflet.draw-src.js"></script>
   <script src="lib/daterangepicker-AISFIX.js"></script>
-  <!-- endbuild -->
 
-  <!-- build:js({.tmp,app}) scripts/scripts.js -->
   <script src="modules/app.js"></script>
   <script src="modules/header/opAnnouncementsDirective.js"></script>
   <script src="modules/filters/opPlaintTextToHtml.js"></script>
@@ -96,11 +60,36 @@
   <script src="modules/ui/opPopupWindow.js"></script>
   <script src="modules/ui/opPopup.js"></script>
   <script src="modules/opStateService.js"></script>
-  <!-- endbuild -->
-
+  <!-- endinject -->
 
   <script src="config/opConfig.js"></script>
-    <!-- <![endif]-->
+</head>
+
+<body>
+<!--[if IE 9]>
+<script type='text/javascript'>var bod = document.getElementById("body");bod.className=bod.className+" lt-ie10";</script>
+<![endif]-->
+<div ng-app="opApp">
+
+  <!--[if lt IE 9]>
+  <br />
+  <p style="text-align:center;">We're sorry, the browser you are using is not supported. Please use IE 9+, Firefox 10+, or Chrome.</p>
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+
+  <script type="text/javascript">
+    L_PREFER_CANVAS = true;
+    //L_DISABLE_3D = true;
+
+    // IE shim for console
+    console_function = function (){};
+    window.console = window.console || {log: console_function, debug: console_function};
+  </script>
+
+  <!-- Add your site or application content here -->
+  <op-header></op-header>
+  <ng-view></ng-view>
+
 </div>
 </body>
 </html>

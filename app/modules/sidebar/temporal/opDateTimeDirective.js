@@ -8,5 +8,5 @@ angular.module('opApp').directive('opDateTime', function () {
         scope: {},
         templateUrl: 'modules/sidebar/temporal/opDateRange.html',
         restrict: 'E'
-    }
+    };
 });

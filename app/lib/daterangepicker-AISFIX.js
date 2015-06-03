@@ -1,3 +1,4 @@
+/* jshint ignore:start */
 /**
  * @version: 1.2
  * @author: Dan Grossman http://www.dangrossman.info/
@@ -902,3 +903,4 @@
     };
 
 }(window.jQuery);
+/* jshint ignore:end */

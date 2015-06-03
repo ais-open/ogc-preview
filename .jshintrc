@@ -76,5 +76,5 @@
     "yui"           : false,    // Yahoo User Interface
 
     // Custom Globals
-    "globals"       : {"$":true, "angular":true, "_":true,"moment":true, "escape":true}        // additional predefined global variables
+    "globals"       : {"$":true, "angular":true, "_":true,"moment":true, "escape":true, "L":true}        // additional predefined global variables
 }

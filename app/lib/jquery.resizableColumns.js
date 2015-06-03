@@ -1,3 +1,4 @@
+/* jshint ignore:start */
 /* jQuery Resizable Columns v0.1.0 | http://dobtco.github.io/jquery-resizable-columns/ | Licensed MIT | Built Wed Apr 30 2014 14:24:25 */
 var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __slice = [].slice;
@@ -228,3 +229,4 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
     }
   });
 })(window.jQuery, window);
+/* jshint ignore:end */

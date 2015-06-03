@@ -1,3 +1,4 @@
+/* jshint ignore:start */
 /*! http://mths.be/placeholder v2.0.8 by @mathias */
 ;(function(window, document, $) {
 
@@ -183,3 +184,4 @@
 	}
 
 }(this, document, jQuery));
+/* jshint ignore:end */
