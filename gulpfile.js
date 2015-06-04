@@ -294,3 +294,6 @@ gulp.task('watch-prod', ['clean-build-app-prod'], function () {
 
 // default task builds for prod
 gulp.task('default', ['prod-artifacts']);
+
+// placeholder for unit test integration
+gulp.task('test', function() {});
