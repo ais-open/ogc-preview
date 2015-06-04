@@ -11,6 +11,7 @@ var app = angular.module('opApp', [
     'LocalStorageModule'
 ]);
 
+
 app.config(function ($routeProvider) {
     'use strict';
 

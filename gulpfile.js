@@ -4,8 +4,12 @@ var proxyMiddleware = require('http-proxy-middleware');
 var plugins = require('gulp-load-plugins')();
 var del = require('del');
 var es = require('event-stream');
+var series = require('stream-series');
 var bowerFiles = require('main-bower-files');
 var print = require('gulp-print');
+var zip = require('gulp-zip');
+var tar = require('gulp-tar');
+var gzip = require('gulp-gzip');
 var Q = require('q');
 
 var paths = {
@@ -23,6 +27,8 @@ var paths = {
 };
 
 var pipes = {};
+
+
 
 pipes.orderedVendorScripts = function () {
     return plugins.order(['**/jquery.js', '**/angular.js']);
@@ -44,12 +50,25 @@ pipes.validatedAppScripts = function () {
         .pipe(plugins.jshint.reporter('jshint-stylish'));
 };
 
-pipes.builtAppScriptsProd = function () {
-    var scriptedPartials = pipes.scriptedPartials();
-    var validatedAppScripts = pipes.validatedAppScripts();
+pipes.copyPartialsProd = function() {
+    return pipes.validatedPartials()
+        .pipe(gulp.dest(paths.distProd))
+};
 
-    return es.merge(scriptedPartials, validatedAppScripts)
-        .pipe(pipes.orderedAppScripts())
+pipes.builtPartialsScriptProd = function() {
+    return pipes.scriptedPartials()
+        .pipe(plugins.concat('partials.min.js'))
+        .pipe(gulp.dest(paths.distProdScripts))
+};
+
+pipes.copyAppScriptsProd = function() {
+    return pipes.validatedAppScripts()
+        .pipe(gulp.dest(paths.distProd))
+};
+
+pipes.builtAppScriptsProd = function () {
+    return pipes.validatedAppScripts()
+        .pipe(plugins.ngAnnotate())
         .pipe(plugins.sourcemaps.init())
         .pipe(plugins.concat('app.min.js'))
         .pipe(plugins.uglify({mangle:false}))
@@ -120,10 +139,15 @@ pipes.builtIndexProd = function () {
     pipes.builtImages(paths.distProd);
     pipes.builtConfig(paths.distProd + '/config');
 
+    //var partialScript = pipes.builtPartialsScriptProd();
+    pipes.copyPartialsProd();
     var vendorScripts = pipes.builtVendorScriptsProd();
-    var appScripts = pipes.builtAppScriptsProd();
+    //var appScripts = pipes.builtAppScriptsProd();
+    pipes.copyAppScriptsProd();
     var appStyles = pipes.builtStylesProd();
-    var scripts = es.merge(vendorScripts, appScripts);
+    //var scripts = series(vendorScripts, appScripts, partialScript);
+    //var scripts = series(vendorScripts, appScripts);
+    var scripts = vendorScripts;
 
     return pipes.validatedIndex()
         .pipe(gulp.dest(paths.distProd)) // write first to get relative path for inject
@@ -141,10 +165,20 @@ pipes.builtAppProd = function () {
     return pipes.builtIndexProd();
 };
 
+pipes.buildArtifacts = function () {
+  var war = gulp.src(paths.distProd + '/**/*')
+      .pipe(zip('ogcpreview.war'))
+      .pipe(gulp.dest('./artifacts'));
+
+    var tar = gulp.src(paths.distProd + '/**/*')
+        .pipe(zip('ogcpreview.tar'))
+        .pipe(gzip())
+        .pipe(gulp.dest('./artifacts'));
+
+    return es.merge(war, tar);
+};
 
 // == TASKS ========
-
-gulp.task('list-paths', pipes.listPaths);
 
 // removes all compiled dev files
 gulp.task('clean-dev', function () {
@@ -200,6 +234,8 @@ gulp.task('build-app-prod', pipes.builtAppProd);
 // cleans and builds a complete prod environment
 gulp.task('clean-build-app-prod', ['clean-prod'], pipes.builtAppProd);
 
+gulp.task('prod-artifacts', ['clean-build-app-prod'], pipes.buildArtifacts);
+
 // clean, build, and watch live changes to the dev environment
 gulp.task('watch-dev', ['build-styles-dev', 'validate-app-scripts'], function () {
     var proxy = proxyMiddleware('/geoserver', {target: 'http://demo.boundlessgeo.com'});
@@ -244,7 +280,7 @@ gulp.task('watch-prod', ['clean-build-app-prod'], function () {
 
     // watch hhtml partials
     gulp.watch(paths.partials, function () {
-        return pipes.builtAppScriptsProd()
+        return pipes.builtPartialsScriptProd()
             .pipe(browserSync.reload);
     });
 
@@ -257,4 +293,4 @@ gulp.task('watch-prod', ['clean-build-app-prod'], function () {
 });
 
 // default task builds for prod
-gulp.task('default', ['clean-build-app-prod']);
+gulp.task('default', ['prod-artifacts']);
