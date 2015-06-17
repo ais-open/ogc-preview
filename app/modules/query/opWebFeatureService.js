@@ -4,8 +4,7 @@
  7/8/2014
  ---------------------------------*/
 
-angular
-    .module('opApp')
+angular.module('opApp.query')
     .service('opWebFeatureService',
     function ($q, $http, opConfig) {
         'use strict';

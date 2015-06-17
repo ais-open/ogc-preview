@@ -4,8 +4,7 @@
  7/8/2014
  ---------------------------------*/
 
-angular
-    .module('opApp')
+angular.module('opApp.query')
     .service('opLayerService',
     function ($q, $http, localStorageService, opConfig, opWebMapService, opWebFeatureService, opFilterService) {
         'use strict';

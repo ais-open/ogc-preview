@@ -4,7 +4,7 @@
  7/8/2014
  ---------------------------------*/
 
-angular.module('opApp').controller('opHomeController',
+angular.module('opApp.home').controller('opHomeController',
   function ($scope, $rootScope, opStateService, opPopupWindow, $window) {
     'use strict';
 

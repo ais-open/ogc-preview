@@ -2,7 +2,7 @@
  * Created by Jonathan.Meyer on 5/29/2014.
  */
 
-angular.module('opApp').controller('opLayerController',
+angular.module('opApp.sidebar.layer').controller('opLayerController',
     function ($scope, $location, $timeout, $window, moment, toaster, L, opConfig, opLayerService, opWebMapService,
               opWebFeatureService, opStateService, opFilterService, opExportService, opPopupWindow) {
         'use strict';

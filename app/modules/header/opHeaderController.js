@@ -4,7 +4,7 @@
  7/8/2014
  ---------------------------------*/
 
-angular.module('opApp').controller('opHeaderController',
+angular.module('opApp.header').controller('opHeaderController',
     function ($scope, $rootScope, $location, $modal, $timeout, opConfig, opPopupWindow, opStateService) {
         'use strict';
 

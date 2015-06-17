@@ -1,5 +1,6 @@
 
-angular.module('opApp').service('opConfig', function(L, moment) {
+angular.module('opApp')
+  .service('opConfig', function(L, moment) {
     'use strict';
 
     return {

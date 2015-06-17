@@ -8,7 +8,7 @@
  * Adds announcements based on the announcements.json script
  */
 
-angular.module('opApp')
+angular.module('opApp.header')
     .directive('opAnnouncements', function ($modal, $templateCache, $rootScope, opAnnouncementsService) {
         'use strict';
         return {

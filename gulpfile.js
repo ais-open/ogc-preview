@@ -142,12 +142,12 @@ pipes.builtIndexProd = function () {
     //var partialScript = pipes.builtPartialsScriptProd();
     pipes.copyPartialsProd();
     var vendorScripts = pipes.builtVendorScriptsProd();
-    //var appScripts = pipes.builtAppScriptsProd();
+    var appScripts = pipes.builtAppScriptsProd();
     pipes.copyAppScriptsProd();
     var appStyles = pipes.builtStylesProd();
     //var scripts = series(vendorScripts, appScripts, partialScript);
-    //var scripts = series(vendorScripts, appScripts);
-    var scripts = vendorScripts;
+    var scripts = series(vendorScripts, appScripts);
+    //var scripts = vendorScripts;
 
     return pipes.validatedIndex()
         .pipe(gulp.dest(paths.distProd)) // write first to get relative path for inject

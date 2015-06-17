@@ -2,7 +2,7 @@
  * Created by Jonathan.Meyer on 6/29/2014.
  */
 
-angular.module('opApp').controller('opDateTimeController',
+angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
     function ($scope, $timeout, toaster, opConfig, opStateService) {
         'use strict';
 

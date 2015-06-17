@@ -4,7 +4,7 @@
  7/8/2014
  ---------------------------------*/
 
-angular.module('opApp').controller('opMapController',
+angular.module('opApp.map').controller('opMapController',
     function ($scope, $rootScope, $timeout, L, opConfig, opStateService, opWebMapService, opPopupWindow) {
         'use strict';
 
