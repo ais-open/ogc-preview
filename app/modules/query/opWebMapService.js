@@ -6,7 +6,7 @@
 
 angular.module('opApp.query')
     .service('opWebMapService',
-    function ($q, $http, opConfig) {
+    function ($q, $http, opConfig, opStateService) {
         'use strict';
 
         this.WMS_VERSION = opConfig.server.wmsVersion;
@@ -17,13 +17,16 @@ angular.module('opApp.query')
          *
          * @returns {*}
          */
-        this.getCapabilities = function () {
-            var deferred = $q.defer();
-            var version = this.WMS_VERSION;
+        this.getCapabilities = function (index) {
 
-            console.log('Requesting capabilities from server...');
+            var deferred = $q.defer();
+            //var version = this.WMS_VERSION;
+            var version = opStateService.getActiveServer()[index].wmsVersion;
+
+            console.log('Requesting capabilities from server ' + opStateService.getActiveServer()[index].name);
             var params = { version: version, request: 'GetCapabilities' };
-            var url = this.AJAX_URL;
+            //var url = this.AJAX_URL;
+            var url = opStateService.getActiveServer()[index].ajaxUrl + '/wms';
             $http.get(url, { params: params }).then(function (result) {
                 console.log('Successfully retrieved GetCapabilities result.');
                 deferred.resolve(result);

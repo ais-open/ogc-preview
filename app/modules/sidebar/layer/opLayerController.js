@@ -187,7 +187,7 @@ angular.module('opApp.sidebar.layer').controller('opLayerController',
         var groupLayers = function (layers, tags) {
             var unrecognized = [];
             var recognized = [];
-            var layerGroups = new LayerGroups();
+            //var layerGroups = new LayerGroups();
 
             // First, bucket all layers in to whether the have recognized tags or not
             for (var i=0; i < layers.length; i++) {
@@ -205,17 +205,17 @@ angular.module('opApp.sidebar.layer').controller('opLayerController',
                 for (var j=0; j < recognized.length; j++) {
                     if (checkTagMatch(recognized[j].tags, tags[i]))
                     {
-                        layerGroups.addLayer(recognized[j], tags[i]);
+                        $scope.layerGroups.addLayer(recognized[j], tags[i]);
                     }
                 }
             }
 
             // Add final uncategorized group for the rejects
             for (i=0; i < unrecognized.length; i++) {
-                layerGroups.addLayer(unrecognized[i], 'UNCATEGORIZED');
+                $scope.layerGroups.addLayer(unrecognized[i], 'UNCATEGORIZED');
             }
 
-            return layerGroups;
+            //return layerGroups;
         };
 
         var applyLayerFilters = function (layer, startTime, stopTime) {
@@ -510,47 +510,63 @@ angular.module('opApp.sidebar.layer').controller('opLayerController',
 
         };
 
-        $scope.updateLayers = function(force) {
+        $scope.updateLayers = function(force, serverNum) {
             $scope.layersLoading = true;
             clearLayers();
-            opLayerService.getLayers(force).then(function (layers) {
+
+            opLayerService.getLayers(force, serverNum).then(function (layers) {
                 $scope.layersLoading = false;
                 //console.log('Layers: ' + JSON.stringify(layers));
                 // Give layers a uid so that we pass reference to it within the controller
-                for (var i=0; i < layers.length; i++) {
+                for (var i = 0; i < layers.length; i++) {
                     var layer = layers[i];
                     layer.uid = i;
                     layer.legendGraphic = opWebMapService.getLegendGraphicUrl(layer.workspace + ':' + layer.name);
                 }
-                var layerGroups = groupLayers(layers, opConfig.recognizedTags);
+                groupLayers(layers, opConfig.recognizedTags);
                 // Apply tags to $scope.tags for use in filtering
-                $scope.tags = layerGroups.getGroupTags();
-                $scope.layerGroups = layerGroups;
-                $scope.layers = layers;
+                //$scope.tags.push(layerGroups.getGroupTags());
+                //$scope.layerGroups.push(layerGroups);
+                //$scope.layers.push(layers);
+                $scope.tags.concat($scope.layerGroups.getGroupTags());
+                //$scope.layerGroups = layerGroups;
+                $scope.layers.concat(layers);
 
             }, function (reason) {
                 $scope.layersLoading = false;
                 toaster.pop('error', 'Configuration Error', 'Unable to retrieve layers... is your GeoServer running?\n' + reason);
             }).
-                then(function()
-                {
-                    updateLayerSelections();
-                });
+              then(function () {
+                  updateLayerSelections();
+              });
+
         };
 
         // THIS GUY BASICALLY BOOTSTRAPS ALL LAYERS INTO THE APP
-        this.initializeLayers = function () {
+        this.initializeLayers = function (serverNum) {
             opStateService.getLeafletMap()
                 .then(function (map) {
                     $scope.map = map;
-                    $scope.updateLayers(false);
+                    $scope.updateLayers(false, serverNum);
                 },
                 function (reason) {
                     toaster.pop('error', 'Leaflet Error', 'Unable to initialize map...\n' + reason);
                 }
             );
         };
-        this.initializeLayers();
+
+        this.resetLayerData = function() {
+            $scope.layerGroups = new LayerGroups();
+            $scope.tags = [];
+            //$scope.layerGroups = null;
+            $scope.layers = []
+        };
+
+        // start layer loading
+        this.resetLayerData();
+        for(var i = 0; i < opStateService.getActiveServer().length; i++) {
+            this.initializeLayers(i);
+        }
 
         $scope.friendlyLayer = function() {
             var activeLayers = opStateService.getDatasets();

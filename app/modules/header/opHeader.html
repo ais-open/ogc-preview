@@ -5,6 +5,9 @@
     <div class="application-logo"></div>
     <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav" style="margin-left:80px;">
+            <li class="server-list" ng-repeat="server in serverNames">
+                <a ng-click="setSelectedServer(server)" href="" ng-class="{active: selectedServer === server}">{{server}}</a>
+            </li>
             <li><a href="" ng-click="openResults();">View Attributes</a></li>
             <li><a href="" ng-class="{active: isDrawing}" ng-click="drawStart();" tooltip="Select Region" tooltip-placement="bottom"><i class="map-icon icon-square"></i></a></li>
             <li><a href="" ng-click="drawClear();"  tooltip="Clear Selection" tooltip-placement="bottom"><i class="map-icon icon-x"></i></a></li>

@@ -15,6 +15,8 @@ angular.module('opApp.header').controller('opHeaderController',
         $scope.docLink = opConfig.docLink;
         $scope.announcementCount = 0;
         $scope.announcementsEnabled = false;
+        $scope.serverNames = [];
+        $scope.selectedServer = '';
 
         $scope.isActive = function (viewLocation) {
             return viewLocation === $location.path();
@@ -112,4 +114,25 @@ angular.module('opApp.header').controller('opHeaderController',
 
         $scope.buildKmlLink();
         //$scope.workspaces = Configuration.workspaces;
+
+        $scope.getServerNames = function() {
+            var servers = opConfig.servers;
+            servers.forEach(function(server) {
+                $scope.serverNames.push(server.name);
+            });
+        };
+        $scope.getServerNames();
+
+        $scope.setSelectedServer = function(serverName) {
+            if($scope.selectedServer == serverName) {
+                $scope.selectedServer = '';
+            } else {
+                $scope.selectedServer = serverName;
+            }
+            console.log('selectedServer: ' + $scope.selectedServer);
+        };
+
+        $scope.printConsoleTest = function(name) {
+            console.log('server name: ' + name);
+        };
     });

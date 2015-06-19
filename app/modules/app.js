@@ -21,14 +21,18 @@ var app = angular.module('opApp', [
 ]);
 
 
-app.config(function ($routeProvider) {
+app.config(function ($routeProvider, $locationProvider) {
     'use strict';
-
     $routeProvider
         .when('/', {
             templateUrl: 'modules/home/opHome.html',
             controller: 'opHomeController',
             reloadOnSearch: false
+        })
+        .when('/server/:serverName', {
+          templateUrl: 'modules/home/opHome.html',
+          controller: 'opHomeController',
+          reloadOnSearch: false
         })
         .otherwise({
             redirectTo: '/'

@@ -6,7 +6,7 @@
 
 angular.module('opApp.query')
     .service('opLayerService',
-    function ($q, $http, localStorageService, opConfig, opWebMapService, opWebFeatureService, opFilterService) {
+    function ($q, $http, localStorageService, opConfig, opWebMapService, opWebFeatureService, opFilterService, opStateService) {
         'use strict';
 
         this.localStorageLayersKey = 'opApp.layersCache';
@@ -234,7 +234,7 @@ angular.module('opApp.query')
          *
          * @returns {*}
          */
-        this.getLayers = function (force) {
+        this.getLayers = function (force, serverNum) {
             var deferred = $q.defer();
             var self = this;
 
@@ -269,7 +269,8 @@ angular.module('opApp.query')
 */
             else {
                 this.clearCache();
-                opWebMapService.getCapabilities().then(function (result) {
+
+                opWebMapService.getCapabilities(serverNum).then(function (result) {
                     if (result !== null) {
                         var layers = [];
 
@@ -330,8 +331,8 @@ angular.module('opApp.query')
                                                      </Dimension>
                                                      */
                                                     layer.fields.time = {
-                                                        start: { value: time[0] },
-                                                        stop: { value: time[1] },
+                                                        start: {value: time[0]},
+                                                        stop: {value: time[1]},
                                                         wmsTime: true
                                                     };
                                                 }
@@ -349,7 +350,7 @@ angular.module('opApp.query')
                         }
 
                         var cachedDate = moment(new Date()).unix();
-                        var layersCache = { layers: layers, cachedOn: cachedDate};
+                        var layersCache = {layers: layers, cachedOn: cachedDate};
                         localStorageService.set(self.localStorageLayersKey, layersCache);
                         deferred.resolve(layers);
                     }
@@ -363,6 +364,7 @@ angular.module('opApp.query')
                     console.log(error);
                     deferred.reject(error);
                 });
+
             }
 
             return deferred.promise;

@@ -27,6 +27,8 @@ angular.module('opApp')
         var leafletMapCRS;
         var leafletLayerControl;
 
+        var activeServer = [];
+
         this.getResultsWindow = function () {
           return resultsWindow;
         };
@@ -398,5 +400,24 @@ angular.module('opApp')
 
             debounceBroadcast('filters-updated', null);
         });
+
+      this.setActiveServer = function(serverName) {
+          if(serverName == 'all') {
+              this.activeServer = opConfig.servers;
+          } else {
+              for (var i = 0; i < opConfig.servers.length; i++) {
+                  if (serverName == opConfig.servers[i].name) {
+                      this.activeServer = new Array(opConfig.servers[i]);
+                      return;
+                  }
+              }
+              // default to all servers
+              this.activeServer = new Array(opConfig.servers);
+          }
+      };
+
+      this.getActiveServer = function() {
+          return this.activeServer;
+      }
     }
 );
