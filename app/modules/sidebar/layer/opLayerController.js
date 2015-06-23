@@ -138,8 +138,7 @@ angular.module('opApp.sidebar.layer').controller('opLayerController',
 
         /*
          Layer Model:
-         layer: {
-         uid: 123456,
+         layer: { uid: 123456,
          name: 'hi1',
          workspace: 'derp',
          active: false,
@@ -528,9 +527,9 @@ angular.module('opApp.sidebar.layer').controller('opLayerController',
                 //$scope.tags.push(layerGroups.getGroupTags());
                 //$scope.layerGroups.push(layerGroups);
                 //$scope.layers.push(layers);
-                $scope.tags.concat($scope.layerGroups.getGroupTags());
+                $scope.tags = $scope.tags.concat($scope.layerGroups.getGroupTags());
                 //$scope.layerGroups = layerGroups;
-                $scope.layers.concat(layers);
+                $scope.layers = $scope.layers.concat(layers);
 
             }, function (reason) {
                 $scope.layersLoading = false;
