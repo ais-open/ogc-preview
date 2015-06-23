@@ -136,6 +136,8 @@ angular.module('opApp.sidebar.layer').controller('opLayerController',
         var zIndex = 50;
         var maxZIndex = 100;
 
+        $scope.lastUidUsed = 0;
+
         /*
          Layer Model:
          layer: { uid: 123456,
@@ -252,6 +254,7 @@ angular.module('opApp.sidebar.layer').controller('opLayerController',
                 var filter = opFilterService.createWfsBBoxFilterRequestForLayer(layer, timeBounds[0], timeBounds[1],
                     spatialBounds, epsgCode);
 
+                // TODO get this to work with multiple servers
                 opLayerService.getFilteredJsonFeatures(layer, filter).then(
                     function(result){
                         result.kmlUrl = exportData(opExportService.createKmlExportRequest,
@@ -333,6 +336,7 @@ angular.module('opApp.sidebar.layer').controller('opLayerController',
             // lets try adding layer to map
             // Oh, BTW zIndex is critical, as without overlays appear under baselayers when basselayers are switched
             if (zIndex >= maxZIndex) { zIndex = 50; }
+            // TODO figure out how to switch this to multiple servers
             var wmsLayer = L.tileLayer.wms(opConfig.server.url + '/wms',
                 opWebMapService.getLeafletWmsParams(layer.name, layer.workspace, { tileSize: 512, zIndex: zIndex }));
             zIndex += 1;
@@ -517,9 +521,10 @@ angular.module('opApp.sidebar.layer').controller('opLayerController',
                 $scope.layersLoading = false;
                 //console.log('Layers: ' + JSON.stringify(layers));
                 // Give layers a uid so that we pass reference to it within the controller
+                var uidStart = serverNum * 1000;
                 for (var i = 0; i < layers.length; i++) {
                     var layer = layers[i];
-                    layer.uid = i;
+                    layer.uid = uidStart+i;
                     layer.legendGraphic = opWebMapService.getLegendGraphicUrl(layer.workspace + ':' + layer.name);
                 }
                 groupLayers(layers, opConfig.recognizedTags);

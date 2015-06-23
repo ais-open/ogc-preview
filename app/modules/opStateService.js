@@ -418,6 +418,10 @@ angular.module('opApp')
 
       this.getActiveServer = function() {
           return this.activeServer;
-      }
+      };
+
+      this.getServerNameByIndex = function(serverIndex) {
+          return opConfig.servers[serverIndex].name;
+      };
     }
 );

@@ -271,6 +271,7 @@ angular.module('opApp.query')
                 this.clearCache();
 
                 opWebMapService.getCapabilities(serverNum).then(function (result) {
+                    var serverName = opStateService.getServerNameByIndex(serverNum);
                     if (result !== null) {
                         var layers = [];
 
@@ -291,6 +292,7 @@ angular.module('opApp.query')
                             for (var j = 0; j < nodes.item(i).childNodes.length; j++) {
                                 var node = nodes.item(i).childNodes.item(j);
                                 if (node.nodeType === 1) {
+                                    layer.server = serverName;
                                     switch (node.nodeName) {
                                         case 'Name':
                                             layer.name = node.textContent;
