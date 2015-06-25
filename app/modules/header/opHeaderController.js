@@ -15,8 +15,9 @@ angular.module('opApp.header').controller('opHeaderController',
         $scope.docLink = opConfig.docLink;
         $scope.announcementCount = 0;
         $scope.announcementsEnabled = false;
-        $scope.serverNames = [];
+        $scope.servers = [];
         $scope.selectedServer = '';
+        $scope.allServersActive = false;
 
         $scope.isActive = function (viewLocation) {
             return viewLocation === $location.path();
@@ -116,12 +117,13 @@ angular.module('opApp.header').controller('opHeaderController',
         //$scope.workspaces = Configuration.workspaces;
 
         $scope.getServerNames = function() {
-            var servers = opConfig.servers;
-            servers.forEach(function(server) {
-                $scope.serverNames.push(server.name);
+            $scope.servers = opConfig.servers;
+            $scope.servers.forEach(function(server) {
+                server.active = true;
             });
+            $scope.allServersActive = true;
         };
-        $scope.getServerNames();
+
 
         $scope.setSelectedServer = function(serverName) {
             if($scope.selectedServer == serverName) {
@@ -132,7 +134,39 @@ angular.module('opApp.header').controller('opHeaderController',
             console.log('selectedServer: ' + $scope.selectedServer);
         };
 
+        $scope.toggleServer = function(server) {
+            $scope.servers[server].active = !$scope.servers[server].active;
+            if($scope.servers[server].active === false) {
+                $scope.allServersActive = false;
+            }
+            var allActive = true;
+            $scope.servers.forEach(function(server) {
+                if(!server.active) {
+                    allActive = false;
+                }
+            });
+            $scope.allServersActive = allActive;
+            $scope.updateStateService();
+            console.log('Changing ' + $scope.servers[server].name + ' to ' + $scope.servers[server].active);
+        };
+
+        $scope.toggleAllServersActive = function() {
+            $scope.servers.forEach(function(server) {
+                server.active = true;
+            });
+            $scope.allServersActive = true;
+            $scope.updateStateService();
+        };
+
         $scope.printConsoleTest = function(name) {
             console.log('server name: ' + name);
         };
+
+        $scope.updateStateService = function() {
+            opStateService.setActiveServerData($scope.servers);
+            //console.log('server changed, new data: ' + JSON.stringify($scope.servers));
+        };
+
+        $scope.getServerNames();
+        $scope.updateStateService();
     });

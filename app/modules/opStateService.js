@@ -401,7 +401,7 @@ angular.module('opApp')
             debounceBroadcast('filters-updated', null);
         });
 
-      this.setActiveServer = function(serverName) {
+        this.setActiveServer = function(serverName) {
           if(serverName == 'all') {
               this.activeServer = opConfig.servers;
           } else {
@@ -414,14 +414,26 @@ angular.module('opApp')
               // default to all servers
               this.activeServer = new Array(opConfig.servers);
           }
-      };
+        };
 
-      this.getActiveServer = function() {
+        this.getActiveServer = function() {
           return this.activeServer;
-      };
+        };
 
-      this.getServerNameByIndex = function(serverIndex) {
-          return opConfig.servers[serverIndex].name;
-      };
+        this.getServerNameByIndex = function(serverIndex) {
+          return this.activeServer[serverIndex].name;
+        };
+
+        this.setActiveServerData = function(serverData) {
+            var activeServers = [];
+            serverData.forEach(function(server) {
+                if(server.active) {
+                    activeServers.push(server);
+                }
+            });
+            this.activeServer = activeServers;
+            console.log('servers active: ' + JSON.stringify(activeServers));
+            //console.log('server changed, new data: ' + JSON.stringify(server));
+        };
     }
 );

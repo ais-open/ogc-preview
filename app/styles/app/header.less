@@ -65,29 +65,24 @@ Oct 21, 2013
   background-image: url("../images/ogc-preview.png");
 }
 
-.server-list {
-  .a {
+li.server-list {
+  a {
     margin-left: 4px;
     border-radius: 10px 10px 10px 10px;
     padding: 2px 2px;
     display: inline-block;
 
-    &.active {
-      background-color: @theme;
-      //color: #000;
-    }
     &:hover {
       background-color: @theme;
+    }
+
+    &.active {
+      background-color: @theme;
       color: #000;
-      text-decoration: underline;
+
+      &:hover {
+        background-color: @theme;
+      }
     }
   }
 }
-
-//
-//padding-bottom: 6px;
-//padding-top: 6px;
-//padding-left: 20px;
-//margin-top: 14px;
-//border-bottom-width: 20px;
-//margin-bottom: 0px;

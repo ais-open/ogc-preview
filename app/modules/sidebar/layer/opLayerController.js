@@ -470,6 +470,8 @@ angular.module('opApp.sidebar.layer').controller('opLayerController',
                 }));
         };
 
+
+
         var clearLayers = function() {
             var leafletGroup = $scope.leafletGroup;
             if (leafletGroup !== null){
@@ -566,11 +568,16 @@ angular.module('opApp.sidebar.layer').controller('opLayerController',
             $scope.layers = []
         };
 
-        // start layer loading
-        this.resetLayerData();
-        for(var i = 0; i < opStateService.getActiveServer().length; i++) {
-            this.initializeLayers(i);
-        }
+
+        this.resetAndLoadLayers = function() {
+            this.resetLayerData();
+
+            for(var i = 0; i < opStateService.getActiveServer().length; i++) {
+                this.initializeLayers(i);
+            }
+        };
+
+        this.resetAndLoadLayers();
 
         $scope.friendlyLayer = function() {
             var activeLayers = opStateService.getDatasets();

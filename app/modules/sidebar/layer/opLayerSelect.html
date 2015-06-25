@@ -24,7 +24,7 @@
                  <label class="checkbox" ng-repeat="layer in group.getLayers() | orderBy:'title'" ng-if="isLayerVisible(layer.uid)">
                      <!--tooltip-placement="right" tooltip-append-to-body="true" tooltip-html-unsafe="<b>{{layer.title}}</b><br/>{{layer.abstract | plainTextToHtml}}"-->
                      <input type="checkbox" ng-model="layer.active" name="layers" ng-click="datasetStateChanged(layer.uid)"/>
-                     <span ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}}</span>
+                     <span ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}} | {{layer.server}}</span>
 
                      <span class="icons">
                          <div ng-if="layer.active && layer.loading" class="spinner"><div class="spinner-image"></div></div>

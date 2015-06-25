@@ -8,14 +8,14 @@ angular.module('opApp.home').controller('opHomeController',
   function ($scope, $rootScope, opStateService, opPopupWindow, $window, $routeParams) {
     'use strict';
 
-    if($routeParams.serverName) {
-      opStateService.setActiveServer($routeParams.serverName);
-    } else {
-      opStateService.setActiveServer('all');
-    }
-    console.log('servers: ' + JSON.stringify(opStateService.getActiveServer()));
-    console.log('server count: ' + opStateService.getActiveServer().length);
-    console.log('server 1 name: ' + opStateService.getActiveServer()[0].name);
+    //if($routeParams.serverName) {
+    //  opStateService.setActiveServer($routeParams.serverName);
+    //} else {
+    //  opStateService.setActiveServer('all');
+    //}
+    //console.log('servers: ' + JSON.stringify(opStateService.getActiveServer()));
+    //console.log('server count: ' + opStateService.getActiveServer().length);
+    //console.log('server 1 name: ' + opStateService.getActiveServer()[0].name);
     var initialize = function () {
         console.log('Starting up opHomeController...');
     };
