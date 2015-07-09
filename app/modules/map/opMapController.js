@@ -197,7 +197,11 @@ angular.module('opApp.map').controller('opMapController',
         $rootScope.$on('layer-selection-changed', function(event, layers) {
             var legends = [];
             angular.forEach(layers, function(layer) {
-                var legendGraphicUrl = opWebMapService.getLegendGraphicUrl(layer);
+                // layer is e.g. : dev:osg:archsites
+                //                 server:workspace:layername
+                var splitLayer = layer.split(':');
+                var serverName = splitLayer[0];
+                var legendGraphicUrl = opWebMapService.getLegendGraphicUrl(serverName, layer);
                 console.log('identified legend url: ' + legendGraphicUrl);
                 legends.push(legendGraphicUrl);
             });

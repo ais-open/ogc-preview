@@ -96,7 +96,9 @@ angular.module('opApp')
         wmsFeatureLimiter : 10000,
         wfsFeatureLimiter : 1000,
         // 2 minutes cache period on all layers
-        cachePeriod: 60 * 2,
+        //cachePeriod: 60 * 2,
+        // TODO remove this one and use one above
+        cachePeriod: 2,
         // 2 minutes cache period for layer metadata
         layerCachePeriod: 60 * 2,
 

@@ -29,11 +29,6 @@ app.config(function ($routeProvider, $locationProvider) {
             controller: 'opHomeController',
             reloadOnSearch: false
         })
-        .when('/server/:serverName', {
-          templateUrl: 'modules/home/opHome.html',
-          controller: 'opHomeController',
-          reloadOnSearch: false
-        })
         .otherwise({
             redirectTo: '/'
         });

@@ -113,17 +113,48 @@ angular.module('opApp.header').controller('opHeaderController',
             $scope.buildKmlLink();
         });
 
+        $scope.$on('servers-updated', function(event, args) {
+            console.log('new ereere args: ' + JSON.stringify(args));
+            var serversOn = args[0];
+            var serversOff = args[1];
+            var allActive = true;
+
+            serversOn.forEach(function(serverOn) {
+                $scope.servers.forEach(function(server) {
+                    if(serverOn.name === server.name) {
+                        server.active = true;
+                    }
+                });
+            });
+
+            $scope.servers.forEach(function(server) {
+                if(server.active === false) {
+                    allActive = false;
+                }
+            });
+
+            serversOff.forEach(function(serverOff) {
+                $scope.servers.forEach(function(server) {
+                    if (serverOff.name === server.name) {
+                        server.active = false;
+                    }
+                });
+                allActive = false;
+            });
+
+            $scope.allServersActive = allActive;
+        });
+
         $scope.buildKmlLink();
         //$scope.workspaces = Configuration.workspaces;
 
         $scope.getServerNames = function() {
             $scope.servers = opConfig.servers;
             $scope.servers.forEach(function(server) {
-                server.active = true;
+                server.active = false;
             });
-            $scope.allServersActive = true;
+            $scope.allServersActive = false;
         };
-
 
         $scope.setSelectedServer = function(serverName) {
             if($scope.selectedServer == serverName) {
@@ -147,7 +178,7 @@ angular.module('opApp.header').controller('opHeaderController',
             });
             $scope.allServersActive = allActive;
             $scope.updateStateService();
-            console.log('Changing ' + $scope.servers[server].name + ' to ' + $scope.servers[server].active);
+            //console.log('Changing ' + $scope.servers[server].name + ' to ' + $scope.servers[server].active);
         };
 
         $scope.toggleAllServersActive = function() {
@@ -164,7 +195,7 @@ angular.module('opApp.header').controller('opHeaderController',
 
         $scope.updateStateService = function() {
             opStateService.setActiveServerData($scope.servers);
-            //console.log('server changed, new data: ' + JSON.stringify($scope.servers));
+            console.log('server changed, new data: ' + JSON.stringify($scope.servers));
         };
 
         $scope.getServerNames();

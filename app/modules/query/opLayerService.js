@@ -128,7 +128,7 @@ angular.module('opApp.query')
             {
                 for (var i=0; i < fieldsCache.length; i++) {
                     var cacheLayer = fieldsCache[i];
-                    if (layer.name === cacheLayer.name && layer.workspace === cacheLayer.workspace) {
+                    if (layer.name === cacheLayer.name && layer.workspace === cacheLayer.workspace && layer.server === cacheLayer.server) {
                         console.log('Found layer and workspace match in cache... does it fall within cache period?');
                         var diff = Math.abs(currentUnix - cacheLayer.cachedOn);
                         console.log('Seconds since last layer cache: ' + diff);
@@ -234,7 +234,7 @@ angular.module('opApp.query')
          *
          * @returns {*}
          */
-        this.getLayers = function (force, serverNum) {
+        this.getLayers = function (force, serverName) {
             var deferred = $q.defer();
             var self = this;
 
@@ -270,8 +270,8 @@ angular.module('opApp.query')
             else {
                 this.clearCache();
 
-                opWebMapService.getCapabilities(serverNum).then(function (result) {
-                    var serverName = opStateService.getServerNameByIndex(serverNum);
+                opWebMapService.getCapabilities(serverName).then(function (result) {
+                    //var serverName = opStateService.getServerNameByIndex(serverNum);
                     if (result !== null) {
                         var layers = [];
 

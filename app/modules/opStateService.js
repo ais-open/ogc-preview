@@ -5,13 +5,13 @@
  ---------------------------------*/
 
 angular.module('opApp')
-    .service('opStateService', function State($q, $rootScope, $location, $timeout, L, moment, opConfig) {
+    .service('opStateService', function State($q, $rootScope, $location, $route, $timeout, L, moment, opConfig) {
         'use strict';
-
         var self = this;
         var state = {};
         var lastMapBounds = null;
         var lastBBoxBounds = null;
+        var lastDatasetsValue = null;
 
         var datasetId = 'datasets';
         var dateId = 'temporal';
@@ -27,7 +27,12 @@ angular.module('opApp')
         var leafletMapCRS;
         var leafletLayerControl;
 
-        var activeServer = [];
+        var activeServer = new Array();
+        var previousActiveServer = [];
+
+        this.getDatasetsId = function() {
+            return datasetId;
+        };
 
         this.getResultsWindow = function () {
           return resultsWindow;
@@ -357,6 +362,7 @@ angular.module('opApp')
             }, 500);
         };
 
+
         this.getCustomFilter = function() {
             var filters = this.getState(customFilterId);
             var result = {};
@@ -384,11 +390,20 @@ angular.module('opApp')
             return null;
         };
 
+        this.getServerByConfig = function(serverName) {
+            for(var i = 0; i < opConfig.servers.length; i++) {
+                if(opConfig.servers[i].name === serverName) {
+                    return opConfig.servers[i];
+                }
+            }
+        };
+
         $rootScope.$on('$routeUpdate', function() {
             // If changes are detected in map state params push out broadcast
             // We only broadcast if there is a new filter
             var boundsValue = self.getState(boundsId);
             var bboxValue = self.getState(bboxId);
+            var datasetsValue = self.getState(datasetId);
             if (angular.isDefined(boundsValue) && lastMapBounds !== boundsValue) {
                 lastMapBounds = boundsValue;
                 debounceBroadcast('map-state-updated');
@@ -397,32 +412,87 @@ angular.module('opApp')
                 lastBBoxBounds = bboxValue;
                 debounceBroadcast('map-state-updated');
             }
+            else if (angular.isDefined(datasetsValue) && lastDatasetsValue !== datasetsValue) {
+                lastDatasetsValue = datasetsValue;
+                console.log('length: ' + datasetsValue.length);
+                console.log('datasets: ' + JSON.stringify(datasetsValue));
+                // loop through the datasets that are in the url, and turn on the servers that
+                // the user wants us to use
+                var serversOn = [];
+                if(datasetsValue.constructor === Array) {
+                    angular.forEach(datasetsValue, function (dataset) {
+                        // serverName:workspace:layerName
+                        var serverName = dataset.split(':')[0];
+                        if (serversOn.indexOf(serverName) === -1) {
+                            var server = self.getServerByConfig(serverName);
+                            serversOn.push(server);
+                        }
+                    });
+                } else {
+                    var serverName = datasetsValue.split(':')[0];
+                    if (serversOn.indexOf(serverName) === -1) {
+                        var server = self.getServerByConfig(serverName);
+                        serversOn.push(server);
+                    }
+                }
+                if (serversOn.length > 0) {
+                    //$rootScope.$broadcast('servers-updated', [serversOn, []]);
+                    $timeout(function(){
+                        previousActiveServer = activeServer;
+                        activeServer = serversOn;
+                        self.compareServers();
+                        //$rootScope.$broadcast('servers-updated', [serversOn, []]);
+                    }, 500);
+                }
+            }
 
             debounceBroadcast('filters-updated', null);
         });
 
         this.setActiveServer = function(serverName) {
           if(serverName == 'all') {
-              this.activeServer = opConfig.servers;
+              activeServer = opConfig.servers;
           } else {
               for (var i = 0; i < opConfig.servers.length; i++) {
                   if (serverName == opConfig.servers[i].name) {
-                      this.activeServer = new Array(opConfig.servers[i]);
+                      activeServer = new Array(opConfig.servers[i]);
                       return;
                   }
               }
               // default to all servers
-              this.activeServer = new Array(opConfig.servers);
+              activeServer = new Array(opConfig.servers);
           }
         };
 
         this.getActiveServer = function() {
-          return this.activeServer;
+          return activeServer;
+        };
+
+        this.getPreviouslyActiveServer = function() {
+            return previousActiveServer;
         };
 
         this.getServerNameByIndex = function(serverIndex) {
-          return this.activeServer[serverIndex].name;
+          return activeServer[serverIndex].name;
         };
+
+        this.getServerNumByName = function(serverName) {
+            for(var i = 0; i < opConfig.servers.length; i++) {
+                if(activeServer[i].name === serverName) {
+                    return i;
+                }
+            }
+        };
+
+        this.getServer = function(serverName) {
+            for(var i = 0; i < activeServer.length; i++) {
+                if(activeServer[i].name === serverName) {
+                    return activeServer[i];
+                }
+            }
+        };
+
+
 
         this.setActiveServerData = function(serverData) {
             var activeServers = [];
@@ -431,9 +501,73 @@ angular.module('opApp')
                     activeServers.push(server);
                 }
             });
-            this.activeServer = activeServers;
-            console.log('servers active: ' + JSON.stringify(activeServers));
-            //console.log('server changed, new data: ' + JSON.stringify(server));
+            previousActiveServer = activeServer;
+            activeServer = activeServers;
+            this.compareServers();
+        };
+
+        this.compareServers = function() {
+            // servers to turn off are those that ARE in previousActiveServer but ARE NOT in activeServer
+            var serversToTurnOff = [];
+
+            // servers to turn on are those that ARE NOT in previousActiveServer but ARE in activeServer
+            var serversToTurnOn = [];
+
+            serversToTurnOff.forEach(function (server) {
+                console.log(server);
+            });
+
+            // this is ugly, but I want to get something working before revisiting logic.
+            // we're essentially doing a diff between old and new servers to figure out
+            // who to turn "on" and who to turn "off"
+            if(previousActiveServer.length === 0 && activeServer.length === 0) {
+                // purposefully blank
+            } else if (previousActiveServer.length === 0) {
+                serversToTurnOn = activeServer;
+            } else if (activeServer.length === 0) {
+                serversToTurnOff = previousActiveServer;
+            } else {
+                previousActiveServer.forEach(function (oldServer) {
+                    var found = false;
+                    activeServer.forEach(function (newServer) {
+                        if (newServer.name === oldServer.name) {
+                            found = true;
+                        }
+                    });
+                    if (!found) {
+                        serversToTurnOff.push(oldServer);
+                    }
+                });
+
+                activeServer.forEach(function(newServer) {
+                    var found = false;
+                    previousActiveServer.forEach(function (oldServer) {
+                        if(oldServer.name === newServer.name) {
+                            found = true;
+                        }
+                    });
+                    if(!found) {
+                        serversToTurnOn.push(newServer);
+                    }
+                });
+            }
+
+            console.log('Turning on: ' + JSON.stringify(serversToTurnOn));
+            console.log('Turning off: ' + JSON.stringify(serversToTurnOff));
+
+
+            //serversToTurnOn.forEach(function(server) {
+            //    opLayerController.turnServerOn(server);
+            //});
+            //
+            //serversToTurnOff.forEach(function(server) {
+            //    opLayerController.turnServerOff(server);
+            //});
+
+            $timeout(function(){
+                $rootScope.$broadcast('servers-updated', [serversToTurnOn, serversToTurnOff]);
+            }, 500);
+
         };
     }
 );

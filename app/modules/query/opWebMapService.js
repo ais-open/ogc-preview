@@ -17,16 +17,17 @@ angular.module('opApp.query')
          *
          * @returns {*}
          */
-        this.getCapabilities = function (index) {
+        this.getCapabilities = function (serverName) {
 
             var deferred = $q.defer();
             //var version = this.WMS_VERSION;
-            var version = opStateService.getActiveServer()[index].wmsVersion;
+            var server = opStateService.getServer(serverName);
+            var version = server.wmsVersion;
 
-            console.log('Requesting capabilities from server ' + opStateService.getActiveServer()[index].name);
+            console.log('Requesting capabilities from server ' + server.name);
             var params = { version: version, request: 'GetCapabilities' };
             //var url = this.AJAX_URL;
-            var url = opStateService.getActiveServer()[index].ajaxUrl + '/wms';
+            var url = server.ajaxUrl + '/wms';
             $http.get(url, { params: params }).then(function (result) {
                 console.log('Successfully retrieved GetCapabilities result.');
                 deferred.resolve(result);
@@ -60,7 +61,7 @@ angular.module('opApp.query')
                 }, params);
         };
 
-        this.getLegendGraphicUrl = function (layerName, legendOptions) {
+        this.getLegendGraphicUrl = function (serverName, layerName, legendOptions) {
             var options = angular.extend({
                 forceLabels: 'on',
                 fontName: 'Helvetica',
@@ -85,7 +86,8 @@ angular.module('opApp.query')
                     legend_options: optionsArray.join(';')
                     /* jshint ignore:end */
                 };
-
-            return this.AJAX_URL + '?' + $.param(params);
+            var server = opStateService.getServer(serverName);
+            var url = server.ajaxUrl + '/wms';
+            return url + '?' + $.param(params);
         };
     });
