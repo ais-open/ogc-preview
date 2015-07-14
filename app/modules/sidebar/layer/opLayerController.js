@@ -369,7 +369,7 @@ angular.module('opApp').controller('opLayerController',
             if (zIndex >= maxZIndex) { zIndex = 50; }
             var server = opStateService.getServer(layer.server);
             var wmsLayer = L.tileLayer.wms(server.url + '/wms',
-                opWebMapService.getLeafletWmsParams(layer.name, layer.workspace, { tileSize: 512, zIndex: zIndex }));
+                opWebMapService.getLeafletWmsParams(layer.server, layer.name, layer.workspace, { tileSize: 512, zIndex: zIndex }));
             zIndex += 1;
 
             //opWebMapService.getLeafletWms(layer.title, layer.name, layer.workspace, {});
@@ -559,17 +559,26 @@ angular.module('opApp').controller('opLayerController',
         };
 
         $scope.updateLayers = function(force, serverName) {
-            $scope.layersLoading = true;
+            var previousActiveServerCount = opStateService.getPreviouslyActiveServer().length;
+
+            // attempting to not display 'servers loading' when loading the 2nd server
+            if(previousActiveServerCount > 0) {
+                $scope.layersLoading = false;
+            } else {
+                $scope.layersLoading = true;
+            }
+
             // if no servers are configured, we're clearing all the layers like it was the first time
             // we're using the app.
-            if(opStateService.getPreviouslyActiveServer().length === 0) {
+            if(previousActiveServerCount === 0) {
                 clearLayers();
             }
 
             opLayerService.getLayers(force, serverName).then(function (layers) {
                 $scope.layersLoading = false;
-                //console.log('Layers: ' + JSON.stringify(layers));
                 // Give layers a uid so that we pass reference to it within the controller
+                // added a multiplier here for "sever number"... assuming there isn't over 1000 layers,
+                // adjust multiplier if there is over 1000 layers.
                 var serverNum = opStateService.getServerNumByName(serverName);
                 var uidStart = serverNum * 1000;
                 for (var i = 0; i < layers.length; i++) {
@@ -578,12 +587,7 @@ angular.module('opApp').controller('opLayerController',
                     layer.legendGraphic = opWebMapService.getLegendGraphicUrl(serverName, layer.workspace + ':' + layer.name);
                 }
                 groupLayers(layers, opConfig.recognizedTags);
-                // Apply tags to $scope.tags for use in filtering
-                //$scope.tags.push(layerGroups.getGroupTags());
-                //$scope.layerGroups.push(layerGroups);
-                //$scope.layers.push(layers);
                 $scope.tags = $scope.tags.concat($scope.layerGroups.getGroupTags());
-                //$scope.layerGroups = layerGroups;
                 $scope.layers = $scope.layers.concat(layers);
 
             }, function (reason) {
@@ -634,26 +638,22 @@ angular.module('opApp').controller('opLayerController',
             return activeLayers.length + ' enabled';
         };
 
+        //
         $scope.$on('servers-updated', function(event, args) {
-            console.log('args: ' + JSON.stringify(args));
+            //console.log('args: ' + JSON.stringify(args));
             var serversOn = args[0];
             var serversOff = args[1];
-            var serverOnNames = [];
-            var serverOffNames = [];
+            //console.log('servers on: ' + serversOn);
+            //console.log('servers off: ' + serversOff);
 
             serversOn.forEach(function(server) {
-                serverOnNames.push(server.name);
                 $scope.turnServerOn(server.name);
 
             });
 
             serversOff.forEach(function(server) {
-                serverOffNames.push(server.name);
                 $scope.turnServerOff(server.name);
             });
-
-            console.log('servers turning on: ' + serverOnNames);
-            console.log('servers turning off: ' + serverOffNames);
         });
 
         $scope.turnServerOn = function(server) {

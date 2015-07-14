@@ -41,13 +41,15 @@ angular.module('opApp.query')
             return deferred.promise;
         };
 
-        this.getLeafletWmsParams = function (name, workspace, params) {
+        this.getLeafletWmsParams = function (serverName, name, workspace, params) {
+            var server = opStateService.getServer(serverName);
             var workspacedLayer = workspace + ':' + name;
             return angular.extend(
                 {
                     transparent: true,
                     format: 'image/png',
-                    version: this.WMS_VERSION,
+                    //version: this.WMS_VERSION,
+                    version: server.wmsVersion,
                     layers: workspacedLayer,
                     maxfeatures: opConfig.wmsFeatureLimiter
                 }, params);
@@ -62,6 +64,7 @@ angular.module('opApp.query')
         };
 
         this.getLegendGraphicUrl = function (serverName, layerName, legendOptions) {
+            var server = opStateService.getServer(serverName);
             var options = angular.extend({
                 forceLabels: 'on',
                 fontName: 'Helvetica',
@@ -77,7 +80,8 @@ angular.module('opApp.query')
 
             var params =
                 {
-                    version: this.WMS_VERSION,
+                    //version: this.WMS_VERSION,
+                    version: server.wmsVersion,
                     request: 'GetLegendGraphic',
                     format: 'image/png',
                     transparent: true,
@@ -86,7 +90,7 @@ angular.module('opApp.query')
                     legend_options: optionsArray.join(';')
                     /* jshint ignore:end */
                 };
-            var server = opStateService.getServer(serverName);
+
             var url = server.ajaxUrl + '/wms';
             return url + '?' + $.param(params);
         };

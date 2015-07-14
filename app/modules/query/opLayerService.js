@@ -271,7 +271,6 @@ angular.module('opApp.query')
                 this.clearCache();
 
                 opWebMapService.getCapabilities(serverName).then(function (result) {
-                    //var serverName = opStateService.getServerNameByIndex(serverNum);
                     if (result !== null) {
                         var layers = [];
 

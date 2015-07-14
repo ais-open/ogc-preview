@@ -201,7 +201,8 @@ angular.module('opApp.map').controller('opMapController',
                 //                 server:workspace:layername
                 var splitLayer = layer.split(':');
                 var serverName = splitLayer[0];
-                var legendGraphicUrl = opWebMapService.getLegendGraphicUrl(serverName, layer);
+                var layerName = splitLayer[1] + ':' + splitLayer[2];
+                var legendGraphicUrl = opWebMapService.getLegendGraphicUrl(serverName, layerName);
                 console.log('identified legend url: ' + legendGraphicUrl);
                 legends.push(legendGraphicUrl);
             });

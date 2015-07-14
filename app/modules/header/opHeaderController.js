@@ -113,8 +113,9 @@ angular.module('opApp.header').controller('opHeaderController',
             $scope.buildKmlLink();
         });
 
+        // this is strictly here to toggle the CSS class when the servers are updated directly via
+        // the URL params (so that we can toggle the tabs active or not)
         $scope.$on('servers-updated', function(event, args) {
-            console.log('new ereere args: ' + JSON.stringify(args));
             var serversOn = args[0];
             var serversOff = args[1];
             var allActive = true;
@@ -178,7 +179,6 @@ angular.module('opApp.header').controller('opHeaderController',
             });
             $scope.allServersActive = allActive;
             $scope.updateStateService();
-            //console.log('Changing ' + $scope.servers[server].name + ' to ' + $scope.servers[server].active);
         };
 
         $scope.toggleAllServersActive = function() {
@@ -187,10 +187,6 @@ angular.module('opApp.header').controller('opHeaderController',
             });
             $scope.allServersActive = true;
             $scope.updateStateService();
-        };
-
-        $scope.printConsoleTest = function(name) {
-            console.log('server name: ' + name);
         };
 
         $scope.updateStateService = function() {

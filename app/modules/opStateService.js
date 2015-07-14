@@ -390,6 +390,8 @@ angular.module('opApp')
             return null;
         };
 
+        // sometimes we need to figure out what servers are configured to be allowed to be turned on/off
+        // this returns a JSON object of the server by the server's configured name
         this.getServerByConfig = function(serverName) {
             for(var i = 0; i < opConfig.servers.length; i++) {
                 if(opConfig.servers[i].name === serverName) {
@@ -436,19 +438,16 @@ angular.module('opApp')
                     }
                 }
                 if (serversOn.length > 0) {
-                    //$rootScope.$broadcast('servers-updated', [serversOn, []]);
-                    $timeout(function(){
-                        previousActiveServer = activeServer;
-                        activeServer = serversOn;
-                        self.compareServers();
-                        //$rootScope.$broadcast('servers-updated', [serversOn, []]);
-                    }, 500);
+                    previousActiveServer = activeServer;
+                    activeServer = serversOn;
+                    self.compareServers();
                 }
             }
 
             debounceBroadcast('filters-updated', null);
         });
 
+        // this is from HeaderController to set active servers based on header tabs
         this.setActiveServer = function(serverName) {
           if(serverName == 'all') {
               activeServer = opConfig.servers;
@@ -464,18 +463,18 @@ angular.module('opApp')
           }
         };
 
+        // returns the active server (array) info
         this.getActiveServer = function() {
           return activeServer;
         };
 
+        // returns the previously activer server (array) info
         this.getPreviouslyActiveServer = function() {
             return previousActiveServer;
         };
 
-        this.getServerNameByIndex = function(serverIndex) {
-          return activeServer[serverIndex].name;
-        };
-
+        // returns the configured index of the server based on the server's name
+        // used primarily for layer UID generation (to differentiate between same-named layers, but on diff. servers)
         this.getServerNumByName = function(serverName) {
             for(var i = 0; i < opConfig.servers.length; i++) {
                 if(activeServer[i].name === serverName) {
@@ -484,6 +483,7 @@ angular.module('opApp')
             }
         };
 
+        // get the server JSON object based on the server name (from ACTIVE servers, not config'd servers)
         this.getServer = function(serverName) {
             for(var i = 0; i < activeServer.length; i++) {
                 if(activeServer[i].name === serverName) {
@@ -492,8 +492,7 @@ angular.module('opApp')
             }
         };
 
-
-
+        // set the active server info (based on the header controller tab toggles)
         this.setActiveServerData = function(serverData) {
             var activeServers = [];
             serverData.forEach(function(server) {
@@ -506,6 +505,8 @@ angular.module('opApp')
             this.compareServers();
         };
 
+        // essentially do a diff between activeServer and previouslyActiveServer to figure out
+        // which servers we need to "turn off" and "turn on"
         this.compareServers = function() {
             // servers to turn off are those that ARE in previousActiveServer but ARE NOT in activeServer
             var serversToTurnOff = [];
@@ -555,15 +556,7 @@ angular.module('opApp')
             console.log('Turning on: ' + JSON.stringify(serversToTurnOn));
             console.log('Turning off: ' + JSON.stringify(serversToTurnOff));
 
-
-            //serversToTurnOn.forEach(function(server) {
-            //    opLayerController.turnServerOn(server);
-            //});
-            //
-            //serversToTurnOff.forEach(function(server) {
-            //    opLayerController.turnServerOff(server);
-            //});
-
+            // LayerController actually handles the "turn off" and "turn on" controls.
             $timeout(function(){
                 $rootScope.$broadcast('servers-updated', [serversToTurnOn, serversToTurnOff]);
             }, 500);
