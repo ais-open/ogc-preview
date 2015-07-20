@@ -147,7 +147,7 @@ angular.module('opApp.query')
              Time fields but not WMS TIME enabled
              Time fields WITH WMS TIME enabled
              */
-            opWebFeatureService.extractFieldsAndTypes(layer.name, layer.workspace).then(
+            opWebFeatureService.extractFieldsAndTypes(layer.server, layer.name, layer.workspace).then(
                 function (fields) {
                     layer.fields.list = fields;
                     var startField = determineTimeField(opConfig.timeFields.start, fields);
@@ -212,7 +212,7 @@ angular.module('opApp.query')
          */
         this.isDataPresent = function (layer, startBound, endBound, spatialWKT) {
             var filters = opFilterService.createWfsFilterRequestForLayer(layer, startBound, endBound, spatialWKT);
-            return opWebFeatureService.isDataPresent(layer.name, layer.workspace, layer.fields, filters);
+            return opWebFeatureService.isDataPresent(layer.server, layer.name, layer.workspace, layer.fields, filters);
         };
 
         /**

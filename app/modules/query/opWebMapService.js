@@ -9,8 +9,8 @@ angular.module('opApp.query')
     function ($q, $http, opConfig, opStateService) {
         'use strict';
 
-        this.WMS_VERSION = opConfig.server.wmsVersion;
-        this.AJAX_URL = opConfig.server.ajaxUrl + '/wms';
+        //this.WMS_VERSION = opConfig.server.wmsVersion;
+        //this.AJAX_URL = opConfig.server.ajaxUrl + '/wms';
 
         /**
          * Perform a WMS GetCapabilities request against the configured data source

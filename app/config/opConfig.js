@@ -52,15 +52,15 @@ angular.module('opApp')
         docLink: 'userguide.pptx',
 
         // Identification of the server providing data layers for use by Feature Browser
-        server:
-            {
-                url: '/geoserver',
-                ajaxUrl: '/geoserver',
-                name: 'OGCServer',
-                wmsVersion: '1.3.0',
-                wfsVersion: '1.0.0',
-                wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
-            },
+        //server:
+        //    {
+        //        url: '/geoserver',
+        //        ajaxUrl: '/geoserver',
+        //        name: 'OGCServer',
+        //        wmsVersion: '1.3.0',
+        //        wfsVersion: '1.0.0',
+        //        wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
+        //    },
 
         // moving to using more than one server
         servers: [

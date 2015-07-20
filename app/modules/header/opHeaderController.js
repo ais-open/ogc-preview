@@ -17,7 +17,7 @@ angular.module('opApp.header').controller('opHeaderController',
         $scope.announcementsEnabled = false;
         $scope.servers = [];
         $scope.selectedServer = '';
-        $scope.allServersActive = false;
+        $scope.allServersActive = true;
 
         $scope.isActive = function (viewLocation) {
             return viewLocation === $location.path();
@@ -152,7 +152,9 @@ angular.module('opApp.header').controller('opHeaderController',
         $scope.getServerNames = function() {
             $scope.servers = opConfig.servers;
             $scope.servers.forEach(function(server) {
-                server.active = false;
+                // change this to false if we want the servers to be "off" on load
+                server.active = true;
+                server.loaded = false;
             });
             $scope.allServersActive = false;
         };

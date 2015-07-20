@@ -6,15 +6,17 @@
 
 angular.module('opApp.query')
     .service('opWebFeatureService',
-    function ($q, $http, opConfig) {
+    function ($q, $http, opConfig, opStateService) {
         'use strict';
 
         // Using WFS 1.1.0 for the very specific reason, that 2.0.0 always runs full table scan to get feature counts.
         // With the size of the data we are dealing with, this is not acceptable.
         // We are also being forced to use XML as JSON as of GeoServer 2.4 always includes the feature count.
-        this.WFS_VERSION = opConfig.server.wfsVersion;
-        this.URL = opConfig.server.url + '/wfs';
-        this.AJAX_URL = opConfig.server.ajaxUrl + '/wfs';
+
+        // moved these variables to multiple server variant (each function gets the server its working with)
+        //this.WFS_VERSION = opConfig.server.wfsVersion;
+        //this.URL = opConfig.server.url + '/wfs';
+        //this.AJAX_URL = opConfig.server.ajaxUrl + '/wfs';
 
         /**
          * Determine all fields and their associated types for a given layer name and workspace.
@@ -23,11 +25,11 @@ angular.module('opApp.query')
          * @param workspace
          * @returns {Promise} array of JSON objects containing name and type of fields
          */
-        this.extractFieldsAndTypes = function (name, workspace) {
+        this.extractFieldsAndTypes = function (serverName, name, workspace) {
             var deferred = $q.defer();
             var error;
 
-            this.describeFeatureType(name, workspace).then(
+            this.describeFeatureType(serverName, name, workspace).then(
                 function (result) {
                     if (result !== null) {
                         var xmlDoc = $.parseXML(result.data);
@@ -84,13 +86,18 @@ angular.module('opApp.query')
          * @param workspace
          * @returns {*}
          */
-        this.describeFeatureType = function (name, workspace) {
+        this.describeFeatureType = function (serverName, name, workspace) {
+            var server = opStateService.getServer(serverName);
+            var wfsVersion = server.wfsVersion;
+            var url = server.url + '/wfs';
+            var ajaxUrl = server.ajaxUrl + '/wfs';
+
             var deferred = $q.defer();
 
             var typeName = workspace + ':' + name;
-            var params = { version: this.WFS_VERSION, request: 'DescribeFeatureType', typeName: typeName };
+            var params = { version: wfsVersion, request: 'DescribeFeatureType', typeName: typeName };
 
-            $http.get(this.AJAX_URL, {params: params }).then(function (result) {
+            $http.get(ajaxUrl, {params: params }).then(function (result) {
                 console.log('Successfully retrieved DescribeFeatureType result.');
                 deferred.resolve(result);
             }, function (reason) {
@@ -111,11 +118,17 @@ angular.module('opApp.query')
          * @param params JSON object of KVP to include in GetFeature request
          * @returns {*}
          */
-        this.getFeature = function (name, workspace, params) {
+        this.getFeature = function (serverName, name, workspace, params) {
             var deferred = $q.defer();
 
+            var server = opStateService.getServer(serverName);
+            var wfsVersion = server.wfsVersion;
+            var url = server.url + '/wfs';
+            var ajaxUrl = server.ajaxUrl + '/wfs';
+            var wfsOutputFormat = server.wfsOutputFormat;
+
             var typeName = workspace + ':' + name;
-            var serviceParams = angular.extend({ version: this.WFS_VERSION, request: 'GetFeature', typeName: typeName }, params);
+            var serviceParams = angular.extend({ version: wfsVersion, request: 'GetFeature', typeName: typeName }, params);
 
             $http.get(this.AJAX_URL, {params: serviceParams, cache:true }).then(
                 function (result) {
@@ -134,14 +147,20 @@ angular.module('opApp.query')
         /**
          * Attempt to retrieve features as GML and convert into GeoJSON resolved into promise
          *
+         * @param serverName server name
          * @param name layer name
          * @param workspace layer workspace
          * @param fields layer fields, must be passed so xml can be converted into 'Feature' properties
          * @param params JSON KVP of WFS parameters to be applied to the request
          * @returns {Deferred.promise|*}
          */
-        this.getFeaturesAsJson = function(name, workspace, fields, params) {
+        this.getFeaturesAsJson = function(serverName, name, workspace, fields, params) {
             var deferred = $q.defer();
+            var server = opStateService.getServer(serverName);
+            var wfsVersion = server.wfsVersion;
+            var url = server.url + '/wfs';
+            var ajaxUrl = server.ajaxUrl + '/wfs';
+            var wfsOutputFormat = server.wfsOutputFormat;
 
             // Use to filter out geometry fields from results
             var allowedFields = [];
@@ -152,9 +171,9 @@ angular.module('opApp.query')
             }
 
             // Tack on the desired format as this is our preferred for parsing.
-            params = angular.extend(params, { outputFormat: opConfig.server.wfsOutputFormat });
+            params = angular.extend(params, { outputFormat: wfsOutputFormat });
 
-            this.getFeature(name, workspace, params).then(
+            this.getFeature(serverName, name, workspace, params).then(
                 function (result) {
                     var xmlDoc = $.parseXML(result.data);
 
@@ -204,8 +223,8 @@ angular.module('opApp.query')
          * @param field
          * @returns {*}
          */
-        this.findTimeMin = function (name, workspace, field) {
-            return this.findTimeMinMax(name, workspace, field, 'A');
+        this.findTimeMin = function (serverName, name, workspace, field) {
+            return this.findTimeMinMax(serverName, name, workspace, field, 'A');
         };
 
         /**
@@ -215,8 +234,8 @@ angular.module('opApp.query')
          * @param field
          * @returns {*}
          */
-        this.findTimeMax = function (name, workspace, field) {
-            return this.findTimeMinMax(name, workspace, field, 'D');
+        this.findTimeMax = function (serverName, name, workspace, field) {
+            return this.findTimeMinMax(serverName, name, workspace, field, 'D');
         };
 
         /**
@@ -228,10 +247,16 @@ angular.module('opApp.query')
          * @param filter optional filter in CQL format
          * @returns {Deferred.promise|*}
          */
-        this.isDataPresent = function (name, workspace, fields, filter) {
+        this.isDataPresent = function (serverName, name, workspace, fields, filter) {
             var deferred = $q.defer();
+            var server = opStateService.getServer(serverName);
+            var wfsVersion = server.wfsVersion;
+            var url = server.url + '/wfs';
+            var ajaxUrl = server.ajaxUrl + '/wfs';
+            var wfsOutputFormat = server.wfsOutputFormat;
 
-            this.getFilteredJsonFeatures(name, workspace, fields, filter, {maxFeatures: 1}).then(
+
+            this.getFilteredJsonFeatures(serverName, name, workspace, fields, filter, {maxFeatures: 1}).then(
                 function (result) {
                     if (result.features && result.features.length === 1) {
                         deferred.resolve(true);
@@ -257,14 +282,14 @@ angular.module('opApp.query')
          * @param extendedParams
          * @returns {Deferred.promise|*}
          */
-        this.getFilteredJsonFeatures = function (name, workspace, fields,
+        this.getFilteredJsonFeatures = function (serverName, name, workspace, fields,
                                                  filters, extendedParams) {
             var params = filters;
             if (angular.isDefined(extendedParams) && extendedParams !== null) {
                 params = angular.extend(params, extendedParams);
             }
 
-            return this.getFeaturesAsJson(name, workspace, fields, params);
+            return this.getFeaturesAsJson(serverName, name, workspace, fields, params);
         };
 
         /**
@@ -277,11 +302,11 @@ angular.module('opApp.query')
          * @param direction 'A' or 'D' to indicate order of request
          * @returns {*}
          */
-        this.findTimeMinMax = function (name, workspace, field, direction) {
+        this.findTimeMinMax = function (serverName, name, workspace, field, direction) {
             var deferred = $q.defer();
 
             var params = { maxFeatures: 1, sortby: field + ' ' + direction.toUpperCase()};
-            this.getFeature(name, workspace, params).then(
+            this.getFeature(serverName, name, workspace, params).then(
                 function (result) {
                     var xmlDoc = $.parseXML(result.data);
 

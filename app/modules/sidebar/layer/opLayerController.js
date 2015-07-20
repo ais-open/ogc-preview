@@ -559,7 +559,10 @@ angular.module('opApp').controller('opLayerController',
         };
 
         $scope.updateLayers = function(force, serverName) {
+            var server = opStateService.getServer(serverName);
             var previousActiveServerCount = opStateService.getPreviouslyActiveServer().length;
+
+            server.loading = true;
 
             // attempting to not display 'servers loading' when loading the 2nd server
             if(previousActiveServerCount > 0) {
@@ -575,6 +578,8 @@ angular.module('opApp').controller('opLayerController',
             }
 
             opLayerService.getLayers(force, serverName).then(function (layers) {
+                var server = opStateService.getServer(serverName);
+                server.loading = false;
                 $scope.layersLoading = false;
                 // Give layers a uid so that we pass reference to it within the controller
                 // added a multiplier here for "sever number"... assuming there isn't over 1000 layers,
@@ -624,9 +629,9 @@ angular.module('opApp').controller('opLayerController',
         this.resetAndLoadLayers = function() {
             var servers = opStateService.getActiveServer();
             this.resetLayerData();
-            if(opStateService.getActiveServer() != undefined) {
+            if(opStateService.getActiveServer() !== undefined) {
                 for (var i = 0; i < servers.length; i++) {
-                    this.initializeLayers(servers[i].name);
+                    $scope.initializeLayers(servers[i].name);
                 }
             }
         };
