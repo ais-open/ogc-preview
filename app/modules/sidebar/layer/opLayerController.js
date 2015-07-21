@@ -72,6 +72,11 @@ angular.module('opApp').controller('opLayerController',
                         _layers.splice(i, 1);
                     }
                 }
+
+                // remove tag if we remove all the layers associated with that tag.
+                if(_layers.length === 0) {
+                    _tag = null;
+                }
                 //_layers.forEach(function(layer) {
                 //    if(layer.server === serverName) {
                 //        var index = _layers.indexOf(layer);
@@ -166,8 +171,6 @@ angular.module('opApp').controller('opLayerController',
 
         var zIndex = 50;
         var maxZIndex = 100;
-
-        $scope.lastUidUsed = 0;
 
         /*
          Layer Model:
@@ -286,16 +289,17 @@ angular.module('opApp').controller('opLayerController',
                     spatialBounds, epsgCode);
 
                 // TODO get this to work with multiple servers
+                var server = opStateService.getServer(layer.server);
                 opLayerService.getFilteredJsonFeatures(layer, filter).then(
                     function(result){
                         result.kmlUrl = exportData(opExportService.createKmlExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, opConfig.server.url + '/wms/kml');
+                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wms/kml');
                         result.csvUrl = exportData(opExportService.createCsvExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, opConfig.server.url + '/wfs');
+                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wfs');
                         result.shpUrl = exportData(opExportService.createShapefileExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, opConfig.server.url + '/wfs');
+                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wfs');
                         result.rssUrl = exportData(opExportService.createGeoRSSExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, opConfig.server.url + '/wfs');
+                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wfs');
                         opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', result);
                     },
                     function(reason){ console.log(reason); });
@@ -627,11 +631,15 @@ angular.module('opApp').controller('opLayerController',
 
 
         this.resetAndLoadLayers = function() {
+            opStateService.setActiveServer('all');
             var servers = opStateService.getActiveServer();
             this.resetLayerData();
             if(opStateService.getActiveServer() !== undefined) {
                 for (var i = 0; i < servers.length; i++) {
                     $scope.initializeLayers(servers[i].name);
+                    // if we want servers defaulted on, set active to true
+                    // to highlight the header bar control as active
+                    servers[i].active = true;
                 }
             }
         };

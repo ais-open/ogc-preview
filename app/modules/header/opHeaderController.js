@@ -17,7 +17,6 @@ angular.module('opApp.header').controller('opHeaderController',
         $scope.announcementsEnabled = false;
         $scope.servers = [];
         $scope.selectedServer = '';
-        $scope.allServersActive = true;
 
         $scope.isActive = function (viewLocation) {
             return viewLocation === $location.path();
@@ -48,8 +47,23 @@ angular.module('opApp.header').controller('opHeaderController',
 
         $scope.buildKmlLink = function() {
             var val = opStateService.getDatasets();
+
+            // break out server names from datasets to build individual server-specific kml links
+            // TODO figure out what to do as this changes the UI/usecase?
+            var serversOn = [];
+            for(var i = 0; i < val.length; i++) {
+                var server = val[i].split(':')[0];
+                if(serversOn.indexOf(server) === -1) {
+                    serversOn.push(server);
+                }
+            }
+            // replacement for below / loop through servers to get:
+            //var server = opStateService.getServer(serversOn[i])
+            // server.url + '/wms/kml?layers=' + val.join(',');
+
             if (val !== null && val.length > 0) {
                 $scope.kmlEnabled = true;
+                // TODO replace this with above TODO
                 $scope.kmlLink = opConfig.server.url + '/wms/kml?layers=' + val.join(',');
 
                 var timeFilter = opStateService.getTemporalFilter();
@@ -118,7 +132,6 @@ angular.module('opApp.header').controller('opHeaderController',
         $scope.$on('servers-updated', function(event, args) {
             var serversOn = args[0];
             var serversOff = args[1];
-            var allActive = true;
 
             serversOn.forEach(function(serverOn) {
                 $scope.servers.forEach(function(server) {
@@ -128,22 +141,13 @@ angular.module('opApp.header').controller('opHeaderController',
                 });
             });
 
-            $scope.servers.forEach(function(server) {
-                if(server.active === false) {
-                    allActive = false;
-                }
-            });
-
             serversOff.forEach(function(serverOff) {
                 $scope.servers.forEach(function(server) {
                     if (serverOff.name === server.name) {
                         server.active = false;
                     }
                 });
-                allActive = false;
             });
-
-            $scope.allServersActive = allActive;
         });
 
         $scope.buildKmlLink();
@@ -152,11 +156,10 @@ angular.module('opApp.header').controller('opHeaderController',
         $scope.getServerNames = function() {
             $scope.servers = opConfig.servers;
             $scope.servers.forEach(function(server) {
-                // change this to false if we want the servers to be "off" on load
-                server.active = true;
+                server.active = false;
+
                 server.loaded = false;
             });
-            $scope.allServersActive = false;
         };
 
         $scope.setSelectedServer = function(serverName) {
@@ -170,24 +173,6 @@ angular.module('opApp.header').controller('opHeaderController',
 
         $scope.toggleServer = function(server) {
             $scope.servers[server].active = !$scope.servers[server].active;
-            if($scope.servers[server].active === false) {
-                $scope.allServersActive = false;
-            }
-            var allActive = true;
-            $scope.servers.forEach(function(server) {
-                if(!server.active) {
-                    allActive = false;
-                }
-            });
-            $scope.allServersActive = allActive;
-            $scope.updateStateService();
-        };
-
-        $scope.toggleAllServersActive = function() {
-            $scope.servers.forEach(function(server) {
-                server.active = true;
-            });
-            $scope.allServersActive = true;
             $scope.updateStateService();
         };
 

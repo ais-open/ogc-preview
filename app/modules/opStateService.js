@@ -416,11 +416,13 @@ angular.module('opApp')
             }
             else if (angular.isDefined(datasetsValue) && lastDatasetsValue !== datasetsValue) {
                 lastDatasetsValue = datasetsValue;
+                console.log('--- ROUTE STUFF ---');
                 console.log('length: ' + datasetsValue.length);
                 console.log('datasets: ' + JSON.stringify(datasetsValue));
+                console.log('previouslyActive: ' + previousActiveServer);
                 // loop through the datasets that are in the url, and turn on the servers that
                 // the user wants us to use
-                var serversOn = [];
+                var serversOn = previousActiveServer;
                 if(datasetsValue.constructor === Array) {
                     angular.forEach(datasetsValue, function (dataset) {
                         // serverName:workspace:layerName
@@ -460,7 +462,11 @@ angular.module('opApp')
               }
               // default to all servers
               activeServer = new Array(opConfig.servers);
+
           }
+            if(previousActiveServer.length === 0) {
+                previousActiveServer = activeServer;
+            }
         };
 
         // returns the active server (array) info

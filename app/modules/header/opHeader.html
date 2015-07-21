@@ -7,10 +7,6 @@
         <ul class="nav navbar-nav" style="margin-left:80px;">
             <li class="server-list" ng-repeat="server in servers">
                 <a ng-click="toggleServer($index)" href="" ng-class="{active: server.active === true}">{{server.name}} <div ng-if="server.loading"class="server-loading-spinner"></div></a>
-
-            </li>
-            <li class="server-list">
-                <a ng-click="toggleAllServersActive()" href="" ng-class="{active: allServersActive === true}">All</a>
             </li>
             <li><a href="" ng-click="openResults();">View Attributes</a></li>
             <li><a href="" ng-class="{active: isDrawing}" ng-click="drawStart();" tooltip="Select Region" tooltip-placement="bottom"><i class="map-icon icon-square"></i></a></li>
