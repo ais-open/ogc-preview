@@ -57,46 +57,55 @@ angular.module('opApp.header').controller('opHeaderController',
                     serversOn.push(server);
                 }
             }
-            // replacement for below / loop through servers to get:
-            //var server = opStateService.getServer(serversOn[i])
-            // server.url + '/wms/kml?layers=' + val.join(',');
 
-            if (val !== null && val.length > 0) {
-                $scope.kmlEnabled = true;
-                // TODO replace this with above TODO
-                $scope.kmlLink = opConfig.server.url + '/wms/kml?layers=' + val.join(',');
+            if(serversOn.length === 0) {
+                // do nothing if no servers are on
+            }
+            else if(serversOn.length === 1) {
+                var server = opStateService.getServeR(serversOn[0]);
 
-                var timeFilter = opStateService.getTemporalFilter();
+                if (val !== null && val.length > 0) {
+                    $scope.kmlEnabled = true;
+                    // TODO replace this with above TODO
+                    $scope.kmlLink = server.url + '/wms/kml?layers=' + val.join(',');
 
-                var timeStr = null;
-                var titleString = null;
-                if (timeFilter !== null && timeFilter.type) {
-                    if (timeFilter.type === 'duration') {
-                        timeStr = 'back' + timeFilter.value + timeFilter.interval + '/present';
-                        var timeLookup = {'h': 'Hour', 'd': 'Day', 'w': 'Week'};
-                        titleString = 'OGC Last ' + timeFilter.value + ' ' + timeLookup[timeFilter.interval];
-                        // Add s to make interval name plural if greater than 1
-                        if (timeFilter.value !== 1) {
-                            titleString += 's';
+                    var timeFilter = opStateService.getTemporalFilter();
+
+                    var timeStr = null;
+                    var titleString = null;
+                    if (timeFilter !== null && timeFilter.type) {
+                        if (timeFilter.type === 'duration') {
+                            timeStr = 'back' + timeFilter.value + timeFilter.interval + '/present';
+                            var timeLookup = {'h': 'Hour', 'd': 'Day', 'w': 'Week'};
+                            titleString = 'OGC Last ' + timeFilter.value + ' ' + timeLookup[timeFilter.interval];
+                            // Add s to make interval name plural if greater than 1
+                            if (timeFilter.value !== 1) {
+                                titleString += 's';
+                            }
+                        }
+                        else if (timeFilter.type === 'range') {
+                            timeStr = timeFilter.start.format('YYYY-MM-DDTHH:mm:ss\\Z') + '/' +
+                                timeFilter.stop.format('YYYY-MM-DDTHH:mm:ss\\Z');
+                            titleString = 'OGC between ' + timeFilter.start.format('YYYY-MM-DDTHH:mm:ss\\Z') + ' and ' +
+                                timeFilter.stop.format('YYYY-MM-DDTHH:mm:ss\\Z');
                         }
                     }
-                    else if (timeFilter.type === 'range') {
-                        timeStr = timeFilter.start.format('YYYY-MM-DDTHH:mm:ss\\Z') + '/' +
-                            timeFilter.stop.format('YYYY-MM-DDTHH:mm:ss\\Z');
-                        titleString = 'OGC between ' + timeFilter.start.format('YYYY-MM-DDTHH:mm:ss\\Z') + ' and ' +
-                            timeFilter.stop.format('YYYY-MM-DDTHH:mm:ss\\Z');
+
+                    if (timeStr !== null) {
+                        $scope.kmlLink += '&time=' + timeStr;
+                    }
+                    if (titleString !== null) {
+                        $scope.kmlLink += '&kmltitle=' + titleString;
                     }
                 }
-
-                if (timeStr !== null) {
-                    $scope.kmlLink += '&time=' + timeStr;
-                }
-                if (titleString !== null) {
-                    $scope.kmlLink += '&kmltitle=' + titleString;
+                else {
+                    $scope.kmlEnabled = false;
                 }
             }
-            else {
-                $scope.kmlEnabled = false;
+            else if(serversOn.length > 1) {
+                //var server = opStateService.getServer(serversOn[i])
+                // use modal to select?
+                console.log('modal popup!!');
             }
         };
 
