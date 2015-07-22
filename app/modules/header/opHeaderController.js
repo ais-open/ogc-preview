@@ -62,11 +62,10 @@ angular.module('opApp.header').controller('opHeaderController',
                 // do nothing if no servers are on
             }
             else if(serversOn.length === 1) {
-                var server = opStateService.getServeR(serversOn[0]);
+                var server = opStateService.getServer(serversOn[0]);
 
                 if (val !== null && val.length > 0) {
                     $scope.kmlEnabled = true;
-                    // TODO replace this with above TODO
                     $scope.kmlLink = server.url + '/wms/kml?layers=' + val.join(',');
 
                     var timeFilter = opStateService.getTemporalFilter();
