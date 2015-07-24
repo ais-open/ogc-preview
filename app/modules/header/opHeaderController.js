@@ -5,7 +5,7 @@
  ---------------------------------*/
 
 angular.module('opApp.header').controller('opHeaderController',
-    function ($scope, $rootScope, $location, $modal, $timeout, opConfig, opPopupWindow, opStateService) {
+    function ($scope, $rootScope, $location, $modal, $timeout, $controller, opConfig, opPopupWindow, opStateService) {
         'use strict';
 
         $scope.classification = opConfig.classification;
@@ -17,6 +17,8 @@ angular.module('opApp.header').controller('opHeaderController',
         $scope.announcementsEnabled = false;
         $scope.servers = [];
         $scope.selectedServer = '';
+        $scope.kmlServers = null;
+        $scope.kmlSingleServer = false;
 
         $scope.isActive = function (viewLocation) {
             return viewLocation === $location.path();
@@ -45,7 +47,93 @@ angular.module('opApp.header').controller('opHeaderController',
             });
         };
 
-        $scope.buildKmlLink = function() {
+        $scope.showKmlLink = function () {
+            //$scope.kmlLinks = [];
+            //var servers = [];
+            //var layers = [[]];
+            //layers[1] = [];
+            //
+            //var val = opStateService.getDatasets();
+            //for(var i = 0; i < val.length; i++) {
+            //    var splitVals = val[i].split(':');
+            //    var server = splitVals[0];
+            //    var layer = splitVals[2];
+            //    var serverIndex = servers.indexOf(server);
+            //    if(serverIndex === -1) {
+            //        servers.push(server);
+            //        serverIndex = servers.indexOf(server);
+            //        layers[serverIndex].push(layer);
+            //    } else {
+            //        layers[serverIndex].push(layer);
+            //    }
+            //}
+            //
+            //$scope.KmlLayers = layers;
+            //$scope.KmlServers = servers;
+            //var serverCount = servers.length;
+            //if(serverCount === 0) {
+            //    // do nothing
+            //} else if (serverCount === 1) {
+            //    // just download the KML link
+            //    $scope.kmlLink = $scope.buildKmlLink($scope.KmlServers[0]);
+            //} else if (serverCount > 1) {
+            //    for(var i = 0; i < serverCount; i++) {
+            //        $scope.kmlLinks[i] = $scope.buildKmlLink($scope.KmlServers[i]);
+            //    }
+            //    $modal.open({
+            //        templateUrl: 'modules/header/opKmlSelector.html'
+            //    });
+            //}
+            $modal.open({
+                templateUrl: 'modules/header/opKmlSelector.html'
+            });
+        };
+
+        $scope.getActiveServers = function() {
+            var servers = opStateService.getActiveServer();
+            return servers;
+        };
+
+        $scope.buildKmlLink = function(serverName) {
+            var val = opStateService.getDatasets();
+            var server = opStateService.getServer(serverName);
+            var link = '';
+            if (val !== null && val.length > 0) {
+                $scope.kmlEnabled = true;
+                link = server.url + '/wms/kml?layers=' + val.join(',');
+
+                var timeFilter = opStateService.getTemporalFilter();
+
+                var timeStr = null;
+                var titleString = null;
+                if (timeFilter !== null && timeFilter.type) {
+                    if (timeFilter.type === 'duration') {
+                        timeStr = 'back' + timeFilter.value + timeFilter.interval + '/present';
+                        var timeLookup = {'h': 'Hour', 'd': 'Day', 'w': 'Week'};
+                        titleString = 'OGC Last ' + timeFilter.value + ' ' + timeLookup[timeFilter.interval];
+                        // Add s to make interval name plural if greater than 1
+                        if (timeFilter.value !== 1) {
+                            titleString += 's';
+                        }
+                    }
+                    else if (timeFilter.type === 'range') {
+                        timeStr = timeFilter.start.format('YYYY-MM-DDTHH:mm:ss\\Z') + '/' +
+                          timeFilter.stop.format('YYYY-MM-DDTHH:mm:ss\\Z');
+                        titleString = 'OGC between ' + timeFilter.start.format('YYYY-MM-DDTHH:mm:ss\\Z') + ' and ' +
+                          timeFilter.stop.format('YYYY-MM-DDTHH:mm:ss\\Z');
+                    }
+                }
+
+                if (timeStr !== null) {
+                    link += '&time=' + timeStr;
+                }
+                if (titleString !== null) {
+                    link += '&kmltitle=' + titleString;
+                }
+            }
+            return link;
+        };
+        $scope.buildKmlLinkOld = function() {
             var val = opStateService.getDatasets();
 
             // break out server names from datasets to build individual server-specific kml links
@@ -104,7 +192,7 @@ angular.module('opApp.header').controller('opHeaderController',
             else if(serversOn.length > 1) {
                 //var server = opStateService.getServer(serversOn[i])
                 // use modal to select?
-                console.log('modal popup!!');
+
             }
         };
 
@@ -132,7 +220,20 @@ angular.module('opApp.header').controller('opHeaderController',
         });
 
         $scope.$on('filters-updated', function() {
-            $scope.buildKmlLink();
+            var val = opStateService.getDatasets();
+            //var serversActive = opStateService.getActiveServer();
+            if(val.length > 0) {
+                $scope.kmlEnabled = true;
+            } else {
+                $scope.kmlEnabled = false;
+            }
+            //if(serversActive.length === 1) {
+            //    $scope.kmlSingleServer = true;
+            //    $scope.kmlLink = $scope.buildKmlLink(serversActive[0].name);
+            //} else {
+            //    $scope.kmlSingleServer = false;
+            //}
+            //$scope.buildKmlLink();
         });
 
         // this is strictly here to toggle the CSS class when the servers are updated directly via
@@ -158,7 +259,7 @@ angular.module('opApp.header').controller('opHeaderController',
             });
         });
 
-        $scope.buildKmlLink();
+        //$scope.buildKmlLink();
         //$scope.workspaces = Configuration.workspaces;
 
         $scope.getServerNames = function() {

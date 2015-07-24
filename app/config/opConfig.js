@@ -116,6 +116,6 @@ angular.module('opApp')
         // List of tags to attempt to match against WMS layer keywords.
         // If a tag cannot be found for any layer it is not added as a selection.
         // Order is important as that is the order they will be rendered in layer control.
-        recognizedTags: [ 'MODIS', 'VIIRS', 'TOPP', 'FEATURES' ]
+        recognizedTags: [ 'MODIS', 'VIIRS', 'TOPP' ]
     };
 });

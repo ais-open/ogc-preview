@@ -11,19 +11,19 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'app/bower_components/angular/angular.js',
-      'app/bower_components/angular-animate/angular-animate.js',
-      'app/bower_components/angular-mocks/angular-mocks.js',
-      'app/bower_components/angular-resource/angular-resource.js',
-      'app/bower_components/angular-cookies/angular-cookies.js',
-      'app/bower_components/angular-sanitize/angular-sanitize.js',
-      'app/bower_components/angular-route/angular-route.js',
-      'app/bower_components/angular-ui-bootstrap-bower/ui-bootstrap-tpls.js',
-      'app/bower_components/momentjs/moment.js',
-      'app/bower_components/lodash/dist/lodash.compat.js',
-      'app/bower_components/restangular/dist/restangular.js',
-      'app/bower_components/AngularJS-Toaster/toaster.js',
-      'app/bower_components/angular-local-storage/angular-local-storage.js',
+      //'app/bower_components/angular/angular.js',
+      //'app/bower_components/angular-animate/angular-animate.js',
+      //'app/bower_components/angular-mocks/angular-mocks.js',
+      //'app/bower_components/angular-resource/angular-resource.js',
+      //'app/bower_components/angular-cookies/angular-cookies.js',
+      //'app/bower_components/angular-sanitize/angular-sanitize.js',
+      //'app/bower_components/angular-route/angular-route.js',
+      //'app/bower_components/angular-ui-bootstrap-bower/ui-bootstrap-tpls.js',
+      //'app/bower_components/momentjs/moment.js',
+      //'app/bower_components/lodash/dist/lodash.compat.js',
+      //'app/bower_components/restangular/dist/restangular.js',
+      //'app/bower_components/AngularJS-Toaster/toaster.js',
+      //'app/bower_components/angular-local-storage/angular-local-storage.js',
 /*
 
             <script src="bower_components/angular-local-storage/angular-local-storage.js"></script>
@@ -31,10 +31,36 @@ module.exports = function(config) {
             <script src="bower_components/AngularJS-Toaster/toaster.js"></script>
 */
 
-      'app/modules/*.js',
-      'app/modules/**/*.js',
-      //'test/mock/**/*.js',
-      'test/spec/**/*.js'
+      //'app/modules/*.js',
+      //'app/modules/**/*.js',
+      //'app/modules/app.js',
+      //'app/modules/header/opAnnouncementsDirective.js',
+      //'app/modules/filters/opPlaintTextToHtml.js',
+      //'app/modules/filters/opUnixToDate.js',
+      //'app/modules/header/opHeaderController.js',
+      //'app/modules/header/opHeaderDirective.js',
+      //'app/modules/header/opAnnouncementsService.js',
+      //'app/modules/home/opHomeController.js',
+      //'app/modules/map/opMapController.js',
+      //'app/modules/map/opMapDirective.js',
+      //'app/modules/results/opResults.js',
+      //'app/modules/query/opLayerService.js',
+      //'app/modules/query/opWebFeatureService.js',
+      //'app/modules/query/opWebMapService.js',
+      //'app/modules/sidebar/opSidebarController.js',
+      //'app/modules/sidebar/opSidebarDirective.js',
+      //'app/modules/sidebar/layer/opLayerController.js',
+      //'app/modules/sidebar/layer/opLayerDirective.js',
+      //'app/modules/sidebar/temporal/opDateTimeDirective.js',
+      //'app/modules/sidebar/temporal/opDateTimeController.js',
+      //'app/modules/query/opFilterService.js',
+      //'app/modules/query/opExportService.js',
+      //'app/modules/ui/opPopupWindow.js',
+      //'app/modules/ui/opPopup.js',
+      //'app/modules/opStateService.js',
+      //'app/modules/opConfig.js',
+      //'test/spec/*.js',
+      //'test/spec/**/*.js'
     ],
 
     // list of files / patterns to exclude
