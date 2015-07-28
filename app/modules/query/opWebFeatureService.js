@@ -130,7 +130,7 @@ angular.module('opApp.query')
             var typeName = workspace + ':' + name;
             var serviceParams = angular.extend({ version: wfsVersion, request: 'GetFeature', typeName: typeName }, params);
 
-            $http.get(this.AJAX_URL, {params: serviceParams, cache:true }).then(
+            $http.get(ajaxUrl, {params: serviceParams, cache:true }).then(
                 function (result) {
                     console.log('Successfully retrieved GetFeature result.');
                     deferred.resolve(result);

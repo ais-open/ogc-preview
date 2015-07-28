@@ -222,7 +222,7 @@ angular.module('opApp.query')
          * @returns {*}
          */
         this.getFilteredJsonFeatures = function (layer, filters) {
-            return opWebFeatureService.getFilteredJsonFeatures(layer.name, layer.workspace, layer.fields,
+            return opWebFeatureService.getFilteredJsonFeatures(layer.server, layer.name, layer.workspace, layer.fields,
                 filters, {maxFeatures: opConfig.wfsFeatureLimiter, srsName: 'EPSG:4326'});
         };
 

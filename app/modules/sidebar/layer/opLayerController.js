@@ -480,7 +480,7 @@ angular.module('opApp').controller('opLayerController',
 
                 opPopupWindow.broadcast( opStateService.getResultsWindow(), 'updateFilters',
                     _.filter($scope.layers, function (l){
-                        return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name);
+                        return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
                     }));
             }
         };
@@ -501,7 +501,7 @@ angular.module('opApp').controller('opLayerController',
 
             opPopupWindow.broadcast( opStateService.getResultsWindow(), 'updateFilters',
                 _.filter($scope.layers, function (l){
-                    return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name);
+                    return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
                 }));
         };
 
@@ -636,10 +636,10 @@ angular.module('opApp').controller('opLayerController',
             this.resetLayerData();
             if(opStateService.getActiveServer() !== undefined) {
                 for (var i = 0; i < servers.length; i++) {
+                    servers[i].active = true;
                     $scope.initializeLayers(servers[i].name);
                     // if we want servers defaulted on, set active to true
                     // to highlight the header bar control as active
-                    servers[i].active = true;
                 }
             }
         };
@@ -683,7 +683,7 @@ angular.module('opApp').controller('opLayerController',
                 opStateService.setResultsWindow(win);
                 opPopupWindow.broadcast( opStateService.getResultsWindow(), 'updateFilters',
                     _.filter($scope.layers, function (l){
-                        return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name);
+                        return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
                     }));
             }
         });
@@ -691,7 +691,7 @@ angular.module('opApp').controller('opLayerController',
             opStateService.setResultsWindow(win);
             opPopupWindow.broadcast( opStateService.getResultsWindow(), 'updateFilters',
                 _.filter($scope.layers, function (l){
-                    return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name);
+                    return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
                 }));
         });
     });
