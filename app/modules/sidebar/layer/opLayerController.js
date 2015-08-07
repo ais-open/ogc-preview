@@ -3,7 +3,7 @@
  */
 
 angular.module('opApp').controller('opLayerController',
-    function ($scope, $location, $timeout, $window, moment, toaster, L, opConfig, opLayerService, opWebMapService,
+    function ($rootScope, $scope, $location, $timeout, $window, moment, toaster, L, opConfig, opLayerService, opWebMapService,
               opWebFeatureService, opStateService, opFilterService, opExportService, opPopupWindow) {
         'use strict';
 
@@ -14,6 +14,10 @@ angular.module('opApp').controller('opLayerController',
             self.turnServerOff = function(serverName) {
                 for(var i = 0; i < _groups.length; i++) {
                     _groups[i].turnServerOff(serverName);
+                    // we need to remove our group if we end up turning off all the layers in that group
+                    if(_groups[i].getLayers().length === 0) {
+                        _groups.splice(i, 1);
+                    }
                 }
             };
 
@@ -70,6 +74,7 @@ angular.module('opApp').controller('opLayerController',
                 while(i--) {
                     if(_layers[i].server === serverName) {
                         _layers.splice(i, 1);
+                        $scope.layers.splice($scope.layers.indexOf(_layers[i]),1);
                     }
                 }
 
@@ -366,6 +371,7 @@ angular.module('opApp').controller('opLayerController',
             }
 
             console.log('enabling layer: \'' + layer.name + '\'');
+            //$rootScope.$broadcast('filters-updated');
             //toaster.pop('wait', 'Date/Time', 'Identifying time metadata for ' + layer.title);
 
             // lets try adding layer to map
@@ -562,6 +568,50 @@ angular.module('opApp').controller('opLayerController',
 
         };
 
+        // this is for refresh datasets button in debug mode
+        $scope.updateAllLayers = function() {
+            var servers = opStateService.getActiveServer();
+            for(var i = 0; i < servers.length; i++) {
+                //clearServerSpecificLayers(servers[i].name);
+                //$scope.layerGroups.turnServerOff(servers[i].name);
+                $scope.updateLayers(true, servers[i].name);
+            }
+        };
+
+        $scope.$on('refresh-server', function(event, args) {
+            var datasets = opStateService.getDatasets().slice(0);
+            var serverData = args;
+            var activeServers = opStateService.getActiveServer();
+            if(activeServers.indexOf(serverData) != -1) {
+                console.log('Refreshing server ' + serverData.name);
+                clearServerSpecificLayers(serverData.name);
+                $scope.layerGroups.turnServerOff(serverData.name);
+                $scope.updateLayers(true, serverData.name);
+                //opStateService.setDatasets(datasets);
+            }
+            //for (var i = 0; i < datasets.length; i++) {
+            //    var splitDataset = datasets[i].split(':');
+            //    var dataset = {name: splitDataset[2], workspace: splitDataset[1], server: splitDataset[0]};
+            //
+            //    var found = false;
+            //    // Attempt to configure based on query parameter repr of filters
+            //    for (var j = 0; j < $scope.layers.length; j++) {
+            //        var layer = $scope.layers[j];
+            //
+            //        if (layer.name === dataset.name && layer.workspace === dataset.workspace && layer.server === dataset.server) {
+            //            // Yay, we found our layer in configured datasource... we can break out now.
+            //            // if the layer is already active, don't try to change it's state.
+            //            //if (!layer.active) {
+            //                layer.active = false;
+            //                $scope.datasetStateChanged(layer.uid);
+            //            //}
+            //            found = true;
+            //            break;
+            //        }
+            //    }
+            //}
+        });
+
         $scope.updateLayers = function(force, serverName) {
             var server = opStateService.getServer(serverName);
             var previousActiveServerCount = opStateService.getPreviouslyActiveServer().length;
@@ -606,7 +656,6 @@ angular.module('opApp').controller('opLayerController',
               then(function () {
                   updateLayerSelections();
               });
-
         };
 
         // THIS GUY BASICALLY BOOTSTRAPS ALL LAYERS INTO THE APP

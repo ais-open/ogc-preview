@@ -288,8 +288,9 @@ angular.module('opApp')
 
         this.setDatasets = function (datasets) {
             this.setState(datasetId, datasets);
-
+            //debounceBroadcast('filters-updated', null);
             debounceBroadcast('layer-selection-changed', datasets);
+
         };
 
         this.addDataset = function(name) {
@@ -416,10 +417,6 @@ angular.module('opApp')
             }
             else if (angular.isDefined(datasetsValue) && lastDatasetsValue !== datasetsValue) {
                 lastDatasetsValue = datasetsValue;
-                console.log('--- ROUTE STUFF ---');
-                console.log('length: ' + datasetsValue.length);
-                console.log('datasets: ' + JSON.stringify(datasetsValue));
-                console.log('previouslyActive: ' + previousActiveServer);
                 // loop through the datasets that are in the url, and turn on the servers that
                 // the user wants us to use
                 var serversOn = previousActiveServer;
@@ -427,8 +424,8 @@ angular.module('opApp')
                     angular.forEach(datasetsValue, function (dataset) {
                         // serverName:workspace:layerName
                         var serverName = dataset.split(':')[0];
-                        if (serversOn.indexOf(serverName) === -1) {
-                            var server = self.getServerByConfig(serverName);
+                        var server = self.getServerByConfig(serverName);
+                        if (serversOn.indexOf(server) === -1) {
                             serversOn.push(server);
                         }
                     });

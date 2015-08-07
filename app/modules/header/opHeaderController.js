@@ -19,6 +19,8 @@ angular.module('opApp.header').controller('opHeaderController',
         $scope.selectedServer = '';
         $scope.kmlServers = null;
         $scope.kmlSingleServer = false;
+        $scope.KmlLayers = [];
+        $scope.KmlServers = [];
 
         $scope.isActive = function (viewLocation) {
             return viewLocation === $location.path();
@@ -48,45 +50,44 @@ angular.module('opApp.header').controller('opHeaderController',
         };
 
         $scope.showKmlLink = function () {
-            //$scope.kmlLinks = [];
-            //var servers = [];
-            //var layers = [[]];
-            //layers[1] = [];
+            $scope.kmlLinks = [];
+            var servers = [];
+            var layers = [[]];
+            layers[1] = [];
             //
-            //var val = opStateService.getDatasets();
-            //for(var i = 0; i < val.length; i++) {
-            //    var splitVals = val[i].split(':');
-            //    var server = splitVals[0];
-            //    var layer = splitVals[2];
-            //    var serverIndex = servers.indexOf(server);
-            //    if(serverIndex === -1) {
-            //        servers.push(server);
-            //        serverIndex = servers.indexOf(server);
-            //        layers[serverIndex].push(layer);
-            //    } else {
-            //        layers[serverIndex].push(layer);
-            //    }
-            //}
+            var val = opStateService.getDatasets();
+            for(var i = 0; i < val.length; i++) {
+                var splitVals = val[i].split(':');
+                var server = splitVals[0];
+                var layer = splitVals[2];
+                var serverIndex = servers.indexOf(server);
+                if(serverIndex === -1) {
+                    servers.push(server);
+                    serverIndex = servers.indexOf(server);
+                    layers[serverIndex].push(layer);
+                } else {
+                    layers[serverIndex].push(layer);
+                }
+            }
             //
-            //$scope.KmlLayers = layers;
-            //$scope.KmlServers = servers;
-            //var serverCount = servers.length;
-            //if(serverCount === 0) {
-            //    // do nothing
-            //} else if (serverCount === 1) {
-            //    // just download the KML link
-            //    $scope.kmlLink = $scope.buildKmlLink($scope.KmlServers[0]);
-            //} else if (serverCount > 1) {
-            //    for(var i = 0; i < serverCount; i++) {
-            //        $scope.kmlLinks[i] = $scope.buildKmlLink($scope.KmlServers[i]);
-            //    }
-            //    $modal.open({
-            //        templateUrl: 'modules/header/opKmlSelector.html'
-            //    });
-            //}
+            $scope.KmlLayers = layers;
+            $scope.KmlServers = servers;
+            var serverCount = servers.length;
+            for(var i = 0; i < serverCount; i++) {
+                $scope.kmlLinks[i] = $scope.buildKmlLink($scope.KmlServers[i]);
+            }
             $modal.open({
                 templateUrl: 'modules/header/opKmlSelector.html'
             });
+        };
+
+        $scope.getLayersForServer = function(serverNum) {
+            return $scope.KmlLayers[serverNum];
+        };
+
+        $scope.refreshServer = function(server) {
+            var serverData = $scope.servers[server];
+            $rootScope.$broadcast('refresh-server', serverData);
         };
 
         $scope.getActiveServers = function() {
@@ -96,11 +97,22 @@ angular.module('opApp.header').controller('opHeaderController',
 
         $scope.buildKmlLink = function(serverName) {
             var val = opStateService.getDatasets();
+
             var server = opStateService.getServer(serverName);
             var link = '';
             if (val !== null && val.length > 0) {
                 $scope.kmlEnabled = true;
-                link = server.url + '/wms/kml?layers=' + val.join(',');
+                link = server.url + '/wms/kml?layers=';
+                var serverVals = [];
+                for(var i = 0; i < val.length; i++) {
+                    var splitVal = val[i].split(':');
+                    // getting rid of server name as geoserver has no concept of this when querying for KML link
+                    var layerVal = splitVal[1] + ':' + splitVal[2];
+                    if(splitVal[0] === serverName) {
+                        serverVals.push(layerVal);
+                    }
+                }
+                link = link + serverVals.join(',');
 
                 var timeFilter = opStateService.getTemporalFilter();
 
@@ -133,6 +145,7 @@ angular.module('opApp.header').controller('opHeaderController',
             }
             return link;
         };
+
         $scope.buildKmlLinkOld = function() {
             var val = opStateService.getDatasets();
 
@@ -221,18 +234,20 @@ angular.module('opApp.header').controller('opHeaderController',
 
         $scope.$on('filters-updated', function() {
             var val = opStateService.getDatasets();
-            //var serversActive = opStateService.getActiveServer();
+            var serversActive = opStateService.getActiveServer();
             if(val.length > 0) {
                 $scope.kmlEnabled = true;
             } else {
                 $scope.kmlEnabled = false;
             }
-            //if(serversActive.length === 1) {
-            //    $scope.kmlSingleServer = true;
-            //    $scope.kmlLink = $scope.buildKmlLink(serversActive[0].name);
-            //} else {
-            //    $scope.kmlSingleServer = false;
-            //}
+            if(serversActive.length === 1) {
+                $scope.kmlSingleServer = true;
+                $scope.kmlLink = $scope.buildKmlLink(serversActive[0].name);
+            } else {
+                $scope.kmlSingleServer = false;
+            }
+            console.log('kmlSingleServer?: ' + $scope.kmlSingleServer);
+            console.log('kmlLink = ' + $scope.kmlLink);
             //$scope.buildKmlLink();
         });
 
@@ -241,6 +256,13 @@ angular.module('opApp.header').controller('opHeaderController',
         $scope.$on('servers-updated', function(event, args) {
             var serversOn = args[0];
             var serversOff = args[1];
+            var serversActive = opStateService.getActiveServer();
+            if(serversActive.length === 1) {
+                $scope.kmlSingleServer = true;
+                $scope.kmlLink = $scope.buildKmlLink(serversActive[0].name);
+            } else {
+                $scope.kmlSingleServer = false;
+            }
 
             serversOn.forEach(function(serverOn) {
                 $scope.servers.forEach(function(server) {
@@ -266,7 +288,6 @@ angular.module('opApp.header').controller('opHeaderController',
             $scope.servers = opConfig.servers;
             $scope.servers.forEach(function(server) {
                 server.active = false;
-
                 server.loaded = false;
             });
         };

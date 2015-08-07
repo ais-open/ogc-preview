@@ -81,6 +81,11 @@ angular.module('opApp.query')
             localStorageService.set(this.localStorageLayerFieldsKey, null);
         };
 
+        this.clearCacheForServer = function(serverNum) {
+            localStorageService.set(this.localStorageLayersKey+serverNum, null);
+            localStorageService.set(this.localStorageLayerFieldsKey, null);
+        };
+
         /**
          * Performs a number of chained async processes to determine the fields and time dimensions of passed in layer
          * Returned promise will be resolved with either an object structured as follows or rejected:
@@ -237,8 +242,8 @@ angular.module('opApp.query')
         this.getLayers = function (force, serverName) {
             var deferred = $q.defer();
             var self = this;
-
-            var layersCached = localStorageService.get(self.localStorageLayersKey);
+            var serverNum = opStateService.getServerNumByName(serverName);
+            var layersCached = localStorageService.get(self.localStorageLayersKey+serverNum);
             var currentUnix = moment(new Date()).unix();
 
             if (!force &&
@@ -268,9 +273,10 @@ angular.module('opApp.query')
        }, {...} ]
 */
             else {
-                this.clearCache();
-
+                //this.clearCache();
+                this.clearCacheForServer(serverNum);
                 opWebMapService.getCapabilities(serverName).then(function (result) {
+
                     if (result !== null) {
                         var layers = [];
 
@@ -352,7 +358,8 @@ angular.module('opApp.query')
 
                         var cachedDate = moment(new Date()).unix();
                         var layersCache = {layers: layers, cachedOn: cachedDate};
-                        localStorageService.set(self.localStorageLayersKey, layersCache);
+                        //localStorageService.set(self.localStorageLayersKey, layersCache);
+                        localStorageService.set(self.localStorageLayersKey+serverNum, layersCache);
                         deferred.resolve(layers);
                     }
                     else {

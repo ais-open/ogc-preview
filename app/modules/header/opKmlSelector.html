@@ -1,18 +1,22 @@
 <div class="modal-header">
     <a href="" class="close modal-close pull-right" ng-click="$close()">&times;</a>
-    <h3 class="modal-title">
+    <h2 class="modal-title">
         KML Export Selection
-    </h3>
+    </h2>
 </div>
-<div class="modal-body">
-    <p>KML exporting temporary disabled.</p>
-    <br />
-    <!--<li ng-repeat="server in KmlServers">-->
-        <!--{{server}}-->
-        <!--<input type="text" onclick="this.select()" class="form-control" value="{{kmlLinks[$index]}}" />-->
-        <!--Layers enabled:-->
-        <!--<li ng-repeat="layer in KmlLayers[$parent.$index]">-->
-            <!--{{layer}}-->
-        <!--</li>-->
-    <!--</li>-->
+<div class="modal-body" style="padding-top: 0px">
+    <!--<p>KML exporting temporary disabled.</p>-->
+    <li ng-repeat="server in KmlServers" style="list-style-type: none;" ng-init="outerIndex = $index">
+        <h3>KML link for {{server}} server</h3>
+        <div class="form-inline">
+            <div class="form-group">
+                <a href="{{kmlLinks[$index]}}" class="btn btn-success btn-sm">Open</a>
+                <input type="text" class="form-control" value="{{kmlLinks[$index]}}" style="width: 800px"/>
+            </div>
+        </div>
+        <h4>layers included:</h4>
+        <p ng-repeat="layer in getLayersForServer(outerIndex)" ng-init="innerIndex = $index" style="margin-left: 10px;">
+            {{layer}}
+        </p>
+    </li>
 </div>

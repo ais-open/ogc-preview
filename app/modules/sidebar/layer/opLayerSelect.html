@@ -24,8 +24,8 @@
                  <label class="checkbox" ng-repeat="layer in group.getLayers() | orderBy:'title'" ng-if="isLayerVisible(layer.uid)">
                      <!--tooltip-placement="right" tooltip-append-to-body="true" tooltip-html-unsafe="<b>{{layer.title}}</b><br/>{{layer.abstract | plainTextToHtml}}"-->
                      <input type="checkbox" ng-model="layer.active" name="layers" ng-click="datasetStateChanged(layer.uid)"/>
-                     <span ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}} | {{layer.server}}</span>
-
+                     <span ng-if="DEBUG" ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}} | {{layer.server}}</span>
+                     <span ng-if="!DEBUG" ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}}</span>
                      <span class="icons">
                          <div ng-if="layer.active && layer.loading" class="spinner"><div class="spinner-image"></div></div>
                          <a op-popup="<b>{{layer.title}}</b><br/>{{layer.abstract | plainTextToHtml}}<p>Legend:<br/><img src='{{layer.legendGraphic}}' /></p>" href=""><i class="icon-help"></i></a>
@@ -33,7 +33,7 @@
                  </label>
                </span>
            </span>
-            <a href="" ng-show="DEBUG" class="btn btn-info btn-sm pull-right" ng-click="updateLayers(true);" style="margin-left:10px;"><i class="glyphicon glyphicon-refresh"></i> Refresh Datasets</a>
+            <a href="" ng-show="DEBUG" class="btn btn-info btn-sm pull-right" ng-click="updateAllLayers();" style="margin-left:10px;"><i class="glyphicon glyphicon-refresh"></i> Refresh Datasets</a>
         </div>
     </div>
 </div>

@@ -4,10 +4,16 @@
 
     <div class="application-logo"></div>
     <div class="navbar-collapse collapse">
-        <ul class="nav navbar-nav" style="margin-left:80px;">
-            <li class="server-list" ng-repeat="server in servers">
-                <a ng-click="toggleServer($index)" href="" ng-class="{active: server.active === true}">{{server.name}} <div ng-if="server.loading"class="server-loading-spinner"></div></a>
+        <ul class="nav navbar-nav server-list" style="margin-left:80px;">
+            <li class="server-list" ng-repeat="server in servers" ng-class="{active: server.active}">
+                <a ng-click="toggleServer($index)" href="" >
+                    {{server.name}}
+                </a>
+                <div ng-if="server.loading" class="server-loading-spinner"></div>
+                <div ng-click="refreshServer($index)" ng-if="!server.loading" class="server-refresh glyphicon glyphicon-refresh"></div>
             </li>
+        <!--</ul>-->
+        <!--<ul class="nav navbar-nav">-->
             <li><a href="" ng-click="openResults();">View Attributes</a></li>
             <li><a href="" ng-class="{active: isDrawing}" ng-click="drawStart();" tooltip="Select Region" tooltip-placement="bottom"><i class="map-icon icon-square"></i></a></li>
             <li><a href="" ng-click="drawClear();"  tooltip="Clear Selection" tooltip-placement="bottom"><i class="map-icon icon-x"></i></a></li>
