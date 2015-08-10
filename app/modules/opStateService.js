@@ -480,7 +480,7 @@ angular.module('opApp')
         // used primarily for layer UID generation (to differentiate between same-named layers, but on diff. servers)
         this.getServerNumByName = function(serverName) {
             for(var i = 0; i < opConfig.servers.length; i++) {
-                if(activeServer[i].name === serverName) {
+                if(opConfig.servers[i].name === serverName) {
                     return i;
                 }
             }
