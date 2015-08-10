@@ -572,8 +572,8 @@ angular.module('opApp').controller('opLayerController',
         $scope.updateAllLayers = function() {
             var servers = opStateService.getActiveServer();
             for(var i = 0; i < servers.length; i++) {
-                //clearServerSpecificLayers(servers[i].name);
-                //$scope.layerGroups.turnServerOff(servers[i].name);
+                clearServerSpecificLayers(servers[i].name);
+                $scope.layerGroups.turnServerOff(servers[i].name);
                 $scope.updateLayers(true, servers[i].name);
             }
         };
