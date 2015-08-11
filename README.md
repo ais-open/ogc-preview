@@ -4,7 +4,7 @@
 Discover, browse and export data from OGC service layers exposed by way of WMS/WFS service interfaces, with a special focus given to time-enabled data.
 
 ## Usage
-OGC Preview depends on Grunt as the test runner and build system. The following commands assume npm, bower and grunt-cli installed globally.
+OGC Preview depends on Gukp as the test runner and build system. The following commands assume npm, bower and gulp installed globally.
 
 #### Initialize:
 
@@ -13,10 +13,10 @@ OGC Preview depends on Grunt as the test runner and build system. The following 
 
 #### Development Server:
 
-    $ grunt server
+    $ gulp watch-dev
 
 #### Build artifacts:
 
-    $ grunt build
+    $ gulp build-app-prod
 
 ## Developed by Applied Information Sciences
