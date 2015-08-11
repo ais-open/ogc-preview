@@ -12,7 +12,8 @@ angular.module('opApp').controller('opLayerController',
             var _groups = [];
 
             self.turnServerOff = function(serverName) {
-                for(var i = 0; i < _groups.length; i++) {
+                var i = _groups.length;
+                while(i--) {
                     _groups[i].turnServerOff(serverName);
                     // we need to remove our group if we end up turning off all the layers in that group
                     if(_groups[i].getLayers().length === 0) {
