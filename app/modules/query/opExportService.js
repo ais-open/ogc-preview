@@ -21,7 +21,7 @@ angular.module('opApp.query')
 
             return angular.extend(filters,
                 {
-                    layers: layer.server + ':' + layer.workspace + ':' + layer.name,
+                    layers: layer.workspace + ':' + layer.name,
                     version: wmsVersion,
                     mode: 'download'
                 });
@@ -37,7 +37,7 @@ angular.module('opApp.query')
                 {
                     version: wfsVersion,
                     request: 'GetFeature',
-                    typeName: layer.server + ':' + layer.workspace + ':' + layer.name,
+                    typeName: layer.workspace + ':' + layer.name,
                     outputFormat: outputFormat
                 });
         };
