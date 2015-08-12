@@ -120,7 +120,7 @@ angular.module('opApp.header').controller('opHeaderController',
                 var titleString = null;
                 if (timeFilter !== null && timeFilter.type) {
                     if (timeFilter.type === 'duration') {
-                        timeStr = 'back' + timeFilter.value + timeFilter.interval + '/present';
+                        timeStr = 'P' + timeFilter.value + timeFilter.interval + '/present';
                         var timeLookup = {'h': 'Hour', 'd': 'Day', 'w': 'Week'};
                         titleString = 'OGC Last ' + timeFilter.value + ' ' + timeLookup[timeFilter.interval];
                         // Add s to make interval name plural if greater than 1
