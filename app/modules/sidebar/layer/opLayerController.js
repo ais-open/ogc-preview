@@ -372,7 +372,7 @@ angular.module('opApp').controller('opLayerController',
             }
 
             console.log('enabling layer: \'' + layer.name + '\'');
-            //$rootScope.$broadcast('filters-updated');
+
             //toaster.pop('wait', 'Date/Time', 'Identifying time metadata for ' + layer.title);
 
             // lets try adding layer to map
@@ -429,6 +429,7 @@ angular.module('opApp').controller('opLayerController',
                     applyLayerFilters(layer, timeBounds[0], timeBounds[1]);
 
                     addLayer(layer);
+                    $rootScope.$broadcast('filters-updated');
                 });
         };
 
