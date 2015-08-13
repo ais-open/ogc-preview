@@ -3,13 +3,36 @@
  */
 
 angular.module('opApp').controller('opLayerController',
-    function ($scope, $location, $timeout, $window, moment, toaster, L, opConfig, opLayerService, opWebMapService,
-              opWebFeatureService, opStateService, opFilterService, opExportService, opPopupWindow) {
+    function ($rootScope, $scope, $location, $timeout, $window, moment, toaster, L, opConfig, opLayerService, opWebMapService,
+              opWebFeatureService, opStateService, opFilterService, opExportService, opPopupWindow, $log) {
         'use strict';
+
+        String.prototype.hashCode = function(){
+            var hash = 0;
+            var length = this.length;
+            if (length == 0) return hash;
+            for (var i = 0; i < length; i++) {
+                var chr = this.charCodeAt(i);
+                hash = ((hash<<5)-hash)+chr;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return hash;
+        };
 
         var LayerGroups = function () {
             var self = {};
             var _groups = [];
+
+            self.turnServerOff = function(serverName) {
+                var i = _groups.length;
+                while(i--) {
+                    _groups[i].turnServerOff(serverName);
+                    // we need to remove our group if we end up turning off all the layers in that group
+                    if(_groups[i].getLayers().length === 0) {
+                        _groups.splice(i, 1);
+                    }
+                }
+            };
 
             self.addLayer = function (layer, tag) {
                 var group = self.getGroupByTag(tag);
@@ -58,6 +81,21 @@ angular.module('opApp').controller('opLayerController',
             var self = {};
             var _tag = tag;
             var _layers = [];
+
+            self.turnServerOff = function(serverName) {
+                var i = _layers.length;
+                while(i--) {
+                    if(_layers[i].server === serverName) {
+                        _layers.splice(i, 1);
+                        $scope.layers.splice($scope.layers.indexOf(_layers[i]),1);
+                    }
+                }
+
+                // remove tag if we remove all the layers associated with that tag.
+                if(_layers.length === 0) {
+                    _tag = null;
+                }
+            };
 
             self.getTag = function() {
                 return _tag;
@@ -115,6 +153,10 @@ angular.module('opApp').controller('opLayerController',
                 _layers.push(layer);
             };
 
+            self.removeLayer = function(layer) {
+                _layers.slice(layer, 1);
+            };
+
             return self;
         };
 
@@ -138,8 +180,7 @@ angular.module('opApp').controller('opLayerController',
 
         /*
          Layer Model:
-         layer: {
-         uid: 123456,
+         layer: { uid: 123456,
          name: 'hi1',
          workspace: 'derp',
          active: false,
@@ -187,7 +228,6 @@ angular.module('opApp').controller('opLayerController',
         var groupLayers = function (layers, tags) {
             var unrecognized = [];
             var recognized = [];
-            var layerGroups = new LayerGroups();
 
             // First, bucket all layers in to whether the have recognized tags or not
             for (var i=0; i < layers.length; i++) {
@@ -205,17 +245,15 @@ angular.module('opApp').controller('opLayerController',
                 for (var j=0; j < recognized.length; j++) {
                     if (checkTagMatch(recognized[j].tags, tags[i]))
                     {
-                        layerGroups.addLayer(recognized[j], tags[i]);
+                        $scope.layerGroups.addLayer(recognized[j], tags[i]);
                     }
                 }
             }
 
             // Add final uncategorized group for the rejects
             for (i=0; i < unrecognized.length; i++) {
-                layerGroups.addLayer(unrecognized[i], 'UNCATEGORIZED');
+                $scope.layerGroups.addLayer(unrecognized[i], 'UNCATEGORIZED');
             }
-
-            return layerGroups;
         };
 
         var applyLayerFilters = function (layer, startTime, stopTime) {
@@ -253,19 +291,20 @@ angular.module('opApp').controller('opLayerController',
                 var filter = opFilterService.createWfsBBoxFilterRequestForLayer(layer, timeBounds[0], timeBounds[1],
                     spatialBounds, epsgCode);
 
+                var server = opStateService.getServer(layer.server);
                 opLayerService.getFilteredJsonFeatures(layer, filter).then(
                     function(result){
                         result.kmlUrl = exportData(opExportService.createKmlExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, opConfig.server.url + '/wms/kml');
+                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wms/kml');
                         result.csvUrl = exportData(opExportService.createCsvExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, opConfig.server.url + '/wfs');
+                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wfs');
                         result.shpUrl = exportData(opExportService.createShapefileExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, opConfig.server.url + '/wfs');
+                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wfs');
                         result.rssUrl = exportData(opExportService.createGeoRSSExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, opConfig.server.url + '/wfs');
+                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wfs');
                         opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', result);
                     },
-                    function(reason){ console.log(reason); });
+                    function(reason){ $log.log(reason); });
             }else{
                 opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', {error: 'nobbox'});
             }
@@ -321,21 +360,23 @@ angular.module('opApp').controller('opLayerController',
             var layer = getLayerByUid($scope.layers, layerUid);
 
             if (layer.active && layer.mapHandle !== null && layer.mapHandle !== undefined){
-                console.log('disabling already enabled layer: \'' + layer.name + '\'');
+                $log.log('disabling already enabled layer: \'' + layer.name + '\'');
                 removeLayer(layer);
 
                 // Disabling complete.  Get out of here
                 return;
             }
 
-            console.log('enabling layer: \'' + layer.name + '\'');
+            $log.log('enabling layer: \'' + layer.name + '\'');
+
             //toaster.pop('wait', 'Date/Time', 'Identifying time metadata for ' + layer.title);
 
             // lets try adding layer to map
             // Oh, BTW zIndex is critical, as without overlays appear under baselayers when basselayers are switched
             if (zIndex >= maxZIndex) { zIndex = 50; }
-            var wmsLayer = L.tileLayer.wms(opConfig.server.url + '/wms',
-                opWebMapService.getLeafletWmsParams(layer.name, layer.workspace, { tileSize: 512, zIndex: zIndex }));
+            var server = opStateService.getServer(layer.server);
+            var wmsLayer = L.tileLayer.wms(server.url + '/wms',
+                opWebMapService.getLeafletWmsParams(layer.server, layer.name, layer.workspace, { tileSize: 512, zIndex: zIndex }));
             zIndex += 1;
 
             //opWebMapService.getLeafletWms(layer.title, layer.name, layer.workspace, {});
@@ -348,21 +389,21 @@ angular.module('opApp').controller('opLayerController',
 
                     // Verify time was set for this layer.. result will be undefined if not
                     if (result.time) {
-                        console.log('Time fields identified. ' +
+                        $log.log('Time fields identified. ' +
                             'Start: \'' + result.time.start.field + '\', ' +
                             'Stop: \'' + result.time.stop.field + '\'');
                         if (result.time.start.value && result.time.stop.value) {
-                            console.log('Time values identified. ' +
+                            $log.log('Time values identified. ' +
                                 'Start: \'' + result.time.start.value + '\', ' +
                                 'Stop: \'' + result.time.stop.value + '\'');
                         }
                         else {
-                            console.log('Time values were not identified as layer is not configured for WMS time');
+                            $log.log('Time values were not identified as layer is not configured for WMS time');
                         }
                     }
                 },
                 function (reason) {
-                    console.log('Couldn\'t identify time values for this layer... how embarrassing: ' + reason);
+                    $log.log('Couldn\'t identify time values for this layer... how embarrassing: ' + reason);
                     toaster.pop('note', 'Date/Time', 'Unable to detect time fields for layer \'' + layer.title + '\'.  Date/Time filtering will not be applied to this layer.');
                 }
             )
@@ -376,7 +417,7 @@ angular.module('opApp').controller('opLayerController',
                      opLayerService.isDataPresent(layer, timeBounds[0], timeBounds[1]).then(
                      function(hasData) {
                      layer.hasData = hasData;
-                     console.log('layer hasdata: ' + hasData);
+                     $log.log('layer hasdata: ' + hasData);
                      }
                      );
                      */
@@ -384,6 +425,7 @@ angular.module('opApp').controller('opLayerController',
                     applyLayerFilters(layer, timeBounds[0], timeBounds[1]);
 
                     addLayer(layer);
+                    $rootScope.$broadcast('filters-updated');
                 });
         };
 
@@ -393,7 +435,7 @@ angular.module('opApp').controller('opLayerController',
             }
             layer.timeout = $timeout(function(){
                 layer.loading = false;
-                console.log('Tiles loaded for layer ' + layer.name);
+                $log.log('Tiles loaded for layer ' + layer.name);
             }, 0, true);
         };
 
@@ -413,7 +455,7 @@ angular.module('opApp').controller('opLayerController',
             }
             layer.timeout = $timeout(function(){
                 layer.loading = true;
-                console.log('Loading tiles for layer ' + layer.name);
+                $log.log('Loading tiles for layer ' + layer.name);
             }, 0, true);
         };
 
@@ -438,11 +480,11 @@ angular.module('opApp').controller('opLayerController',
 
                 $scope.map.addLayer(layer.mapHandle);
 
-                opStateService.addDataset(layer.workspace + ':' + layer.name);
+                opStateService.addDataset(layer.server + ':' + layer.workspace + ':' + layer.name);
 
                 opPopupWindow.broadcast( opStateService.getResultsWindow(), 'updateFilters',
                     _.filter($scope.layers, function (l){
-                        return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name);
+                        return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
                     }));
             }
         };
@@ -459,11 +501,11 @@ angular.module('opApp').controller('opLayerController',
 
             layer.mapHandle = null;
 
-            opStateService.removeDataset(layer.workspace + ':' + layer.name);
+            opStateService.removeDataset(layer.server + ':' + layer.workspace + ':' + layer.name);
 
             opPopupWindow.broadcast( opStateService.getResultsWindow(), 'updateFilters',
                 _.filter($scope.layers, function (l){
-                    return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name);
+                    return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
                 }));
         };
 
@@ -482,79 +524,188 @@ angular.module('opApp').controller('opLayerController',
             }
         };
 
-        var updateLayerSelections = function() {
+        var clearServerSpecificLayers = function(serverName) {
+            for (var i=0; i < $scope.layers.length; i++) {
+                var layer = $scope.layers[i];
+                if(layer.active && layer.mapHandle !== null && layer.mapHandle !== undefined && layer.server === serverName) {
+                    removeLayer(layer);
+                }
+            }
+        };
+
+        var updateLayerSelections = function(serverName) {
             var datasets = opStateService.getDatasets();
 
             for (var i = 0; i < datasets.length; i++) {
                 var splitDataset = datasets[i].split(':');
-                var dataset = { name: splitDataset[1], workspace: splitDataset[0] };
-
+                var dataset = { name: splitDataset[2], workspace: splitDataset[1], server: splitDataset[0] };
                 var found = false;
                 // Attempt to configure based on query parameter repr of filters
                 for (var j = 0; j < $scope.layers.length; j++) {
                     var layer = $scope.layers[j];
 
-                    if (layer.name === dataset.name && layer.workspace === dataset.workspace) {
+                    if (layer.name === dataset.name && layer.workspace === dataset.workspace && layer.server === dataset.server) {
                         // Yay, we found our layer in configured datasource... we can break out now.
-                        layer.active = true;
-                        $scope.datasetStateChanged(layer.uid);
+                        // if the layer is already active, don't try to change it's state.
+                        if(!layer.active) {
+                            layer.active = true;
+                            $scope.datasetStateChanged(layer.uid);
+                        }
                         found = true;
                         break;
                     }
                 }
 
-                if (!found) {
-                    toaster.pop('error', 'Configuration Error', 'Unable able to find \'' + dataset + '\' in selected data source.');
+                if (!found && dataset.server === serverName) {
+                    toaster.pop('error', 'Configuration Error', 'Unable able to find \'' + dataset.name + '\' in selected data source.');
                 }
             }
-
         };
 
-        $scope.updateLayers = function(force) {
-            $scope.layersLoading = true;
-            clearLayers();
-            opLayerService.getLayers(force).then(function (layers) {
+        $scope.$on('refresh-server', function(event, args) {
+            // TODO figure out how to not just delete all the layers and turn the server back on
+            // instead, we want to cache datasets enabled and keep them on after getting updated info
+            // from the server(s)
+            var datasets = opStateService.getDatasets().slice(0);
+            var serverData = args;
+            var activeServers = opStateService.getActiveServer();
+            if(activeServers.indexOf(serverData) != -1) {
+                $log.log('Refreshing server ' + serverData.name);
+                clearServerSpecificLayers(serverData.name);
+                $scope.layerGroups.turnServerOff(serverData.name);
+                $scope.updateLayers(true, serverData.name);
+                //opStateService.setDatasets(datasets);
+            }
+            //for (var i = 0; i < datasets.length; i++) {
+            //    var splitDataset = datasets[i].split(':');
+            //    var dataset = {name: splitDataset[2], workspace: splitDataset[1], server: splitDataset[0]};
+            //
+            //    var found = false;
+            //    // Attempt to configure based on query parameter repr of filters
+            //    for (var j = 0; j < $scope.layers.length; j++) {
+            //        var layer = $scope.layers[j];
+            //
+            //        if (layer.name === dataset.name && layer.workspace === dataset.workspace && layer.server === dataset.server) {
+            //            // Yay, we found our layer in configured datasource... we can break out now.
+            //            // if the layer is already active, don't try to change it's state.
+            //            //if (!layer.active) {
+            //                layer.active = false;
+            //                $scope.datasetStateChanged(layer.uid);
+            //            //}
+            //            found = true;
+            //            break;
+            //        }
+            //    }
+            //}
+        });
+
+        $scope.updateLayers = function(force, serverName) {
+            var server = opStateService.getServer(serverName);
+            var previousActiveServerCount = opStateService.getPreviouslyActiveServer().length;
+
+            server.loading = true;
+
+            // attempting to not display 'servers loading' when loading the 2nd server
+            if(previousActiveServerCount > 0) {
                 $scope.layersLoading = false;
-                //console.log('Layers: ' + JSON.stringify(layers));
+            } else {
+                $scope.layersLoading = true;
+            }
+
+            // if no servers are configured, we're clearing all the layers like it was the first time
+            // we're using the app.
+            if(previousActiveServerCount === 0) {
+                clearLayers();
+            }
+
+            opLayerService.getLayers(force, serverName).then(function (layers) {
+                var server = opStateService.getServer(serverName);
+                server.loading = false;
+                $scope.layersLoading = false;
                 // Give layers a uid so that we pass reference to it within the controller
-                for (var i=0; i < layers.length; i++) {
+                var serverNum = opStateService.getServerNumByName(serverName);
+                for (var i = 0; i < layers.length; i++) {
                     var layer = layers[i];
-                    layer.uid = i;
-                    layer.legendGraphic = opWebMapService.getLegendGraphicUrl(layer.workspace + ':' + layer.name);
+                    var hashString = layer.name + layer.workspace + serverName;
+                    var hash = hashString.hashCode();
+                    layer.uid = hash;
+                    layer.legendGraphic = opWebMapService.getLegendGraphicUrl(serverName, layer.workspace + ':' + layer.name);
                 }
-                var layerGroups = groupLayers(layers, opConfig.recognizedTags);
-                // Apply tags to $scope.tags for use in filtering
-                $scope.tags = layerGroups.getGroupTags();
-                $scope.layerGroups = layerGroups;
-                $scope.layers = layers;
+                groupLayers(layers, opConfig.recognizedTags);
+                $scope.tags = $scope.tags.concat($scope.layerGroups.getGroupTags());
+                $scope.layers = $scope.layers.concat(layers);
 
             }, function (reason) {
                 $scope.layersLoading = false;
                 toaster.pop('error', 'Configuration Error', 'Unable to retrieve layers... is your GeoServer running?\n' + reason);
             }).
-                then(function()
-                {
-                    updateLayerSelections();
-                });
+              then(function() {
+                  updateLayerSelections(serverName);
+              });
         };
 
         // THIS GUY BASICALLY BOOTSTRAPS ALL LAYERS INTO THE APP
-        this.initializeLayers = function () {
+        $scope.initializeLayers = function (serverName) {
             opStateService.getLeafletMap()
                 .then(function (map) {
                     $scope.map = map;
-                    $scope.updateLayers(false);
+                    $scope.updateLayers(false, serverName);
                 },
                 function (reason) {
                     toaster.pop('error', 'Leaflet Error', 'Unable to initialize map...\n' + reason);
                 }
             );
         };
-        this.initializeLayers();
+
+        this.resetLayerData = function() {
+            $scope.layerGroups = new LayerGroups();
+            $scope.tags = [];
+            //$scope.layerGroups = null;
+            $scope.layers = []
+        };
+
+        this.resetAndLoadLayers = function() {
+            // this sets all the servers to default as on
+            opStateService.setAllServersActive();
+            var servers = opStateService.getActiveServer();
+            this.resetLayerData();
+            if(opStateService.getActiveServer() !== undefined) {
+                for (var i = 0; i < servers.length; i++) {
+                    servers[i].active = true;
+                    $scope.initializeLayers(servers[i].name);
+                }
+            }
+        };
+
+        this.resetAndLoadLayers();
 
         $scope.friendlyLayer = function() {
             var activeLayers = opStateService.getDatasets();
             return activeLayers.length + ' enabled';
+        };
+
+        //
+        $scope.$on('servers-updated', function(event, args) {
+            var serversOn = args[0];
+            var serversOff = args[1];
+
+            serversOn.forEach(function(server) {
+                $scope.turnServerOn(server.name);
+
+            });
+
+            serversOff.forEach(function(server) {
+                $scope.turnServerOff(server.name);
+            });
+        });
+
+        $scope.turnServerOn = function(server) {
+            $scope.initializeLayers(server);
+        };
+
+        $scope.turnServerOff = function(server) {
+            $scope.layerGroups.turnServerOff(server);
+            clearServerSpecificLayers(server);
         };
 
         opPopupWindow.on('resultsHeartbeat', function (win){
@@ -562,7 +713,7 @@ angular.module('opApp').controller('opLayerController',
                 opStateService.setResultsWindow(win);
                 opPopupWindow.broadcast( opStateService.getResultsWindow(), 'updateFilters',
                     _.filter($scope.layers, function (l){
-                        return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name);
+                        return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
                     }));
             }
         });
@@ -570,7 +721,7 @@ angular.module('opApp').controller('opLayerController',
             opStateService.setResultsWindow(win);
             opPopupWindow.broadcast( opStateService.getResultsWindow(), 'updateFilters',
                 _.filter($scope.layers, function (l){
-                    return _.contains(opStateService.getDatasets(), l.workspace + ':' + l.name);
+                    return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
                 }));
         });
     });

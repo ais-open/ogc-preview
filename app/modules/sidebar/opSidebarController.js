@@ -1,5 +1,5 @@
 
-angular.module('opApp').controller('opSidebarController',
+angular.module('opApp.sidebar').controller('opSidebarController',
     function ($scope, opAnnouncementsService ) {
         'use strict';
 

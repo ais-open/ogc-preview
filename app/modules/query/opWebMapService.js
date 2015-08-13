@@ -4,47 +4,46 @@
  7/8/2014
  ---------------------------------*/
 
-angular
-    .module('opApp')
+angular.module('opApp.query')
     .service('opWebMapService',
-    function ($q, $http, opConfig) {
+    function ($q, $http, opConfig, opStateService, $log) {
         'use strict';
-
-        this.WMS_VERSION = opConfig.server.wmsVersion;
-        this.AJAX_URL = opConfig.server.ajaxUrl + '/wms';
 
         /**
          * Perform a WMS GetCapabilities request against the configured data source
          *
          * @returns {*}
          */
-        this.getCapabilities = function () {
-            var deferred = $q.defer();
-            var version = this.WMS_VERSION;
+        this.getCapabilities = function (serverName) {
 
-            console.log('Requesting capabilities from server...');
+            var deferred = $q.defer();
+            var server = opStateService.getServer(serverName);
+            var version = server.wmsVersion;
+
+            $log.log('Requesting capabilities from server ' + server.name);
             var params = { version: version, request: 'GetCapabilities' };
-            var url = this.AJAX_URL;
+            var url = server.ajaxUrl + '/wms';
             $http.get(url, { params: params }).then(function (result) {
-                console.log('Successfully retrieved GetCapabilities result.');
+                $log.log('Successfully retrieved GetCapabilities result.');
                 deferred.resolve(result);
             }, function (reason) {
                 // error
                 var error = 'Error retrieving GetCapabilities result: ' + reason.data;
-                console.log(error);
+                $log.log(error);
                 deferred.reject(reason);
             });
 
             return deferred.promise;
         };
 
-        this.getLeafletWmsParams = function (name, workspace, params) {
+        this.getLeafletWmsParams = function (serverName, name, workspace, params) {
+            var server = opStateService.getServer(serverName);
             var workspacedLayer = workspace + ':' + name;
             return angular.extend(
                 {
                     transparent: true,
                     format: 'image/png',
-                    version: this.WMS_VERSION,
+                    version: server.wmsVersion,
                     layers: workspacedLayer,
                     maxfeatures: opConfig.wmsFeatureLimiter
                 }, params);
@@ -58,7 +57,8 @@ angular
                 }, params);
         };
 
-        this.getLegendGraphicUrl = function (layerName, legendOptions) {
+        this.getLegendGraphicUrl = function (serverName, layerName, legendOptions) {
+            var server = opStateService.getServer(serverName);
             var options = angular.extend({
                 forceLabels: 'on',
                 fontName: 'Helvetica',
@@ -74,7 +74,7 @@ angular
 
             var params =
                 {
-                    version: this.WMS_VERSION,
+                    version: server.wmsVersion,
                     request: 'GetLegendGraphic',
                     format: 'image/png',
                     transparent: true,
@@ -84,6 +84,7 @@ angular
                     /* jshint ignore:end */
                 };
 
-            return this.AJAX_URL + '?' + $.param(params);
+            var url = server.ajaxUrl + '/wms';
+            return url + '?' + $.param(params);
         };
     });

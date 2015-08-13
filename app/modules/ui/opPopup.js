@@ -1,4 +1,4 @@
-angular.module('opApp')
+angular.module('opApp.ui')
   .directive('opPopup', function ($timeout) {
     'use strict';
     var hasPopup = false;

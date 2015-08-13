@@ -476,6 +476,61 @@ a:hover .range-controls {
   background-image: url("../images/loadingdark.gif");
 }
 
+.server-loading-spinner {
+  width: 16px;
+  height: 16px;
+  position: relative;
+  top: 2px;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  display: inline-block;
+  background-image: url("../images/loadingdark.gif");
+  visibility: hidden;
+}
+.active .server-loading-spinner {
+  visibility: visible;
+  background-color: @theme;
+  color: #999999;
+}
+
+.server-refresh {
+  width: 16px;
+  height: 16px;
+  position: relative;
+  top: 2px;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  display: inline-block;
+  cursor: pointer;
+  color: #999999;
+  visibility: hidden;
+
+  &.active {
+    visibility: visible;
+    background-color: @theme;
+    color: #999999;
+  }
+  &:focus {
+    background-color: transparent;
+    color: #999999;
+  }
+  &:hover {
+    background-color: @theme;
+    color: #ffffff;
+  }
+  &.active:hover {
+    background-color: @theme;
+    color: #ffffff;
+  }
+}
+
+.active .server-refresh {
+  visibility: visible;
+  background-color: @theme;
+  color: #000;
+
+}
+
 /* ############################### Lightbox ############################### */
 
 #lightbox-backdrop {

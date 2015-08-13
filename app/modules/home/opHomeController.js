@@ -4,13 +4,12 @@
  7/8/2014
  ---------------------------------*/
 
-angular.module('opApp').controller('opHomeController',
-  function ($scope, $rootScope, opStateService, opPopupWindow, $window) {
+angular.module('opApp.home').controller('opHomeController',
+  function ($scope, $rootScope, opStateService, opPopupWindow, $window, $log) {
     'use strict';
 
     var initialize = function () {
-        console.log('Starting up opHomeController...');
-
+        $log.log('Starting up opHomeController...');
     };
     initialize();
 

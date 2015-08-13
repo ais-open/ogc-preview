@@ -1,4 +1,4 @@
-angular.module('opApp').factory('opPopupWindow', function ($q, $window) {
+angular.module('opApp.ui').factory('opPopupWindow', function ($q, $window) {
   'use strict';
   // Public API here
   var queryWindowHandle;

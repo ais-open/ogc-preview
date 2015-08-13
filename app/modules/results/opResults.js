@@ -2,13 +2,13 @@
  * Created by bensonda on 7/21/2014.
  */
 
-angular.module('opApp').directive('opResults', function() {
+angular.module('opApp.results').directive('opResults', function() {
     'use strict';
 
     return {
         restrict: 'EA',
         templateUrl: 'modules/results/opResults.html',
-        controller: function ($scope, $rootScope, $window, $interval, $timeout) {
+        controller: function ($scope, $rootScope, $window, $interval, $timeout, $log) {
 
             $scope.model = {
                 currentTab: null,
@@ -66,7 +66,7 @@ angular.module('opApp').directive('opResults', function() {
             }, 2500);
 
             $window.broadcast = function (){
-                console.log(arguments);
+                $log.log(arguments);
                 var args = arguments;
                 $timeout( function (){
                     $rootScope.$broadcast.apply($scope, args);

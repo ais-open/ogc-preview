@@ -3,7 +3,7 @@
  */
 
 
-angular.module('opApp')
+angular.module('opApp.filters')
     .filter('plainTextToHtml', function() {
         'use strict';
 

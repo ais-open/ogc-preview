@@ -2,7 +2,7 @@
  * Created by Jonathan.Meyer on 6/26/2014.
  */
 
-angular.module('opApp').directive('opMap', function() {
+angular.module('opApp.map').directive('opMap', function() {
     'use strict';
 
     return {

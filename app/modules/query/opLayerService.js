@@ -4,10 +4,9 @@
  7/8/2014
  ---------------------------------*/
 
-angular
-    .module('opApp')
+angular.module('opApp.query')
     .service('opLayerService',
-    function ($q, $http, localStorageService, opConfig, opWebMapService, opWebFeatureService, opFilterService) {
+    function ($q, $http, localStorageService, opConfig, opWebMapService, opWebFeatureService, opFilterService, opStateService, $log) {
         'use strict';
 
         this.localStorageLayersKey = 'opApp.layersCache';
@@ -82,6 +81,11 @@ angular
             localStorageService.set(this.localStorageLayerFieldsKey, null);
         };
 
+        this.clearCacheForServer = function(serverNum) {
+            localStorageService.set(this.localStorageLayersKey+serverNum, null);
+            localStorageService.set(this.localStorageLayerFieldsKey, null);
+        };
+
         /**
          * Performs a number of chained async processes to determine the fields and time dimensions of passed in layer
          * Returned promise will be resolved with either an object structured as follows or rejected:
@@ -129,10 +133,10 @@ angular
             {
                 for (var i=0; i < fieldsCache.length; i++) {
                     var cacheLayer = fieldsCache[i];
-                    if (layer.name === cacheLayer.name && layer.workspace === cacheLayer.workspace) {
-                        console.log('Found layer and workspace match in cache... does it fall within cache period?');
+                    if (layer.name === cacheLayer.name && layer.workspace === cacheLayer.workspace && layer.server === cacheLayer.server) {
+                        $log.log('Found layer and workspace match in cache... does it fall within cache period?');
                         var diff = Math.abs(currentUnix - cacheLayer.cachedOn);
-                        console.log('Seconds since last layer cache: ' + diff);
+                        $log.log('Seconds since last layer cache: ' + diff);
                         if (diff < opConfig.layerCachePeriod){
                             deferred.resolve(cacheLayer.fields);
                             return deferred.promise;
@@ -148,7 +152,7 @@ angular
              Time fields but not WMS TIME enabled
              Time fields WITH WMS TIME enabled
              */
-            opWebFeatureService.extractFieldsAndTypes(layer.name, layer.workspace).then(
+            opWebFeatureService.extractFieldsAndTypes(layer.server, layer.name, layer.workspace).then(
                 function (fields) {
                     layer.fields.list = fields;
                     var startField = determineTimeField(opConfig.timeFields.start, fields);
@@ -156,7 +160,7 @@ angular
                     var geometry = determineGeometryField(fields);
 
                     if (geometry === null) {
-                        console.log('Unable to determine geometry field.  Layer ' + layer.name +
+                        $log.log('Unable to determine geometry field.  Layer ' + layer.name +
                             ' will not be queryable.');
                     }
                     else {
@@ -178,12 +182,12 @@ angular
                             stop: { field: stopField, value: layer.fields.time.stop.value },
                             wmsTime: angular.isDefined(layer.fields.time.wmsTime) && layer.fields.time.wmsTime
                         };
-                        console.log(time);
+                        $log.log(time);
 
                         layer.fields.time = time;
                     }
                     else {
-                        console.log('Unable to determine time fields.  Layer ' + layer.name +
+                        $log.log('Unable to determine time fields.  Layer ' + layer.name +
                             ' is not time enabled.');
                     }
 
@@ -194,8 +198,8 @@ angular
                     layer.fields = { time: null, geometry: null };
                     self.setFieldCache(layer, layer.fields);
 
-                    console.log('Unable to determine field types: ' + reason);
-                    console.log('Assuming raster layer.');
+                    $log.log('Unable to determine field types: ' + reason);
+                    $log.log('Assuming raster layer.');
                     deferred.resolve(layer.fields);
                 });
 
@@ -213,7 +217,7 @@ angular
          */
         this.isDataPresent = function (layer, startBound, endBound, spatialWKT) {
             var filters = opFilterService.createWfsFilterRequestForLayer(layer, startBound, endBound, spatialWKT);
-            return opWebFeatureService.isDataPresent(layer.name, layer.workspace, layer.fields, filters);
+            return opWebFeatureService.isDataPresent(layer.server, layer.name, layer.workspace, layer.fields, filters);
         };
 
         /**
@@ -223,7 +227,7 @@ angular
          * @returns {*}
          */
         this.getFilteredJsonFeatures = function (layer, filters) {
-            return opWebFeatureService.getFilteredJsonFeatures(layer.name, layer.workspace, layer.fields,
+            return opWebFeatureService.getFilteredJsonFeatures(layer.server, layer.name, layer.workspace, layer.fields,
                 filters, {maxFeatures: opConfig.wfsFeatureLimiter, srsName: 'EPSG:4326'});
         };
 
@@ -235,18 +239,18 @@ angular
          *
          * @returns {*}
          */
-        this.getLayers = function (force) {
+        this.getLayers = function (force, serverName) {
             var deferred = $q.defer();
             var self = this;
-
-            var layersCached = localStorageService.get(self.localStorageLayersKey);
+            var serverNum = opStateService.getServerNumByName(serverName);
+            var layersCached = localStorageService.get(self.localStorageLayersKey+serverNum);
             var currentUnix = moment(new Date()).unix();
 
             if (!force &&
                 layersCached !== undefined && layersCached !== null &&
                 Math.abs(currentUnix - layersCached.cachedOn) < opConfig.cachePeriod) {
-                console.log('Seconds since last layer cache: ' + Math.abs(currentUnix - layersCached.cachedOn));
-                console.log('Thanks for not forcing me to re-request layers, since they are in local storage...');
+                $log.log('Seconds since last layer cache: ' + Math.abs(currentUnix - layersCached.cachedOn));
+                $log.log('Thanks for not forcing me to re-request layers, since they are in local storage...');
 
                 deferred.resolve(layersCached.layers);
             }
@@ -269,8 +273,10 @@ angular
        }, {...} ]
 */
             else {
-                this.clearCache();
-                opWebMapService.getCapabilities().then(function (result) {
+                //this.clearCache();
+                this.clearCacheForServer(serverNum);
+                opWebMapService.getCapabilities(serverName).then(function (result) {
+
                     if (result !== null) {
                         var layers = [];
 
@@ -291,6 +297,7 @@ angular
                             for (var j = 0; j < nodes.item(i).childNodes.length; j++) {
                                 var node = nodes.item(i).childNodes.item(j);
                                 if (node.nodeType === 1) {
+                                    layer.server = serverName;
                                     switch (node.nodeName) {
                                         case 'Name':
                                             layer.name = node.textContent;
@@ -331,8 +338,8 @@ angular
                                                      </Dimension>
                                                      */
                                                     layer.fields.time = {
-                                                        start: { value: time[0] },
-                                                        stop: { value: time[1] },
+                                                        start: {value: time[0]},
+                                                        stop: {value: time[1]},
                                                         wmsTime: true
                                                     };
                                                 }
@@ -350,20 +357,21 @@ angular
                         }
 
                         var cachedDate = moment(new Date()).unix();
-                        var layersCache = { layers: layers, cachedOn: cachedDate};
-                        localStorageService.set(self.localStorageLayersKey, layersCache);
+                        var layersCache = {layers: layers, cachedOn: cachedDate};
+                        localStorageService.set(self.localStorageLayersKey+serverNum, layersCache);
                         deferred.resolve(layers);
                     }
                     else {
                         var error = 'Unable to retrieve server capabilities.';
-                        console.log(error);
+                        $log.log(error);
                         deferred.reject(error);
                     }
                 }, function (reason) {
                     var error = 'Unable to retrieve server capabilities.' + reason;
-                    console.log(error);
+                    $log.log(error);
                     deferred.reject(error);
                 });
+
             }
 
             return deferred.promise;

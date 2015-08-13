@@ -4,7 +4,7 @@
  7/8/2014
  ---------------------------------*/
 
-angular.module('opApp').directive('opHeader', function() {
+angular.module('opApp.header').directive('opHeader', function() {
     'use strict';
 
     return {

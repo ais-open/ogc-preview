@@ -4,8 +4,8 @@
  7/8/2014
  ---------------------------------*/
 
-angular.module('opApp').controller('opMapController',
-    function ($scope, $rootScope, $timeout, L, opConfig, opStateService, opWebMapService, opPopupWindow) {
+angular.module('opApp.map').controller('opMapController',
+    function ($scope, $rootScope, $timeout, L, opConfig, opStateService, opWebMapService, opPopupWindow, $log) {
         'use strict';
 
         L.drawLocal.draw.toolbar.buttons.polygon = 'Draw a polygon filter.';
@@ -41,7 +41,7 @@ angular.module('opApp').controller('opMapController',
 
 
         var initializeMap = function () {
-            console.log('Starting up opMapController...');
+            $log.log('Starting up opMapController...');
 
             var baseLayers = {};
 
@@ -102,12 +102,9 @@ angular.module('opApp').controller('opMapController',
 
             legendControl = L.control.layerLegend();
             legendControl.addTo(map);
-
             legendControl.updateLegend();
 
             map.on('moveend', setBounds);
-
-
 
             var rect = new L.Draw.Rectangle(map, {
                 shapeOptions: { color: '#ffd800', weight: 2, opacity: 1, fill: false }
@@ -197,8 +194,13 @@ angular.module('opApp').controller('opMapController',
         $rootScope.$on('layer-selection-changed', function(event, layers) {
             var legends = [];
             angular.forEach(layers, function(layer) {
-                var legendGraphicUrl = opWebMapService.getLegendGraphicUrl(layer);
-                console.log('identified legend url: ' + legendGraphicUrl);
+                // layer is e.g. : dev:osg:archsites
+                //                 server:workspace:layername
+                var splitLayer = layer.split(':');
+                var serverName = splitLayer[0];
+                var layerName = splitLayer[1] + ':' + splitLayer[2];
+                var legendGraphicUrl = opWebMapService.getLegendGraphicUrl(serverName, layerName);
+                $log.log('identified legend url: ' + legendGraphicUrl);
                 legends.push(legendGraphicUrl);
             });
 

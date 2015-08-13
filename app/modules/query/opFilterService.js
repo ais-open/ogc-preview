@@ -5,8 +5,7 @@
  7/8/2014
  ---------------------------------*/
 
-angular
-    .module('opApp')
+angular.module('opApp.query')
     .service('opFilterService',
     function (opStateService) {
         'use strict';

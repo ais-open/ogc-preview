@@ -7,7 +7,7 @@
  *
  * Handles managing announcement messages
  */
-angular.module('opApp')
+angular.module('opApp.header')
     .service('opAnnouncementsService', function ($log, $http, $timeout, $rootScope, moment, localStorageService) {
         'use strict';
         var self = this;

@@ -2,7 +2,7 @@
  * Created by Jonathan.Meyer on 6/2/2014.
  */
 
-angular.module('opApp', [])
+angular.module('opApp.filters')
 .filter('unixToDate', function() {
     'use strict';
     return function(unixdate) {
