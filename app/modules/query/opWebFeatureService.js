@@ -6,7 +6,7 @@
 
 angular.module('opApp.query')
     .service('opWebFeatureService',
-    function ($q, $http, opConfig, opStateService) {
+    function ($q, $http, opConfig, opStateService, $log) {
         'use strict';
 
         // Using WFS 1.1.0 for the very specific reason, that 2.0.0 always runs full table scan to get feature counts.
@@ -60,19 +60,19 @@ angular.module('opApp.query')
                         }
                         else {
                             error = 'Unable to parse DescribeFeatureType response: ' + result.data;
-                            console.log(error);
+                            $log.log(error);
                             deferred.reject(error);
                         }
                     }
                     else {
                         error = 'Null response received from DescribeFeatureType';
-                        console.log(error);
+                        $log.log(error);
                         deferred.reject(error);
                     }
                 },
                 function (reason) {
                     error = 'Failure in DescribeFeatureType request for start/stop field names: ' + reason;
-                    console.log(error);
+                    $log.log(error);
                     deferred.reject(error);
                 });
 
@@ -89,7 +89,6 @@ angular.module('opApp.query')
         this.describeFeatureType = function (serverName, name, workspace) {
             var server = opStateService.getServer(serverName);
             var wfsVersion = server.wfsVersion;
-            var url = server.url + '/wfs';
             var ajaxUrl = server.ajaxUrl + '/wfs';
 
             var deferred = $q.defer();
@@ -98,12 +97,12 @@ angular.module('opApp.query')
             var params = { version: wfsVersion, request: 'DescribeFeatureType', typeName: typeName };
 
             $http.get(ajaxUrl, {params: params }).then(function (result) {
-                console.log('Successfully retrieved DescribeFeatureType result.');
+                $log.log('Successfully retrieved DescribeFeatureType result.');
                 deferred.resolve(result);
             }, function (reason) {
                 // error
                 var error ='Error retrieving DescribeFeatureType result: ' + reason;
-                console.log(error);
+                $log.log(error);
                 deferred.reject(error);
             });
 
@@ -123,21 +122,19 @@ angular.module('opApp.query')
 
             var server = opStateService.getServer(serverName);
             var wfsVersion = server.wfsVersion;
-            var url = server.url + '/wfs';
             var ajaxUrl = server.ajaxUrl + '/wfs';
-            var wfsOutputFormat = server.wfsOutputFormat;
 
             var typeName = workspace + ':' + name;
             var serviceParams = angular.extend({ version: wfsVersion, request: 'GetFeature', typeName: typeName }, params);
 
             $http.get(ajaxUrl, {params: serviceParams, cache:true }).then(
                 function (result) {
-                    console.log('Successfully retrieved GetFeature result.');
+                    $log.log('Successfully retrieved GetFeature result.');
                     deferred.resolve(result);
                 },
                 function (reason) {
                     // error
-                    console.log('Error retrieving GetFeature result');
+                    $log.log('Error retrieving GetFeature result');
                     deferred.reject(reason);
                 });
 
@@ -156,10 +153,6 @@ angular.module('opApp.query')
          */
         this.getFeaturesAsJson = function(serverName, name, workspace, fields, params) {
             var deferred = $q.defer();
-            var server = opStateService.getServer(serverName);
-            var wfsVersion = server.wfsVersion;
-            var url = server.url + '/wfs';
-            var ajaxUrl = server.ajaxUrl + '/wfs';
             var wfsOutputFormat = server.wfsOutputFormat;
 
             // Use to filter out geometry fields from results
@@ -202,9 +195,9 @@ angular.module('opApp.query')
                         deferred.resolve(json);
                     }
                     else {
-                        console.log(params);
+                        $log.log(params);
                         var error = 'Unable to find any features in ' + workspace + ':' + name +  ' with params: ' + JSON.stringify(params);
-                        console.log(error);
+                        $log.log(error);
                         deferred.resolve(json);
                     }
                 },
@@ -249,13 +242,6 @@ angular.module('opApp.query')
          */
         this.isDataPresent = function (serverName, name, workspace, fields, filter) {
             var deferred = $q.defer();
-            var server = opStateService.getServer(serverName);
-            var wfsVersion = server.wfsVersion;
-            var url = server.url + '/wfs';
-            var ajaxUrl = server.ajaxUrl + '/wfs';
-            var wfsOutputFormat = server.wfsOutputFormat;
-
-
             this.getFilteredJsonFeatures(serverName, name, workspace, fields, filter, {maxFeatures: 1}).then(
                 function (result) {
                     if (result.features && result.features.length === 1) {
@@ -265,7 +251,7 @@ angular.module('opApp.query')
                     deferred.resolve(false);
                 },
                 function (reason) {
-                    console.log('Error attempting to determine if data is present: ' + reason);
+                    $log.log('Error attempting to determine if data is present: ' + reason);
                     deferred.resolve(false);
                 }
             );
@@ -330,12 +316,12 @@ angular.module('opApp.query')
                     else {
                         var error = 'Unable to find value of expected field: ' + field;
                         error += ' This is likely a result of layer having no records.';
-                        console.log(error);
+                        $log.log(error);
                         deferred.reject(error);
                     }
                 },
                 function (reason) {
-                    console.log('Unable to identify a min/max time for field ' + field);
+                    $log.log('Unable to identify a min/max time for field ' + field);
                     deferred.reject(reason);
                 }
             );

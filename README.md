@@ -4,7 +4,7 @@
 Discover, browse and export data from OGC service layers exposed by way of WMS/WFS service interfaces, with a special focus given to time-enabled data.
 
 ## Usage
-OGC Preview depends on Gukp as the test runner and build system. The following commands assume npm, bower and gulp installed globally.
+OGC Preview depends on Gulp as the test runner and build system. The following commands assume npm, bower and gulp installed globally.
 
 #### Initialize:
 
@@ -17,6 +17,6 @@ OGC Preview depends on Gukp as the test runner and build system. The following c
 
 #### Build artifacts:
 
-    $ gulp build-app-prod
+    $ gulp
 
 ## Developed by Applied Information Sciences

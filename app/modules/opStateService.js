@@ -5,7 +5,7 @@
  ---------------------------------*/
 
 angular.module('opApp')
-    .service('opStateService', function State($q, $rootScope, $location, $route, $timeout, L, moment, opConfig) {
+    .service('opStateService', function State($q, $rootScope, $location, $route, $timeout, L, moment, opConfig, $log) {
         'use strict';
         var self = this;
         var state = {};
@@ -133,7 +133,7 @@ angular.module('opApp')
                     bounds = L.latLngBounds({lon: coords[0], lat: coords[1]}, {lon: coords[2], lat: coords[3]});
                 }
                 else {
-                    console.log('Unrecognized format of bounds parameter: ' + bboxString);
+                    $log.log('Unrecognized format of bounds parameter: ' + bboxString);
                 }
             }
 
@@ -230,7 +230,7 @@ angular.module('opApp')
 
                 if (['d','h','w'].indexOf(interval) === -1)
                 {
-                    console.log('Unable to identify a valid interval type in duration from temporal filter \'' +
+                    $log.log('Unable to identify a valid interval type in duration from temporal filter \'' +
                         filter + '\'. Setting to default');
                     filter = fallbackFilter;
                 }
@@ -253,7 +253,7 @@ angular.module('opApp')
                     stopTime = moment.utc(range[1], 'YYYY-MM-DDTHH:mm:ss');
                 }
                 else {
-                    console.log('Unable to identify a valid range in temporal filter \'' + filter + '\'.');
+                    $log.log('Unable to identify a valid range in temporal filter \'' + filter + '\'.');
                     stopTime = moment();
                     startTime = moment(stopTime).subtract('d', opConfig.defaultDaysBack);
                 }
@@ -265,14 +265,13 @@ angular.module('opApp')
                 };
             }
             else {
-                console.log('Unable to identify a valid temporal filter from \'' + filter + '\'. ' +
+                $log.log('Unable to identify a valid temporal filter from \'' + filter + '\'. ' +
                     'Defaulting to duration.');
                 filter = fallbackFilter;
             }
 
             return filter;
         };
-
 
         this.getDatasets = function () {
             var datasets = this.getState(datasetId);
@@ -442,25 +441,22 @@ angular.module('opApp')
                     self.compareServers();
                 }
             }
-
             debounceBroadcast('filters-updated', null);
         });
 
+        this.setAllServersActive = function() {
+            activeServer = opConfig.servers;
+        };
+
         // this is from HeaderController to set active servers based on header tabs
         this.setActiveServer = function(serverName) {
-          if(serverName == 'all') {
-              activeServer = opConfig.servers;
-          } else {
-              for (var i = 0; i < opConfig.servers.length; i++) {
-                  if (serverName == opConfig.servers[i].name) {
-                      activeServer = new Array(opConfig.servers[i]);
-                      return;
-                  }
+            for (var i = 0; i < opConfig.servers.length; i++) {
+              if (serverName == opConfig.servers[i].name) {
+                  activeServer = new Array(opConfig.servers[i]);
+                  return;
               }
-              // default to all servers
-              activeServer = new Array(opConfig.servers);
+            }
 
-          }
             if(previousActiveServer.length === 0) {
                 previousActiveServer = activeServer;
             }
@@ -518,7 +514,7 @@ angular.module('opApp')
             var serversToTurnOn = [];
 
             serversToTurnOff.forEach(function (server) {
-                console.log(server);
+                $log.log(server);
             });
 
             // this is ugly, but I want to get something working before revisiting logic.
@@ -556,8 +552,8 @@ angular.module('opApp')
                 });
             }
 
-            console.log('Turning on: ' + JSON.stringify(serversToTurnOn));
-            console.log('Turning off: ' + JSON.stringify(serversToTurnOff));
+            $log.log('Turning on: ' + JSON.stringify(serversToTurnOn));
+            $log.log('Turning off: ' + JSON.stringify(serversToTurnOff));
 
             // LayerController actually handles the "turn off" and "turn on" controls.
             $timeout(function(){

@@ -3,7 +3,7 @@
  */
 
 angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
-    function ($scope, $timeout, toaster, opConfig, opStateService) {
+    function ($scope, $timeout, toaster, opConfig, opStateService, $log) {
         'use strict';
 
         var dateRangeCreated = false;
@@ -130,7 +130,7 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
                 if (max) {
                     $scope.validationError = 'Please reduce duration value to be less than or equal to ' + max + '.';
                     $scope.valid.duration = false;
-                    console.log($scope.validationError);
+                    $log.log($scope.validationError);
                     return;
                 }
 
@@ -144,7 +144,7 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
                 $scope.validationError = 'Please enter whole number value for duration';
                 $scope.valid.duration = false;
 
-                console.log($scope.validationError);
+                $log.log($scope.validationError);
             }
         };
 
@@ -217,7 +217,7 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
                         newDateRange[1] = moment(newDateRange[0]).add('days', maxDaysBack);
                         message = 'Start date is more than ' + maxDaysBack + ' days before ' +
                             'End Date.  End Date has been adjusted to not exceed this period.';
-                        console.log(message);
+                        $log.log(message);
                         toaster.pop('note', message);
                     }
                     else if (previousDateRange[0].format(compareFormat) === newDateRange[0].format(compareFormat) &&
@@ -225,7 +225,7 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
                         newDateRange[0] = moment(newDateRange[1]).subtract('days', maxDaysBack);
                         message = 'End date is more than ' + opConfig.maxDaysBack + ' days after ' +
                             'Start Date.  Start Date has been adjusted to not exceed this period.';
-                        console.log(message);
+                        $log.log(message);
                         toaster.pop('note', message);
                     }
                 }
@@ -318,7 +318,7 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
         };
 
         var initialize = function () {
-            console.log('Starting up opDateTimeController...');
+            $log.log('Starting up opDateTimeController...');
             updateTemporalFilters();
 
 

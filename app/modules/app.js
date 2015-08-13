@@ -21,7 +21,7 @@ var app = angular.module('opApp', [
 ]);
 
 
-app.config(function ($routeProvider, $locationProvider) {
+app.config(function ($routeProvider) {
     'use strict';
     $routeProvider
         .when('/', {

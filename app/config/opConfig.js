@@ -51,18 +51,7 @@ angular.module('opApp')
 
         docLink: 'userguide.pptx',
 
-        // Identification of the server providing data layers for use by Feature Browser
-        //server:
-        //    {
-        //        url: '/geoserver',
-        //        ajaxUrl: '/geoserver',
-        //        name: 'OGCServer',
-        //        wmsVersion: '1.3.0',
-        //        wfsVersion: '1.0.0',
-        //        wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
-        //    },
-
-        // moving to using more than one server
+        // Identification of the server(s) providing data layers for use by Feature Browser
         servers: [
             {
                 url: '/geoserver',
@@ -96,9 +85,7 @@ angular.module('opApp')
         wmsFeatureLimiter : 10000,
         wfsFeatureLimiter : 1000,
         // 2 minutes cache period on all layers
-        //cachePeriod: 60 * 2,
-        // TODO remove this one and use one above
-        cachePeriod: 2,
+        cachePeriod: 60 * 2,
         // 2 minutes cache period for layer metadata
         layerCachePeriod: 60 * 2,
 
