@@ -153,6 +153,7 @@ angular.module('opApp.query')
          */
         this.getFeaturesAsJson = function(serverName, name, workspace, fields, params) {
             var deferred = $q.defer();
+            var server = opStateService.getServer(serverName);
             var wfsOutputFormat = server.wfsOutputFormat;
 
             // Use to filter out geometry fields from results
