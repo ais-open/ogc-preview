@@ -11,6 +11,8 @@ var zip = require('gulp-zip');
 var tar = require('gulp-tar');
 var gzip = require('gulp-gzip');
 var Q = require('q');
+var debug = require('gulp-debug');
+var gfilter = require('gulp-filter');
 
 var paths = {
     vendor: './app/bower_components',
@@ -27,8 +29,6 @@ var paths = {
 };
 
 var pipes = {};
-
-
 
 pipes.orderedVendorScripts = function () {
     return plugins.order(['**/jquery.js', '**/angular.js']);
@@ -77,7 +77,8 @@ pipes.builtAppScriptsProd = function () {
 };
 
 pipes.builtVendorScriptsProd = function () {
-    return gulp.src(bowerFiles({filter:'**/*.js'}), {base: paths.vendor})
+    return gulp.src(bowerFiles(), {base: paths.vendor})
+        .pipe(gfilter('**/*.js'))
         .pipe(pipes.orderedVendorScripts())
         .pipe(pipes.minifiedFileName())
         .pipe(plugins.concat('vendor.min.js'))
@@ -140,14 +141,10 @@ pipes.builtIndexProd = function () {
     pipes.builtConfig(paths.distProd + '/config');
 
     //var partialScript = pipes.builtPartialsScriptProd();
-    pipes.copyPartialsProd();
     var vendorScripts = pipes.builtVendorScriptsProd();
-    var appScripts = pipes.builtAppScriptsProd();
-    pipes.copyAppScriptsProd();
-    var appStyles = pipes.builtStylesProd();
-    //var scripts = series(vendorScripts, appScripts, partialScript);
-    var scripts = series(vendorScripts, appScripts);
-    //var scripts = vendorScripts;
+    series(pipes.copyPartialsProd(),pipes.copyAppScriptsProd());
+    var appStyles = series(pipes.builtStylesProd());
+    var scripts = series(vendorScripts);
 
     return pipes.validatedIndex()
         .pipe(gulp.dest(paths.distProd)) // write first to get relative path for inject
@@ -171,7 +168,7 @@ pipes.buildArtifacts = function () {
       .pipe(gulp.dest('./artifacts'));
 
     var tar = gulp.src(paths.distProd + '/**/*')
-        .pipe(zip('ogcpreview.tar'))
+        .pipe(plugins.tar('ogcpreview.tar'))
         .pipe(gzip())
         .pipe(gulp.dest('./artifacts'));
 
