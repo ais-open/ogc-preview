@@ -27,7 +27,7 @@ angular.module('opApp')
         var leafletMapCRS;
         var leafletLayerControl;
 
-        var activeServer = new Array();
+        var activeServer = [];
         var previousActiveServer = [];
 
         this.getDatasetsId = function() {
@@ -446,12 +446,13 @@ angular.module('opApp')
 
         this.setAllServersActive = function() {
             activeServer = opConfig.servers;
+            previousActiveServer = activeServer;
         };
 
         // this is from HeaderController to set active servers based on header tabs
         this.setActiveServer = function(serverName) {
             for (var i = 0; i < opConfig.servers.length; i++) {
-              if (serverName == opConfig.servers[i].name) {
+              if (serverName === opConfig.servers[i].name) {
                   activeServer = new Array(opConfig.servers[i]);
                   return;
               }
@@ -520,9 +521,7 @@ angular.module('opApp')
             // this is ugly, but I want to get something working before revisiting logic.
             // we're essentially doing a diff between old and new servers to figure out
             // who to turn "on" and who to turn "off"
-            if(previousActiveServer.length === 0 && activeServer.length === 0) {
-                // purposefully blank
-            } else if (previousActiveServer.length === 0) {
+            if (previousActiveServer.length === 0) {
                 serversToTurnOn = activeServer;
             } else if (activeServer.length === 0) {
                 serversToTurnOff = previousActiveServer;

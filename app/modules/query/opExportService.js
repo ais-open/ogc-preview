@@ -9,13 +9,8 @@ angular.module('opApp.query')
     function (opConfig, opFilterService, opStateService) {
         'use strict';
 
-        // moved these variables to multiple server variant (each function gets the server its working with)
-        //var WFS_VERSION = opConfig.server.wfsVersion;
-        //var WMS_VERSION = opConfig.server.wmsVersion;
-
         this.createKmlExportRequest = function (layer, startTime, stopTime, spatialBounds, crs) {
             var server = opStateService.getServer(layer.server);
-            var wfsVersion = server.wfsVersion;
             var wmsVersion = server.wmsVersion;
             var filters = opFilterService.createWmsBboxFilterRequestForLayer(layer, startTime, stopTime, spatialBounds, crs);
 
@@ -30,7 +25,6 @@ angular.module('opApp.query')
         var createWfsExportRequest = function (outputFormat, layer, startTime, stopTime, spatialBounds, crs) {
             var server = opStateService.getServer(layer.server);
             var wfsVersion = server.wfsVersion;
-            var wmsVersion = server.wmsVersion;
             var filters = opFilterService.createWfsBBoxFilterRequestForLayer(layer, startTime, stopTime, spatialBounds, crs);
 
             return angular.extend(filters,

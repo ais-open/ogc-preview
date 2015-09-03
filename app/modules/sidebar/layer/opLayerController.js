@@ -10,7 +10,9 @@ angular.module('opApp').controller('opLayerController',
         String.prototype.hashCode = function(){
             var hash = 0;
             var length = this.length;
-            if (length == 0) return hash;
+            if (length === 0) {
+                return hash;
+            }
             for (var i = 0; i < length; i++) {
                 var chr = this.charCodeAt(i);
                 hash = ((hash<<5)-hash)+chr;
@@ -566,10 +568,10 @@ angular.module('opApp').controller('opLayerController',
             // TODO figure out how to not just delete all the layers and turn the server back on
             // instead, we want to cache datasets enabled and keep them on after getting updated info
             // from the server(s)
-            var datasets = opStateService.getDatasets().slice(0);
+            //var datasets = opStateService.getDatasets().slice(0);
             var serverData = args;
             var activeServers = opStateService.getActiveServer();
-            if(activeServers.indexOf(serverData) != -1) {
+            if(activeServers.indexOf(serverData) !== -1) {
                 $log.log('Refreshing server ' + serverData.name);
                 clearServerSpecificLayers(serverData.name);
                 $scope.layerGroups.turnServerOff(serverData.name);
@@ -623,7 +625,6 @@ angular.module('opApp').controller('opLayerController',
                 server.loading = false;
                 $scope.layersLoading = false;
                 // Give layers a uid so that we pass reference to it within the controller
-                var serverNum = opStateService.getServerNumByName(serverName);
                 for (var i = 0; i < layers.length; i++) {
                     var layer = layers[i];
                     var hashString = layer.name + layer.workspace + serverName;
@@ -661,7 +662,7 @@ angular.module('opApp').controller('opLayerController',
             $scope.layerGroups = new LayerGroups();
             $scope.tags = [];
             //$scope.layerGroups = null;
-            $scope.layers = []
+            $scope.layers = [];
         };
 
         this.resetAndLoadLayers = function() {

@@ -73,8 +73,8 @@ angular.module('opApp.header').controller('opHeaderController',
             $scope.KmlLayers = layers;
             $scope.KmlServers = servers;
             var serverCount = servers.length;
-            for(var i = 0; i < serverCount; i++) {
-                $scope.kmlLinks[i] = $scope.buildKmlLink($scope.KmlServers[i]);
+            for(var j = 0; j < serverCount; j++) {
+                $scope.kmlLinks[j] = $scope.buildKmlLink($scope.KmlServers[j]);
             }
             $modal.open({
                 templateUrl: 'modules/header/opKmlSelector.html'
@@ -236,5 +236,5 @@ angular.module('opApp.header').controller('opHeaderController',
         };
 
         $scope.getServerNames();
-        $scope.updateStateService();
+        //$scope.updateStateService();
     });
