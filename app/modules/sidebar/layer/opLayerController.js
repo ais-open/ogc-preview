@@ -88,6 +88,10 @@ angular.module('opApp').controller('opLayerController',
                 var i = _layers.length;
                 while(i--) {
                     if(_layers[i].server === serverName) {
+                        if(_layers[i].active) {
+                            console.log('tesT?');
+                            removeLayer(_layers[i]);
+                        }
                         _layers.splice(i, 1);
                         $scope.layers.splice($scope.layers.indexOf(_layers[i]),1);
                     }
@@ -155,9 +159,9 @@ angular.module('opApp').controller('opLayerController',
                 _layers.push(layer);
             };
 
-            self.removeLayer = function(layer) {
-                _layers.slice(layer, 1);
-            };
+            //self.removeLayer = function(layer) {
+            //    _layers.slice(layer, 1);
+            //};
 
             return self;
         };
