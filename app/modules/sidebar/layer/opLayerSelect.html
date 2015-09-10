@@ -18,7 +18,7 @@
             </div>
 
            <span ng-if="!layersLoading">
-               <span ng-repeat="group in layerGroups.getGroups() | orderBy: +'_tag'" ng-show="isGroupVisible(group.getTag())" >
+               <span ng-repeat="group in layerGroups.getGroups() | orderBy: '_tag'" ng-show="isGroupVisible(group.getTag())" >
                  <a ng-if="layerGroups.getCount() > 1" ng-click="group.toggleChecked()" href="" class="check-header">{{ group.getTag() }}</a>
                  <!-- Using ng-if per David Benson - "Bootstrap uses first-child/last-child and potentially has padding issues" -->
                  <label class="checkbox" ng-repeat="layer in group.getLayers() | orderBy:'title'" ng-if="isLayerVisible(layer.uid)">
