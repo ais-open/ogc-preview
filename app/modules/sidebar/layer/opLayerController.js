@@ -64,7 +64,7 @@ angular.module('opApp').controller('opLayerController',
                 var group;
 
                 for (var i = 0; i < _groups.length; i++) {
-                    if (_groups[i].getTag() && _groups[i].getTag() === tag) {
+                    if (_groups[i].getTag() === tag) {
                         group = _groups[i];
                     }
                 }
