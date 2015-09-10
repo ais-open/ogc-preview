@@ -183,8 +183,6 @@ angular.module('opApp.header').controller('opHeaderController',
             } else {
                 $scope.kmlSingleServer = false;
             }
-            $log.log('kmlSingleServer?: ' + $scope.kmlSingleServer);
-            $log.log('kmlLink = ' + $scope.kmlLink);
         });
 
         // this is strictly here to toggle the CSS class when the servers are updated directly via

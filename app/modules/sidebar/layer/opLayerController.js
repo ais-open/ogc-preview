@@ -89,11 +89,10 @@ angular.module('opApp').controller('opLayerController',
                 while(i--) {
                     if(_layers[i].server === serverName) {
                         if(_layers[i].active) {
-                            console.log('tesT?');
                             removeLayer(_layers[i]);
                         }
-                        _layers.splice(i, 1);
                         $scope.layers.splice($scope.layers.indexOf(_layers[i]),1);
+                        _layers.splice(i, 1);
                     }
                 }
 
@@ -364,7 +363,6 @@ angular.module('opApp').controller('opLayerController',
 
         $scope.datasetStateChanged = function (layerUid) {
             var layer = getLayerByUid($scope.layers, layerUid);
-
             if (layer.active && layer.mapHandle !== null && layer.mapHandle !== undefined){
                 $log.log('disabling already enabled layer: \'' + layer.name + '\'');
                 removeLayer(layer);
@@ -569,40 +567,16 @@ angular.module('opApp').controller('opLayerController',
         };
 
         $scope.$on('refresh-server', function(event, args) {
-            // TODO figure out how to not just delete all the layers and turn the server back on
-            // instead, we want to cache datasets enabled and keep them on after getting updated info
-            // from the server(s)
-            //var datasets = opStateService.getDatasets().slice(0);
+            var datasets = opStateService.getDatasets().slice(0);
             var serverData = args;
             var activeServers = opStateService.getActiveServer();
             if(activeServers.indexOf(serverData) !== -1) {
                 $log.log('Refreshing server ' + serverData.name);
-                clearServerSpecificLayers(serverData.name);
+                //clearServerSpecificLayers(serverData.name);
                 $scope.layerGroups.turnServerOff(serverData.name);
                 $scope.updateLayers(true, serverData.name);
-                //opStateService.setDatasets(datasets);
+                opStateService.setDatasets(datasets);
             }
-            //for (var i = 0; i < datasets.length; i++) {
-            //    var splitDataset = datasets[i].split(':');
-            //    var dataset = {name: splitDataset[2], workspace: splitDataset[1], server: splitDataset[0]};
-            //
-            //    var found = false;
-            //    // Attempt to configure based on query parameter repr of filters
-            //    for (var j = 0; j < $scope.layers.length; j++) {
-            //        var layer = $scope.layers[j];
-            //
-            //        if (layer.name === dataset.name && layer.workspace === dataset.workspace && layer.server === dataset.server) {
-            //            // Yay, we found our layer in configured datasource... we can break out now.
-            //            // if the layer is already active, don't try to change it's state.
-            //            //if (!layer.active) {
-            //                layer.active = false;
-            //                $scope.datasetStateChanged(layer.uid);
-            //            //}
-            //            found = true;
-            //            break;
-            //        }
-            //    }
-            //}
         });
 
         $scope.updateLayers = function(force, serverName) {
@@ -631,7 +605,7 @@ angular.module('opApp').controller('opLayerController',
                 // Give layers a uid so that we pass reference to it within the controller
                 for (var i = 0; i < layers.length; i++) {
                     var layer = layers[i];
-                    var hashString = layer.name + layer.workspace + serverName;
+                    var hashString = layer.name + layer.workspace + layer.server;
                     var hash = hashString.hashCode();
                     layer.uid = hash;
                     layer.legendGraphic = opWebMapService.getLegendGraphicUrl(serverName, layer.workspace + ':' + layer.name);
@@ -689,7 +663,6 @@ angular.module('opApp').controller('opLayerController',
             return activeLayers.length + ' enabled';
         };
 
-        //
         $scope.$on('servers-updated', function(event, args) {
             var serversOn = args[0];
             var serversOff = args[1];
