@@ -7,6 +7,7 @@
         </a>
     </h4>
 
+
     <div ng-show="layerExpanded">
         <div style="overflow:hidden;">
             <div class="text-center" ng-if="layersLoading" style="padding: 15px">Identifying server layers...&nbsp;&nbsp;<div class="layer-loading-spinner"></div></div>
@@ -25,12 +26,9 @@
                      <input type="checkbox" ng-model="layer.active" name="layers" ng-click="datasetStateChanged(layer.uid)"/>
                      <span ng-if="DEBUG" ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}} | {{layer.server}}</span>
                      <span ng-if="!DEBUG" ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}}</span>
-
                      <span class="icons">
                          <div ng-if="layer.active && layer.loading" class="spinner"><div class="spinner-image"></div></div>
-                         <a href="">Trans</a>
-                         <!--<a op-popup="<b>{{layer.title}}</b><br/>{{layer.abstract | plainTextToHtml}}<p>Legend:<br/><img src='{{layer.legendGraphic}}'/></p>" href=""><i class="icon-help"></i></a>-->
-                         <a op-popup='{{fbLayerCtrl.sliderHtml}}' href=""><i class="icon-help"></i></a>
+                         <a op-popup="<b>{{layer.title}}</b><br/>{{layer.abstract | plainTextToHtml}}<p>Legend:<br/><img src='{{layer.legendGraphic}}' /></p>" href=""><i class="icon-help"></i></a>
                      </span>
                  </label>
                </span>

@@ -4,7 +4,7 @@
 
 angular.module('opApp').controller('opLayerController',
     function ($rootScope, $scope, $location, $timeout, $window, moment, toaster, L, opConfig, opLayerService, opWebMapService,
-              opWebFeatureService, opStateService, opFilterService, opExportService, opPopupWindow, $log, $compile) {
+              opWebFeatureService, opStateService, opFilterService, opExportService, opPopupWindow, $log) {
         'use strict';
 
         String.prototype.hashCode = function(){
@@ -179,19 +179,6 @@ angular.module('opApp').controller('opLayerController',
         $scope.map = null;
         $scope.leafletGroup = null;
         $scope.layerControl = null;
-
-
-        var sliderHtml = $compile("test")($scope);
-
-        $scope.transparencySlider = {
-            floor: 0,
-            ceil: 10,
-            value: 9
-        };
-
-        $scope.sliderTranslate = function(value) {
-            return (value*10) + '%';
-        };
 
         var zIndex = 50;
         var maxZIndex = 100;
@@ -494,7 +481,7 @@ angular.module('opApp').controller('opLayerController',
             if (!$scope.map.hasLayer(layer.mapHandle)) {
                 layer.mapHandle.on('loading', updateLayerLoadStart);
                 layer.mapHandle.on('load', updateLayerLoadComplete);
-                layer.opacity = 1;
+
                 $scope.map.addLayer(layer.mapHandle);
 
                 opStateService.addDataset(layer.server + ':' + layer.workspace + ':' + layer.name);
@@ -715,7 +702,4 @@ angular.module('opApp').controller('opLayerController',
                     return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
                 }));
         });
-
-
-
     });

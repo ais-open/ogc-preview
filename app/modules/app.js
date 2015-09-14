@@ -17,8 +17,7 @@ var app = angular.module('opApp', [
     'restangular',
     'toaster',
     'ui.bootstrap',
-    'LocalStorageModule',
-    'rzModule'
+    'LocalStorageModule'
 ]);
 
 
