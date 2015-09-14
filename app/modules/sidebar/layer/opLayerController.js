@@ -180,7 +180,8 @@ angular.module('opApp').controller('opLayerController',
         $scope.leafletGroup = null;
         $scope.layerControl = null;
 
-        $scope.transparencyHtml = "test";
+
+        var sliderHtml = $compile("test")($scope);
 
         $scope.transparencySlider = {
             floor: 0,
@@ -190,10 +191,6 @@ angular.module('opApp').controller('opLayerController',
 
         $scope.sliderTranslate = function(value) {
             return (value*10) + '%';
-        };
-
-        $scope.setTransparency = function(layer, value) {
-            layer.mapHandle.setOpacity(value);
         };
 
         var zIndex = 50;
