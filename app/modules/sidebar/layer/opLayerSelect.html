@@ -28,9 +28,10 @@
 
                      <span class="icons">
                          <div ng-if="layer.active && layer.loading" class="spinner"><div class="spinner-image"></div></div>
-                         <a href="">Trans</a>
-                         <!--<a op-popup="<b>{{layer.title}}</b><br/>{{layer.abstract | plainTextToHtml}}<p>Legend:<br/><img src='{{layer.legendGraphic}}'/></p>" href=""><i class="icon-help"></i></a>-->
-                         <a op-popup='{{fbLayerCtrl.sliderHtml}}' href=""><i class="icon-help"></i></a>
+                         <a ng-click="setTransparency(layer, .1)" href="">T10%</a>
+                         <a ng-click="setTransparency(layer, .5)" href="">T50%</a>
+                         <a ng-click="setTransparency(layer, .9)" href="">T90%</a>
+                         <a op-popup="<b>{{layer.title}}</b><br/>{{layer.abstract | plainTextToHtml}}<p>Legend:<br/><img src='{{layer.legendGraphic}}'/></p>" href=""><i class="icon-help"></i></a>
                      </span>
                  </label>
                </span>
