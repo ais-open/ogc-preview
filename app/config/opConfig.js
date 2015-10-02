@@ -49,7 +49,7 @@ angular.module('opApp')
 
         classification: 'UNCLASSIFIED',
 
-        docLink: 'userguide.pptx',
+        docLink: 'OGC-Preview User Guide.pptx',
 
         // Identification of the server(s) providing data layers for use by Feature Browser
         servers: [
