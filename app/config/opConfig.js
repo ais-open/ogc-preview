@@ -52,18 +52,10 @@ angular.module('opApp')
         docLink: 'OGC-Preview User Guide.pptx',
 
         // Identification of the server(s) providing data layers for use by Feature Browser
-        // Whichever GeoServer is set to be primary, if a same-named layer exists in multiple
-        // geoservers, we will only use the layer from the primary server.
+        // order here matters for priority of layers
+        // if multiple geoservers have the same named layer, we will display the one from the server
+        // with the lowest index (highest in this list)
         servers: [
-            {
-                url: '/geoserver',
-                ajaxUrl: '/geoserver',
-                name: 'dev',
-                wmsVersion: '1.3.0',
-                wfsVersion: '1.0.0',
-                wfsOutputFormat: 'text/xml; subtype=gml/3.1.1',
-                primary: false
-            },
             {
                 url: '/geoserver',
                 ajaxUrl: '/geoserver',
@@ -71,7 +63,22 @@ angular.module('opApp')
                 wmsVersion: '1.3.0',
                 wfsVersion: '1.0.0',
                 wfsOutputFormat: 'text/xml; subtype=gml/3.1.1',
-                primary: true
+            },
+            {
+                url: '/geoserver',
+                ajaxUrl: '/geoserver',
+                name: 'beta',
+                wmsVersion: '1.3.0',
+                wfsVersion: '1.0.0',
+                wfsOutputFormat: 'text/xml; subtype=gml/3.1.1',
+            },
+            {
+                url: '/geoserver',
+                ajaxUrl: '/geoserver',
+                name: 'dev',
+                wmsVersion: '1.3.0',
+                wfsVersion: '1.0.0',
+                wfsOutputFormat: 'text/xml; subtype=gml/3.1.1',
             }
         ],
 
