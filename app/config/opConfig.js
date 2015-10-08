@@ -52,6 +52,8 @@ angular.module('opApp')
         docLink: 'userguide.pptx',
 
         // Identification of the server(s) providing data layers for use by Feature Browser
+        // Whichever GeoServer is set to be primary, if a same-named layer exists in multiple
+        // geoservers, we will only use the layer from the primary server.
         servers: [
             {
                 url: '/geoserver',
@@ -59,7 +61,8 @@ angular.module('opApp')
                 name: 'dev',
                 wmsVersion: '1.3.0',
                 wfsVersion: '1.0.0',
-                wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
+                wfsOutputFormat: 'text/xml; subtype=gml/3.1.1',
+                primary: false
             },
             {
                 url: '/geoserver',
@@ -67,7 +70,8 @@ angular.module('opApp')
                 name: 'prod',
                 wmsVersion: '1.3.0',
                 wfsVersion: '1.0.0',
-                wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
+                wfsOutputFormat: 'text/xml; subtype=gml/3.1.1',
+                primary: true
             }
         ],
 

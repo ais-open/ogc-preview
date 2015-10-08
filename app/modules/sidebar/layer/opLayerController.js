@@ -340,6 +340,27 @@ angular.module('opApp').controller('opLayerController',
             return true;
         };
 
+        /*
+        Check to see if the layer has another same-named layer.  If so, check to see if the layer we are trying to
+        display is coming from the primary server.
+        Return true if the layer's name is duplicated and it is not coming from the primary server.
+        Return false otherwise (display all layers that this function returns false from).
+         */
+        $scope.isLayerDupe = function(layerUid) {
+            var layer = getLayerByUid($scope.layers, layerUid);
+            for(var i = 0; i < $scope.layers.length; i++) {
+                // check to see if we have another layer named this that is not this layer.
+                if(layer.title === $scope.layers[i].title && layer.server !== $scope.layers[i].server)
+                {
+                    var server = opStateService.getServer(layer.server);
+                    if(!server.primary) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+
         $scope.isGroupVisible = function(groupTag) {
             if ($scope.filter === '') {
                 return true;
