@@ -49,7 +49,7 @@ angular.module('opApp')
 
         classification: 'UNCLASSIFIED',
 
-        docLink: 'userguide.pptx',
+        docLink: 'OGC-Preview User Guide.pptx',
 
         // Identification of the server(s) providing data layers for use by Feature Browser
         // Whichever GeoServer is set to be primary, if a same-named layer exists in multiple
