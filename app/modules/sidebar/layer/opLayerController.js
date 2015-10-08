@@ -349,8 +349,8 @@ angular.module('opApp').controller('opLayerController',
         $scope.isLayerDupe = function(layerUid) {
             var layer = getLayerByUid($scope.layers, layerUid);
             for(var i = 0; i < $scope.layers.length; i++) {
-                // check to see if we have another layer named this that is not this layer.
-                if(layer.title === $scope.layers[i].title && layer.server !== $scope.layers[i].server)
+                // check to see if we have another same named layer
+                if(layer.server !== $scope.layers[i].server && layer.name === $scope.layers[i].name && layer.workspace === $scope.layers[i].workspace)
                 {
                     var server = opStateService.getServer(layer.server);
                     if(!server.primary) {
