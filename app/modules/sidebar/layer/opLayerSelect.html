@@ -28,7 +28,7 @@
                      <span ng-if="!DEBUG" ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}}</span>
                      <span class="icons">
                          <div ng-if="layer.active && layer.loading" class="spinner"><div class="spinner-image"></div></div>
-                         <a op-popup="<b>{{layer.title}}</b><br/>{{layer.abstract | plainTextToHtml}}<p>Legend:<br/><img src='{{layer.legendGraphic}}' /></p>" href=""><i class="icon-help"></i></a>
+                         <a op-popup="Layer: <b>{{layer.title}}</b><br>Server: <b>{{layer.server}}</b><br/>{{layer.abstract | plainTextToHtml}}<p>Legend:<br/><img src='{{layer.legendGraphic}}' /></p>" href=""><i class="icon-help"></i></a>
                      </span>
                  </label>
                </span>
