@@ -395,7 +395,8 @@ angular.module('opApp').controller('opLayerController',
 
         $scope.datasetStateChanged = function (layerUid) {
             var layer = getLayerByUid($scope.layers, layerUid);
-            if (layer.active && layer.mapHandle !== null && layer.mapHandle !== undefined){
+            // layer.active gets set by checkbox before this code executes
+            if (!layer.active && layer.mapHandle !== null && layer.mapHandle !== undefined){
                 $log.log('disabling already enabled layer: \'' + layer.name + '\'');
                 removeLayer(layer);
 

@@ -1,17 +1,17 @@
 {
   "name": "ogc-preview",
   "description": "OGC Preview",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "dependencies": {
-    "angular": "1.2.28",
-    "angular-resource": "1.2.28",
-    "angular-cookies": "1.2.28",
-    "angular-sanitize": "1.2.28",
-    "angular-route": "1.2.28",
-    "angular-animate": "1.2.28",
-    "angular-ui-bootstrap-bower": "0.10.0",
+    "angular": "1.4.6",
+    "angular-resource": "1.4.6",
+    "angular-cookies": "1.4.6",
+    "angular-sanitize": "1.4.6",
+    "angular-route": "1.4.6",
+    "angular-animate": "1.4.6",
+    "angular-ui-bootstrap-bower": "0.13.4",
     "angular-local-storage": "0.1.4",
-    "AngularJS-Toaster": "0.4.7",
+    "AngularJS-Toaster": "0.4.15",
     "json3": "3.2.6",
     "es5-shim": "2.1.0",
     "jquery": "1.10.2",
@@ -22,7 +22,7 @@
     "leaflet-dist": "0.7.2"
   },
   "devDependencies": {
-    "angular-mocks": "1.2.28",
-    "angular-scenario": "1.2.28"
+    "angular-mocks": "1.4.6",
+    "angular-scenario": "1.4.6"
   }
 }

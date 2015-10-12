@@ -583,6 +583,9 @@ angular.module('opApp')
                 $rootScope.$broadcast('servers-updated', [serversToTurnOn, serversToTurnOff]);
             }, 500);
 
+            // after turning on active servers, cache our state of servers on
+            previousActiveServer = activeServer;
+
         };
     }
 );
