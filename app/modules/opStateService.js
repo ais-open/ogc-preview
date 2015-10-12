@@ -190,6 +190,30 @@ angular.module('opApp')
             }
         };
 
+        this.setAttributeBBoxText = function(bounds) {
+            if (bounds) {
+                mapState[bboxId] = bounds;
+                debounceBroadcast('bounds-text-updated', bounds);
+            }
+            else {
+                debounceBroadcast('bounds-text-updated','');
+                delete mapState[bboxId];
+                // If bbox is on the query string remove it when cancels happen
+                if (state[bboxId]){
+                    delete state[bboxId];
+                    serializeState();
+                }
+            }
+        };
+
+        this.setAttributeBBoxCurrentBounds = function() {
+            debounceBroadcast('bounds-current-bounds');
+        };
+
+        this.setAttributeBBoxCountry = function(geoJsonBounds) {
+            debounceBroadcast('bounds-country-bounds', geoJsonBounds);
+        };
+
         this.getPermalink = function() {
             var self = this;
 

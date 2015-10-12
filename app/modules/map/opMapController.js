@@ -39,6 +39,41 @@ angular.module('opApp.map').controller('opMapController',
             }
         };
 
+        var redrawRect = function(bounds) {
+            if (bounds) {
+                var rect = new L.rectangle(bounds, { color: '#ffd800', weight: 2, opacity: 1, fill: false });
+
+                bboxLayer.clearLayers();
+                bboxLayer.addLayer(rect);
+
+                opPopupWindow.broadcast( opStateService.getResultsWindow(), 'mapBoundsChanged');
+                $rootScope.$broadcast('mapBoundsChanged');
+            }
+        };
+
+        var drawCountry = function(geoJsonCountry) {
+            var country = new L.geoJson(geoJsonCountry, { color: '#ffd800', weight: 2, opacity: 1, fill: false });
+
+            bboxLayer.clearLayers();
+            bboxLayer.addLayer(country);
+
+            opPopupWindow.broadcast( opStateService.getResultsWindow(), 'mapBoundsChanged');
+            $rootScope.$broadcast('mapBoundsChanged');
+        };
+
+        var drawCurrentBounds = function() {
+            var bounds = map.getBounds();
+            if(bounds) {
+                var rect = new L.rectangle(bounds, { color: '#ffd800', weight: 4, opacity: 1, fill: false });
+
+                bboxLayer.clearLayers();
+                bboxLayer.addLayer(rect);
+
+                opPopupWindow.broadcast( opStateService.getResultsWindow(), 'mapBoundsChanged');
+                $rootScope.$broadcast('mapBoundsChanged');
+            }
+        };
+
 
         var initializeMap = function () {
             $log.log('Starting up opMapController...');
@@ -205,5 +240,17 @@ angular.module('opApp.map').controller('opMapController',
             });
 
             legendControl.updateLegend(legends);
+        });
+
+        $rootScope.$on('bounds-text-updated', function(event, bounds) {
+            redrawRect(bounds);
+        });
+
+        $rootScope.$on('bounds-current-bounds', function() {
+            drawCurrentBounds();
+        });
+
+        $rootScope.$on('bounds-country-bounds', function(event,  geoJsonCountry) {
+            drawCountry(geoJsonCountry);
         });
     });

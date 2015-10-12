@@ -340,6 +340,20 @@ angular.module('opApp').controller('opLayerController',
             return true;
         };
 
+        $scope.isLayerDupe = function(layerUid) {
+            var layer = getLayerByUid($scope.layers, layerUid);
+            for(var i = 0; i < $scope.layers.length; i++) {
+                if(layer.title === $scope.layers[i].title && layer.server !== $scope.layers[i].server)
+                {
+                    var server = opStateService.getServer(layer.server);
+                    if(!server.primary) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+
         $scope.isGroupVisible = function(groupTag) {
             if ($scope.filter === '') {
                 return true;

@@ -1,0 +1,126 @@
+<div class="section" >
+    <h4 class="header">
+        <a href="" ng-click="expanded = !expanded">
+            <span class="icon" ng-bind-html="expanded ? '&#x25bc;' : '&#x25ba;'"></span>
+            Location
+        </a>
+    </h4>
+    <div ng-show="expanded">
+
+        <div class="list-group">
+            <a class="list-group-item" ng-class="{active: model.locationKey == 'world'}" href="" ng-click="setLocationWorld()">Whole World</a>
+            <a class="list-group-item" ng-class="{active: model.locationKey == 'map'}" href="" ng-click="setLocationMap()">Constrain to Map</a>
+            <div class="details-box" ng-show="model.locationKey == 'map' && model.mapChanged" style="padding-left:10px;padding-right:10px;">
+                <a href="" class="btn btn-info btn-sm pull-right" ng-click="setLocationMap()" style="margin-left:10px;"><i class="glyphicon glyphicon-refresh"></i> Update</a>
+                <p class="small">The map view has changed. Click update to use the new map view.</p>
+            </div>
+            <a class="list-group-item" ng-class="{active: model.locationKey == 'bounds'}" href="" ng-click="model.locationKey = 'bounds'">Bounds...</a>
+
+            <div class="details-box" ng-show="model.locationKey == 'bounds'">
+                <div class="row inline-row">
+                    <div class="col-sm-6" ng-if="model.format !== 'mgrs'">
+                        <div class="float-label">
+                            <input type="text" ng-model="model.latN" required/>
+                            <label>Latitude N</label>
+                            <div class="bg" ng-class="{invalid: !model.latNValid && model.latN}"></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6" ng-if="model.format !== 'mgrs'">
+                        <div class="float-label">
+                            <input type="text" ng-model="model.lonE" required />
+                            <label>Longitude E</label>
+                            <div class="bg" ng-class="{invalid: !model.lonEValid && model.lonE}"></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12" ng-if="model.format === 'mgrs'">
+                        <div class="float-label">
+                            <input type="text" ng-model="model.mgrsNE" required/>
+                            <label>NE Lat/Lon</label>
+                            <div class="bg" ng-class="{invalid: !model.mgrsNEValid && model.mgrsNE}"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row inline-row">
+                    <div class="col-sm-6" ng-if="model.format !== 'mgrs'">
+                        <div class="float-label">
+                            <input type="text" ng-model="model.latS" required/>
+                            <label>Latitude S</label>
+                            <div class="bg" ng-class="{invalid: !model.latSValid && model.latS}"></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6" ng-if="model.format !== 'mgrs'">
+                        <div class="float-label">
+                            <input type="text" ng-model="model.lonW" required/>
+                            <label>Longitude W</label>
+                            <div class="bg" ng-class="{invalid: !model.lonWValid && model.lonW}"></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12" ng-if="model.format === 'mgrs'">
+                        <div class="float-label">
+                            <input type="text" ng-model="model.mgrsSW" required/>
+                            <label>SW Lat/Lon</label>
+                            <div class="bg" ng-class="{invalid: !model.mgrsSWValid && model.mgrsSW}"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tr-options">
+                    <a ng-click="setFormat('dd');" href="" ng-class="{active: model.format === 'dd'}">Decimal Degrees</a>
+                    <a ng-click="setFormat('dms');" href="" ng-class="{active: model.format === 'dms'}">DMS</a>
+                    <a ng-click="setFormat('mgrs');" href="" ng-class="{active: model.format === 'mgrs'}">MGRS</a>
+                </div>
+
+            </div>
+
+            <a class="list-group-item" ng-class="{active: model.locationKey == 'center'}" href="" ng-click="model.locationKey = 'center'; model.country=''">Center Point...</a>
+
+            <div class="details-box" ng-show="model.locationKey == 'center'">
+                <div class="row inline-row">
+                    <div class="col-sm-6" ng-if="model.format !== 'mgrs'">
+                        <div class="float-label">
+                            <input type="text" ng-model="model.lat" required/>
+                            <label>Latitude</label>
+                            <div class="bg" ng-class="{invalid: !model.latValid && model.lat}"></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6" ng-if="model.format !== 'mgrs'">
+                        <div class="float-label">
+                            <input type="text" ng-model="model.lon" required/>
+                            <label>Longitude</label>
+                            <div class="bg" ng-class="{invalid: !model.lonValid && model.lon}"></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12" ng-if="model.format === 'mgrs'">
+                        <div class="float-label">
+                            <input type="text" ng-model="model.mgrs" required/>
+                            <label>MGRS Lat/Lon</label>
+                            <div class="bg" ng-class="{invalid: !model.mgrsValid && model.mgrs}"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row inline-row">
+                    <div class="col-sm-12">
+                        <div class="float-label white">
+                            <span class="units">km</span>
+                            <input type="text" ng-model="model.dist" required/>
+                            <label>Corner Distance</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="tr-options">
+                    <a ng-click="setFormat('dd');" href="" ng-class="{active: model.format === 'dd'}">Decimal Degrees</a>
+                    <a ng-click="setFormat('dms');" href="" ng-class="{active: model.format === 'dms'}">DMS</a>
+                    <a ng-click="setFormat('mgrs');" href="" ng-class="{active: model.format === 'mgrs'}">MGRS</a>
+                </div>
+
+            </div>
+
+              <a class="list-group-item" ng-class="{active: model.locationKey == 'country'}" href="" ng-click="model.locationKey = 'country'; model.country='usa'">Country...</a>
+              <div class="details-box" ng-show="model.locationKey == 'country'">
+                <!--<div field-select="country" label="'Country'" options="model.countries"  select-id="code" select-text="short_name" select-alt="code"></div>-->
+                  <select class="form-control" ng-model="country" ng-options="country.name for country in model.countries">
+                      <option value="">Select a country</option>
+                  </select>
+              </div>
+        </div>
+    </div>
+</div>
