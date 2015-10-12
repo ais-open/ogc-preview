@@ -340,18 +340,36 @@ angular.module('opApp').controller('opLayerController',
             return true;
         };
 
-        $scope.isLayerDupe = function(layerUid) {
+        /*
+        Check to see if the layer we're going to display in the sidebar is the highest priority according to GeoServer
+        index.  This will run through any layers that have the same workspace:layerName as the current layer and determine
+        if the current layer is the highest priority, displaying only one (the highest priority) for a same-named layer.
+         */
+        $scope.isHighestPriority = function(layerUid) {
             var layer = getLayerByUid($scope.layers, layerUid);
-            for(var i = 0; i < $scope.layers.length; i++) {
-                if(layer.title === $scope.layers[i].title && layer.server !== $scope.layers[i].server)
-                {
-                    var server = opStateService.getServer(layer.server);
-                    if(!server.primary) {
-                        return true;
-                    }
+            var priority = opStateService.getServerNumByName(layer.server);
+
+            // always use lowest indexed server's layers
+            if(priority === 0) {
+                return true;
+            }
+
+            // find layers that match our layer's name
+            var matches = _.filter($scope.layers, function(otherLayer) {
+                if(layer.server !== otherLayer.server && layer.name === otherLayer.name && layer.workspace === otherLayer.workspace) {
+                    return otherLayer;
+                }
+            });
+
+            for(var i = 0; i < matches.length; i++) {
+                var index = opStateService.getServerNumByName(matches[i].server);
+                // if we found a matched sever and it has a lower index, we know the one we're on isn't the highest priority
+                if(index < priority) {
+                    return false;
                 }
             }
-            return false;
+            // if we didn't find another server or this layer is the highest priority, return true
+            return true;
         };
 
         $scope.isGroupVisible = function(groupTag) {

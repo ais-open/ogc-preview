@@ -21,14 +21,14 @@
                <span ng-repeat="group in (groups = layerGroups.getGroups() | tagFilter)" ng-show="isGroupVisible(group.getTag())" >
                  <a ng-if="layerGroups.getCount() > 1" ng-click="group.toggleChecked()" href="" class="check-header">{{ group.getTag() }}</a>
                  <!-- Using ng-if per David Benson - "Bootstrap uses first-child/last-child and potentially has padding issues" -->
-                 <label class="checkbox" ng-repeat="layer in group.getLayers() | orderBy:'title'" ng-if="isLayerVisible(layer.uid) && !isLayerDupe(layer.uid)">
+                 <label class="checkbox" ng-repeat="layer in group.getLayers() | orderBy:'title'" ng-if="isLayerVisible(layer.uid) && isHighestPriority(layer.uid)">
                      <!--tooltip-placement="right" tooltip-append-to-body="true" tooltip-html-unsafe="<b>{{layer.title}}</b><br/>{{layer.abstract | plainTextToHtml}}"-->
                      <input type="checkbox" ng-model="layer.active" name="layers" ng-click="datasetStateChanged(layer.uid)"/>
                      <span ng-if="DEBUG" ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}} | {{layer.server}}</span>
                      <span ng-if="!DEBUG" ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}}</span>
                      <span class="icons">
                          <div ng-if="layer.active && layer.loading" class="spinner"><div class="spinner-image"></div></div>
-                         <a op-popup="<b>{{layer.title}}</b><br/>{{layer.abstract | plainTextToHtml}}<p>Legend:<br/><img src='{{layer.legendGraphic}}' /></p>" href=""><i class="icon-help"></i></a>
+                         <a op-popup="Layer: <b>{{layer.title}}</b><br>Server: <b>{{layer.server}}</b><br/>{{layer.abstract | plainTextToHtml}}<p>Legend:<br/><img src='{{layer.legendGraphic}}' /></p>" href=""><i class="icon-help"></i></a>
                      </span>
                  </label>
                </span>
