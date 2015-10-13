@@ -56,7 +56,7 @@ angular.module('opApp.map').controller('opMapController',
 
             bboxLayer.clearLayers();
             bboxLayer.addLayer(country);
-
+            map.fitBounds(country);
             opPopupWindow.broadcast( opStateService.getResultsWindow(), 'mapBoundsChanged');
             $rootScope.$broadcast('mapBoundsChanged');
         };

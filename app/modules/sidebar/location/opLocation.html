@@ -117,7 +117,7 @@
               <a class="list-group-item" ng-class="{active: model.locationKey == 'country'}" href="" ng-click="model.locationKey = 'country'; model.country='usa'">Country...</a>
               <div class="details-box" ng-show="model.locationKey == 'country'">
                 <!--<div field-select="country" label="'Country'" options="model.countries"  select-id="code" select-text="short_name" select-alt="code"></div>-->
-                  <select class="form-control" ng-model="country" ng-options="country.name for country in model.countries">
+                  <select class="form-control" ng-model="country" ng-options="country.properties.name for country in countriesJson">
                       <option value="">Select a country</option>
                   </select>
               </div>

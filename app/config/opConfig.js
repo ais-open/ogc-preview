@@ -51,6 +51,8 @@ angular.module('opApp')
 
         docLink: 'OGC-Preview User Guide.pptx',
 
+        countryDataUrl: '/config/countries.geo.json',
+
         // Identification of the server(s) providing data layers for use by Feature Browser
         // order here matters for priority of layers
         // if multiple geoservers have the same named layer, we will display the one from the server
