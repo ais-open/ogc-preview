@@ -44,7 +44,7 @@ angular.module('opApp')
                             deferred.resolve(result);
                         },
                         function (reason) {
-                            $log.log('Error retrieving  list of countries.');
+                            $log.log('Error retrieving  list of countries.  Check countryDataUrl ?');
                             deferred.reject(reason);
                         });
 
@@ -143,7 +143,6 @@ angular.module('opApp')
                 };
 
                 scope.setLocationWorld = function () {
-                    console.log('Location: World');
                     scope.locationSelect = [
                         ['-90', '-180'],
                         ['90', '180']
@@ -154,14 +153,12 @@ angular.module('opApp')
                 };
 
                 scope.setLocationMap = function () {
-                    console.log('Location: Map');
                     scope.model.locationKey = 'map';
                     scope.country = '';
                     scope.model.mapChanged = false;
                     opStateService.setAttributeBBoxCurrentBounds();
                 };
                 scope.setLocationCountry = function () {
-                    console.log('Location: Country');
                     if (scope.country) {
                         scope.locationSelect = null;
                         scope.model.locationKey = 'country';
@@ -170,7 +167,6 @@ angular.module('opApp')
                 };
 
                 scope.setLocationBounds = function () {
-                    console.log('Location: Bounds');
                     if (scope.model.locationKey === 'center'){
                         return;
                     }
@@ -237,7 +233,6 @@ angular.module('opApp')
                 };
 
                 scope.setLocationCenter = function () {
-                    console.log('Location: Center Point');
                     if (scope.model.locationKey === 'bounds'){
                         return;
                     }
