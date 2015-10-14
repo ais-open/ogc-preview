@@ -1,5 +1,5 @@
 angular.module('opApp')
-    .directive('opLocation', function ($q, $http, $filter, $log, opCoordinateConversionService, opStateService, opConfig) {
+    .directive('opLocation', function ($q, $http, $filter, $log, $rootScope, $timeout, opCoordinateConversionService, opStateService, opConfig) {
         'use strict';
         return {
             templateUrl: 'modules/sidebar/location/opLocation.html',
@@ -336,7 +336,7 @@ angular.module('opApp')
                 scope.$watch('model.dist', scope.setLocationCenter);
                 scope.$watch('country', scope.setLocationCountry);
 
-                scope.$on('mapMoved', function () {
+                scope.$on('map-changed', function () {
                     scope.model.mapChanged = true;
                 });
 
@@ -354,6 +354,30 @@ angular.module('opApp')
                         ];
                     }
                 });
+
+                scope.drawStart = function (){
+                    $rootScope.$broadcast('drawStart');
+                    scope.isDrawing = true;
+                    scope.isDrawingPoly = false;
+                };
+
+                scope.drawStartPoly = function (){
+                    $rootScope.$broadcast('drawStartPoly');
+                    scope.isDrawingPoly = true;
+                    scope.isDrawing = false;
+                };
+
+                scope.drawClear = function (){
+                    $rootScope.$broadcast('drawClear');
+                };
+
+                scope.$on('mapBoundsChanged', function(){
+                    $timeout(function() {
+                        scope.isDrawing = false;
+                        scope.isDrawingPoly = false;
+                    });
+                });
+
                 parseLocation(scope.locationSelect);
                 getCountries().then(
                     function (result) {

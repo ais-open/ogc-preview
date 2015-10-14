@@ -6,11 +6,10 @@
         </a>
     </h4>
     <div ng-show="expanded">
-
         <div class="list-group">
             <a class="list-group-item" ng-class="{active: model.locationKey == 'world'}" href="" ng-click="setLocationWorld()">Whole World</a>
             <a class="list-group-item" ng-class="{active: model.locationKey == 'map'}" href="" ng-click="setLocationMap()">Constrain to Map</a>
-            <div class="details-box" ng-show="model.locationKey == 'map' && model.mapChanged" style="padding-left:10px;padding-right:10px;">
+            <div class="details-box" ng-if="model.locationKey == 'map' && model.mapChanged" style="padding-left:10px;padding-right:10px;">
                 <a href="" class="btn btn-info btn-sm pull-right" ng-click="setLocationMap()" style="margin-left:10px;"><i class="glyphicon glyphicon-refresh"></i> Update</a>
                 <p class="small">The map view has changed. Click update to use the new map view.</p>
             </div>
@@ -114,13 +113,19 @@
 
             </div>
 
-              <a class="list-group-item" ng-class="{active: model.locationKey == 'country'}" href="" ng-click="model.locationKey = 'country'; model.country='usa'">Country...</a>
+              <a class="list-group-item" ng-class="{active: model.locationKey == 'country'}" href="" ng-click="model.locationKey = 'country'">Country...</a>
               <div class="details-box" ng-show="model.locationKey == 'country'">
-                <!--<div field-select="country" label="'Country'" options="model.countries"  select-id="code" select-text="short_name" select-alt="code"></div>-->
                   <select class="form-control" ng-model="country" ng-options="country.properties.name for country in countriesJson">
                       <option value="">Select a country</option>
                   </select>
               </div>
+
+            <a class="list-group-item" ng-class="{active: model.locationKey == 'draw'}" href="" ng-click="model.locationKey = 'draw';">Manual Draw...</a>
+            <div class="details-box" ng-show="model.locationKey == 'draw'">
+                <a href="" ng-class="{active: isDrawingPoly}" ng-click="drawStartPoly();" tooltip="Select Polygon Region" tooltip-placement="bottom"><i class="map-icon icon-square"></i></a></li>
+                <a href="" ng-class="{active: isDrawing}" ng-click="drawStart();" tooltip="Select Square Region" tooltip-placement="bottom"><i class="map-icon icon-square"></i></a></li>
+                <a href="" ng-click="drawClear();"  tooltip="Clear Selection" tooltip-placement="bottom"><i class="map-icon icon-x"></i></a></li>
+            </div>
         </div>
     </div>
 </div>

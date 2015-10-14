@@ -145,8 +145,18 @@ angular.module('opApp.map').controller('opMapController',
                 shapeOptions: { color: '#ffd800', weight: 2, opacity: 1, fill: false }
             });
 
+            var poly = new L.Draw.Polygon(map, {
+                shapeOptions: { color: '#ffd800', weight: 2, opacity: 1, fill: false }
+            });
+
             var isDrawing = false;
+            var isDrawingPoly = false;
+
             $scope.$on('drawStart', function (){
+                if(isDrawingPoly) {
+                    poly.disable();
+                    isDrawingPoly = false;
+                }
                 if (!isDrawing) {
                     rect.enable();
                     isDrawing = true;
@@ -155,6 +165,20 @@ angular.module('opApp.map').controller('opMapController',
                     isDrawing = false;
                 }
             });
+            $scope.$on('drawStartPoly', function (){
+                if(isDrawing) {
+                    rect.disable();
+                    isDrawing = false;
+                }
+                if (!isDrawingPoly) {
+                    poly.enable();
+                    isDrawingPoly = true;
+                }else{
+                    poly.disable();
+                    isDrawingPoly = false;
+                }
+            });
+
             $scope.$on('drawClear', function (){
                 bboxLayer.clearLayers();
                 opPopupWindow.broadcast( opStateService.getResultsWindow(), 'mapBoundsChanged');
@@ -185,6 +209,7 @@ angular.module('opApp.map').controller('opMapController',
 
             map.on('draw:created', function (e) {
                 isDrawing = false;
+                isDrawingPoly = false;
                 var layer = e.layer;
                 bboxLayer.addLayer(layer);
                 opStateService.setAttributeBBox(layer.getBounds());
@@ -207,6 +232,10 @@ angular.module('opApp.map').controller('opMapController',
              bboxLayer.removeLayer(layer);
              opPopupWindow.broadcast( opStateService.getResultsWindow(), 'mapBoundsChanged');
              });*/
+
+            map.on('move', function() {
+                $rootScope.$broadcast('map-changed');
+            });
         };
 
         /**
