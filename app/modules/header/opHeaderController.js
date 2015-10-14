@@ -9,6 +9,7 @@ angular.module('opApp.header').controller('opHeaderController',
         'use strict';
 
         $scope.classification = opConfig.classification;
+        $scope.version = opConfig.version;
         $scope.bamfLink = '';
         $scope.kmlLink = '';
         $scope.kmlEnabled = false;
@@ -47,6 +48,10 @@ angular.module('opApp.header').controller('opHeaderController',
                 templateUrl: 'modules/header/opBookmark.html'
             });
         };
+
+        opConfig.getVersion().then(function (data) {
+            $scope.version = data;
+        });
 
         $scope.showKmlLink = function () {
             $scope.kmlLinks = [];
@@ -144,6 +149,13 @@ angular.module('opApp.header').controller('opHeaderController',
                 }
             }
             return link;
+        };
+
+        $scope.showAbout = function() {
+            $modal.open({
+                templateUrl: 'modules/header/opAbout.html',
+                windowClass: 'small-modal'
+            });
         };
 
         $scope.showFeedback = function () {

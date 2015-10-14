@@ -1,9 +1,11 @@
 var gulp = require('gulp');
+var bump = require('gulp-bump');
 var browserSync = require('browser-sync');
 var proxyMiddleware = require('http-proxy-middleware');
 var plugins = require('gulp-load-plugins')();
 var del = require('del');
 var es = require('event-stream');
+var fs = require('fs');
 var series = require('stream-series');
 var bowerFiles = require('main-bower-files');
 var print = require('gulp-print');
@@ -29,6 +31,10 @@ var paths = {
 };
 
 var pipes = {};
+
+var getPackageJson = function() {
+    return JSON.parse(fs.readFileSync('./package.json','utf8'));
+};
 
 pipes.orderedVendorScripts = function () {
     return plugins.order(['**/jquery.js', '**/angular.js']);
@@ -177,6 +183,20 @@ pipes.buildArtifacts = function () {
 
 // == TASKS ========
 
+gulp.task('bump', function() {
+    var pkg = getPackageJson();
+
+    var newVer = pkg.version;
+
+    gulp.src('./bower.json')
+    .pipe(bump({version: newVer}))
+    .pipe(gulp.dest('./'));
+
+    gulp.src('./app/modules/version.json')
+    .pipe(bump({version: newVer + '-' + process.env.BUILD_NUMBER}))
+    .pipe(gulp.dest('./app/modules'));
+});
+
 // removes all compiled dev files
 gulp.task('clean-dev', function () {
     var deferred = Q.defer();
@@ -234,9 +254,9 @@ gulp.task('clean-build-app-prod', ['clean-prod'], pipes.builtAppProd);
 gulp.task('prod-artifacts', ['clean-build-app-prod'], pipes.buildArtifacts);
 
 // clean, build, and watch live changes to the dev environment
-gulp.task('watch-dev', ['build-styles-dev', 'validate-app-scripts'], function () {
+gulp.task('watch-dev', ['build-styles-dev', 'validate-app-scripts', 'bump'], function () {
     var proxy = proxyMiddleware('/geoserver', {target: 'http://demo.boundlessgeo.com'});
-
+    
     browserSync.init({
         port: 3000,
         server: {

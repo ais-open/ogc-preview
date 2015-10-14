@@ -1,8 +1,8 @@
 
 angular.module('opApp')
-  .service('opConfig', function(L, moment) {
+  .service('opConfig', function($http, L, moment) {
     'use strict';
-
+            
     return {
         /* LEAFLET CONFIGURATION */
         leafletLayers: [
@@ -114,6 +114,12 @@ angular.module('opApp')
         // List of tags to attempt to match against WMS layer keywords.
         // If a tag cannot be found for any layer it is not added as a selection.
         // Order is important as that is the order they will be rendered in layer control.
-        recognizedTags: [ 'MODIS', 'VIIRS', 'TOPP' ]
+        recognizedTags: [ 'MODIS', 'VIIRS', 'TOPP' ],
+
+        getVersion: function(){
+          return $http({ method: 'GET', url: 'modules/version.json', timeout: 50000}).then(function (result) {
+              return result.data;
+          });
+        }
     };
 });
