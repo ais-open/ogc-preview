@@ -9,7 +9,6 @@ angular.module('opApp.header').controller('opHeaderController',
         'use strict';
 
         $scope.classification = opConfig.classification;
-        $scope.version = opConfig.version;
         $scope.bamfLink = '';
         $scope.kmlLink = '';
         $scope.kmlEnabled = false;
