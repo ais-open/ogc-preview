@@ -21,6 +21,8 @@
     }
   ],
   "dependencies": {
+    "fs": "0.0.2",
+    "gulp-bump": "^1.0.0",
     "gulp-debug": "^2.1.0",
     "gulp-filter": "^3.0.1"
   },
