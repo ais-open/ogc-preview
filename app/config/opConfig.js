@@ -117,7 +117,7 @@ angular.module('opApp')
         recognizedTags: [ 'MODIS', 'VIIRS', 'TOPP' ],
 
         getVersion: function(){
-          return $http({ method: 'GET', url: 'modules/version.json', timeout: 50000}).then(function (result) {
+          return $http({ method: 'GET', url: 'config/version.json', timeout: 50000}).then(function (result) {
               return result.data;
           });
         }

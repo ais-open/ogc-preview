@@ -33,7 +33,7 @@ var paths = {
 var pipes = {};
 
 var getPackageJson = function() {
-    return JSON.parse(fs.readFileSync('./package.json','utf8'));
+    return JSON.parse(fs.readFileSync('./app/config/version.json','utf8'));
 };
 
 pipes.orderedVendorScripts = function () {
@@ -186,15 +186,19 @@ pipes.buildArtifacts = function () {
 gulp.task('bump', function() {
     var pkg = getPackageJson();
 
-    var newVer = pkg.version;
+    var newVer = pkg.version.split('-')[0];
+
+    gulp.src('./package.json')
+    .pipe(bump({version: newVer}))
+    .pipe(gulp.dest('./'));
 
     gulp.src('./bower.json')
     .pipe(bump({version: newVer}))
     .pipe(gulp.dest('./'));
 
-    gulp.src('./app/modules/version.json')
+    gulp.src('./app/config/version.json')
     .pipe(bump({version: newVer + '-' + process.env.BUILD_NUMBER}))
-    .pipe(gulp.dest('./app/modules'));
+    .pipe(gulp.dest('./app/config'));
 });
 
 // removes all compiled dev files
@@ -270,7 +274,7 @@ gulp.task('watch-dev', ['build-styles-dev', 'validate-app-scripts', 'bump'], fun
 });
 
 // clean, build, and watch live changes to the prod environment
-gulp.task('watch-prod', ['clean-build-app-prod'], function () {
+gulp.task('watch-prod', ['clean-build-app-prod', 'bump'], function () {
     var proxy = proxyMiddleware('/geoserver', {target: 'http://demo.boundlessgeo.com'});
 
     browserSync.init({
@@ -310,7 +314,7 @@ gulp.task('watch-prod', ['clean-build-app-prod'], function () {
 });
 
 // default task builds for prod
-gulp.task('default', ['prod-artifacts']);
+gulp.task('default', ['prod-artifacts', 'bump']);
 
 // placeholder for unit test integration
 gulp.task('test', function() {});
