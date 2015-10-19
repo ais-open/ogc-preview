@@ -52,10 +52,22 @@ angular.module('opApp.map').controller('opMapController',
         };
 
         var drawCountry = function(geoJsonCountry) {
-            var country = new L.geoJson(geoJsonCountry, { color: '#ffd800', weight: 2, opacity: 1, fill: false });
-
+            var coords = [];
+            var country = new L.geoJson(geoJsonCountry, {
+                    //
+                    onEachFeature: function (feature, layer) {
+                        coords.push(feature.geometry.coordinates);
+                    },
+                    color: '#ffd800', weight: 2, opacity: 1, fill: false
+                }
+            );
+            var wkt = new Wkt.Wkt();
+            wkt.read(JSON.stringify(geoJsonCountry.geometry));
+            bboxLayer.coords = coords;
             bboxLayer.clearLayers();
             bboxLayer.addLayer(country);
+            bboxLayer.wkt = wkt.write();
+
             map.fitBounds(country);
             opPopupWindow.broadcast( opStateService.getResultsWindow(), 'mapBoundsChanged');
             $rootScope.$broadcast('mapBoundsChanged');
@@ -66,8 +78,12 @@ angular.module('opApp.map').controller('opMapController',
             if(bounds) {
                 var rect = new L.rectangle(bounds, { color: '#ffd800', weight: 4, opacity: 1, fill: false });
 
+                var wkt = new Wkt.Wkt();
+                wkt.read(JSON.stringify(rect.toGeoJSON().geometry));
+
                 bboxLayer.clearLayers();
                 bboxLayer.addLayer(rect);
+                bboxLayer.wkt = wkt.write();
 
                 opPopupWindow.broadcast( opStateService.getResultsWindow(), 'mapBoundsChanged');
                 $rootScope.$broadcast('mapBoundsChanged');
@@ -117,7 +133,8 @@ angular.module('opApp.map').controller('opMapController',
             map.getFilterBounds = function(){
                 //just a little hacky, but not too much.
                 // blame david if this breaks.
-                return bboxLayer.getBounds();
+                //return bboxLayer.getBounds();
+                return bboxLayer.wkt;
             };
 
             checkForMapBoundsState();
@@ -138,6 +155,29 @@ angular.module('opApp.map').controller('opMapController',
             legendControl = L.control.layerLegend();
             legendControl.addTo(map);
             legendControl.updateLegend();
+
+            var drawControl = new L.Control.Draw({
+                edit: {
+                    featureGroup: bboxLayer
+                },
+                draw: {
+                    polyline: false,
+                    marker: false,
+                    polygon: {
+                        shapeOptions: { color: '#ffd800', weight: 2 }
+                    },
+                    rectangle: {
+                        shapeOptions: { color: '#ffd800', weight: 2 }
+                    },
+                    circle: {
+                        shapeOptions: { color: '#ffd800', weight: 2 }
+                    }
+                }
+            });
+            map.addControl(drawControl);
+            map.on('draw:created', function() {
+                $rootScope.$broadcast('manual-draw-started');
+            });
 
             map.on('moveend', setBounds);
 

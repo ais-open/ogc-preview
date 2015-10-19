@@ -161,8 +161,8 @@ angular.module('opApp.query')
             }
 
             var spatialFilter =
-                this.createCqlSpatialBBoxFilter(layer.fields.geometry.field, spatialBounds, crs);
-
+                //this.createCqlSpatialBBoxFilter(layer.fields.geometry.field, spatialBounds, crs);
+                this.createCqlSpatialIntersectsFilter(layer.fields.geometry.feidl, spatialBounds);
 
             if (spatialFilter !== null) {
                 cqlFilters.push(spatialFilter);
@@ -237,8 +237,8 @@ angular.module('opApp.query')
             }
 
             var spatialFilter =
-                this.createCqlSpatialBBoxFilter(layer.fields.geometry.field, spatialBounds, crs);
-
+                //this.createCqlSpatialBBoxFilter(layer.fields.geometry.field, spatialBounds, crs);
+                this.createCqlSpatialIntersectsFilter(layer.fields.geometry.field, spatialBounds);
             if (spatialFilter !== null) {
                 cqlFilters.push(spatialFilter);
             }
