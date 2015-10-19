@@ -1,7 +1,7 @@
 {
   "name": "ogc-preview",
   "description": "OGC Preview",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "author": {
     "name": "Jonathan Meyer",
     "company": "Applied Information Sciences"
@@ -22,7 +22,9 @@
   ],
   "dependencies": {
     "gulp-debug": "^2.1.0",
-    "gulp-filter": "^3.0.1"
+    "gulp-filter": "^3.0.1",
+    "fs": "0.0.2",
+    "gulp-bump": "^1.0.0"
   },
   "devDependencies": {
     "browser-sync": "^2.7.0",

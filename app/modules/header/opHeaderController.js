@@ -95,6 +95,10 @@ angular.module('opApp.header').controller('opHeaderController',
             return servers;
         };
 
+        opConfig.getVersion().then(function (data){
+            $scope.version = data;
+        });
+
         $scope.buildKmlLink = function(serverName) {
             var val = opStateService.getDatasets();
 
@@ -144,6 +148,13 @@ angular.module('opApp.header').controller('opHeaderController',
                 }
             }
             return link;
+        };
+ 
+        $scope.showAbout = function() {
+            $modal.open({
+                templateUrl: 'modules/header/opAbout.html',
+                windowClass: 'small-modal'
+            });
         };
 
         $scope.showFeedback = function () {
