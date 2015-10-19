@@ -3,8 +3,10 @@
         <a href="" ng-click="expanded = !expanded">
             <span class="icon" ng-bind-html="expanded ? '&#x25bc;' : '&#x25ba;'"></span>
             Location
+            <span ng-if="!expanded"  class="detail">{{friendlyLocation()}}</span>
         </a>
     </h4>
+
     <div ng-show="expanded">
         <div class="list-group">
             <a class="list-group-item" ng-class="{active: model.locationKey == 'world'}" href="" ng-click="setLocationWorld()">Whole World</a>
@@ -120,11 +122,10 @@
                   </select>
               </div>
 
-            <a class="list-group-item" ng-class="{active: model.locationKey == 'draw'}" href="" ng-click="model.locationKey = 'draw';">Manual Draw...</a>
+            <a class="list-group-item" ng-class="{active: model.locationKey == 'draw'}" href="" ng-click="model.locationKey = 'draw'">Manual Draw...</a>
             <div class="details-box" ng-show="model.locationKey == 'draw'">
-                <a href="" ng-class="{active: isDrawingPoly}" ng-click="drawStartPoly();" tooltip="Select Polygon Region" tooltip-placement="bottom"><i class="map-icon icon-square"></i></a></li>
-                <a href="" ng-class="{active: isDrawing}" ng-click="drawStart();" tooltip="Select Square Region" tooltip-placement="bottom"><i class="map-icon icon-square"></i></a></li>
-                <a href="" ng-click="drawClear();"  tooltip="Clear Selection" tooltip-placement="bottom"><i class="map-icon icon-x"></i></a></li>
+                <a href="" class="btn btn-info btn-sm pull-right" ng-click="clearManualDraw()" style="margin-left:10px;">Clear Drawing</a>
+                <p class="small" style="margin-left:10px;">Use the custom extent drawing tools on the map.</p>
             </div>
         </div>
     </div>

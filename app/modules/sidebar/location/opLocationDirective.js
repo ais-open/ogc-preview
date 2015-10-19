@@ -303,6 +303,10 @@ angular.module('opApp')
                     }
                 };
 
+                scope.setLocationDraw = function() {
+                    scope.model.locationKey = 'draw'
+                };
+
                 element.find('.shape-upload-file').on('change', function () {
                     element.find('.shape-upload').submit();
                 });
@@ -336,6 +340,13 @@ angular.module('opApp')
                 scope.$watch('model.dist', scope.setLocationCenter);
                 scope.$watch('country', scope.setLocationCountry);
 
+                scope.$on('manual-draw-started', function() {
+                    if(scope.model.locationKey !== 'draw') {
+                        scope.expanded = true;
+                    }
+                    scope.setLocationDraw();
+                });
+
                 scope.$on('map-changed', function () {
                     scope.model.mapChanged = true;
                 });
@@ -367,6 +378,10 @@ angular.module('opApp')
                     scope.isDrawing = false;
                 };
 
+                scope.clearManualDraw = function() {
+                    $rootScope.$broadcast('drawClear');
+                };
+
                 scope.drawClear = function (){
                     $rootScope.$broadcast('drawClear');
                 };
@@ -377,6 +392,10 @@ angular.module('opApp')
                         scope.isDrawingPoly = false;
                     });
                 });
+
+                scope.friendlyLocation = function () {
+                    return scope.model.locationKey.charAt(0).toUpperCase() + scope.model.locationKey.slice(1);
+                };
 
                 parseLocation(scope.locationSelect);
                 getCountries().then(

@@ -287,11 +287,15 @@ angular.module('opApp').controller('opLayerController',
         // watch for wfs query from popup window, this could be refactored somewhere else.
         $scope.$on('queryWfs', function(e, layer) {
             var timeBounds = opStateService.getTimeBoundsFromTemporalFilter();
-            var mapBounds = $scope.map.getFilterBounds();
-            var spatialBounds;
+            //var mapBounds = $scope.map.getFilterBounds();
+            var boundsAsWKT = $scope.map.getFilterBounds();
+            //var spatialBounds;
 
-            if (mapBounds.isValid() && angular.isDefined(layer) && angular.isDefined(layer.active) && layer.active !== null && layer.active && layer.fields.geometry) {
-                spatialBounds = mapBounds.toBBoxString();
+            var spatialBounds = boundsAsWKT;
+
+            //if (mapBounds.isValid() && angular.isDefined(layer) && angular.isDefined(layer.active) && layer.active !== null && layer.active && layer.fields.geometry) {
+            if (angular.isDefined(layer) && angular.isDefined(layer.active) && layer.active !== null && layer.active && layer.fields.geometry) {
+                //spatialBounds = mapBounds.toBBoxString();
                 var epsgCode = opStateService.getLeafletMapCRS();
                 var filter = opFilterService.createWfsBBoxFilterRequestForLayer(layer, timeBounds[0], timeBounds[1],
                     spatialBounds, epsgCode);
