@@ -184,7 +184,7 @@ pipes.buildArtifacts = function () {
 // == TASKS ========
 
 gulp.task('bump', function() {
-    var pkg = getPackageJson();
+    var pkg = getVersionJson();
 
     var newVer = pkg.version.split('-')[0];
 
