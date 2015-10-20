@@ -294,7 +294,7 @@ angular.module('opApp').controller('opLayerController',
             var spatialBounds = boundsAsWKT;
 
             //if (mapBounds.isValid() && angular.isDefined(layer) && angular.isDefined(layer.active) && layer.active !== null && layer.active && layer.fields.geometry) {
-            if (angular.isDefined(layer) && angular.isDefined(layer.active) && layer.active !== null && layer.active && layer.fields.geometry) {
+            if (boundsAsWKT !== '' && angular.isDefined(boundsAsWKT) && angular.isDefined(layer) && angular.isDefined(layer.active) && layer.active !== null && layer.active && layer.fields.geometry) {
                 //spatialBounds = mapBounds.toBBoxString();
                 var epsgCode = opStateService.getLeafletMapCRS();
                 var filter = opFilterService.createWfsBBoxFilterRequestForLayer(layer, timeBounds[0], timeBounds[1],

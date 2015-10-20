@@ -65,6 +65,15 @@ angular.module('opApp.query')
             return spatialFilter;
         };
 
+        this.createCqlSpatialContainsFilter = function(geomField, WKT) {
+            var spatialFilter = null;
+            if (angular.isDefined(WKT) && WKT !== null) {
+                spatialFilter = 'CONTAINS("' + geomField + '", ' + WKT + ')';
+            }
+
+            return spatialFilter;
+        };
+
         /**
          * Create a BBOX query filter with a passed in west,south,east,north formatted string
          * @param geomField name of geometry field in layer
@@ -239,6 +248,7 @@ angular.module('opApp.query')
             var spatialFilter =
                 //this.createCqlSpatialBBoxFilter(layer.fields.geometry.field, spatialBounds, crs);
                 this.createCqlSpatialIntersectsFilter(layer.fields.geometry.field, spatialBounds);
+                //this.createCqlSpatialContainsFilter(layer.fields.geometry.field, spatialBounds);
             if (spatialFilter !== null) {
                 cqlFilters.push(spatialFilter);
             }
