@@ -120,7 +120,7 @@ angular.module('opApp').factory('opCoordinateConversionService',
                 mgrs: ''
             };
             if (lat >= -80 && lat <= 84) {
-                results.mgrs = new LLtoMGRS(lat, lon, 5);
+                results.mgrs = LLtoMGRS(lat, lon, 5);
             }
             return results;
         } else if (!(lat >= -80 && lat <= 84)) {
@@ -183,7 +183,7 @@ angular.module('opApp').factory('opCoordinateConversionService',
                 mgrs: ''
             };
             if (results.dd[0] >= -80 && results.dd[0] <= 84) {
-                results.mgrs = new LLtoMGRS(results.dd[0], results.dd[1], 5);
+                results.mgrs = LLtoMGRS(results.dd[0], results.dd[1], 5);
             }
             return results;
         }else{

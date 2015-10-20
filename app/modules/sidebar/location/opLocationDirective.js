@@ -90,9 +90,15 @@ angular.module('opApp')
                             coords = opCoordinateConversionService.prepForDMSBroadcast(scope.model.lat, scope.model.lon);
                             break;
                         case 'mgrs':
-                            sw = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrsSW);
-                            ne = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrsNE);
-                            coords = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrs);
+                            if(scope.model.mgrsSW) {
+                                sw = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrsSW);
+                            }
+                            if(scope.model.mgrsNE) {
+                                ne = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrsNE);
+                            }
+                            if(scope.model.mgrs) {
+                                coords = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrs);
+                            }
                             break;
                     }
                     scope.model.latS = '';
