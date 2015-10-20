@@ -182,8 +182,10 @@ pipes.buildArtifacts = function () {
 };
 
 // == TASKS ========
+
 gulp.task('bump', function() {
     var pkg = getVersionJson();
+
     var newVer = pkg.version.split('-')[0];
 
     gulp.src('./package.json')
@@ -194,10 +196,17 @@ gulp.task('bump', function() {
     .pipe(bump({version: newVer}))
     .pipe(gulp.dest('./'));
 
+    var newVerBuild = '';
+    if(process.env.BUILD_NUMBER)
+    {
+      newVerBuild = newVer + '-' + process.env.BUILD_NUMBER;
+    }
+
     gulp.src('./app/config/version.json')
-    .pipe(bump({version: newVer + '-' + process.env.BUILD_NUMBER}))
+    .pipe(bump({version: newVerBuild}))
     .pipe(gulp.dest('./app/config'));
 });
+
 
 // removes all compiled dev files
 gulp.task('clean-dev', function () {
