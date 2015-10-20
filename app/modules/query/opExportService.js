@@ -12,8 +12,8 @@ angular.module('opApp.query')
         this.createKmlExportRequest = function (layer, startTime, stopTime, spatialBounds, crs) {
             var server = opStateService.getServer(layer.server);
             var wmsVersion = server.wmsVersion;
-            var filters = opFilterService.createWmsBboxFilterRequestForLayer(layer, startTime, stopTime, spatialBounds, crs);
-
+            //var filters = opFilterService.createWmsBboxFilterRequestForLayer(layer, startTime, stopTime, spatialBounds, crs);
+            var filters = opFilterService.createWmsIntersectsFilterRequestForLayer(layer, startTime, stopTime, spatialBounds);
             return angular.extend(filters,
                 {
                     layers: layer.workspace + ':' + layer.name,
@@ -25,7 +25,8 @@ angular.module('opApp.query')
         var createWfsExportRequest = function (outputFormat, layer, startTime, stopTime, spatialBounds, crs) {
             var server = opStateService.getServer(layer.server);
             var wfsVersion = server.wfsVersion;
-            var filters = opFilterService.createWfsBBoxFilterRequestForLayer(layer, startTime, stopTime, spatialBounds, crs);
+            //var filters = opFilterService.createWfsBBoxFilterRequestForLayer(layer, startTime, stopTime, spatialBounds, crs);
+            var filters = opFilterService.createWfsIntersectsFilterRequestForLayer(layer, startTime, stopTime, spatialBounds);
 
             return angular.extend(filters,
                 {

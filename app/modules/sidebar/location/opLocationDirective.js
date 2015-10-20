@@ -310,7 +310,7 @@ angular.module('opApp')
                 };
 
                 scope.setLocationDraw = function() {
-                    scope.model.locationKey = 'draw'
+                    scope.model.locationKey = 'draw';
                 };
 
                 element.find('.shape-upload-file').on('change', function () {

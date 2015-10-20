@@ -297,8 +297,10 @@ angular.module('opApp').controller('opLayerController',
             if (boundsAsWKT !== '' && angular.isDefined(boundsAsWKT) && angular.isDefined(layer) && angular.isDefined(layer.active) && layer.active !== null && layer.active && layer.fields.geometry) {
                 //spatialBounds = mapBounds.toBBoxString();
                 var epsgCode = opStateService.getLeafletMapCRS();
-                var filter = opFilterService.createWfsBBoxFilterRequestForLayer(layer, timeBounds[0], timeBounds[1],
-                    spatialBounds, epsgCode);
+                //var filter = opFilterService.createWfsBBoxFilterRequestForLayer(layer, timeBounds[0], timeBounds[1],
+                //    spatialBounds, epsgCode);
+                var filter = opFilterService.createWfsIntersectsFilterRequestForLayer(layer, timeBounds[0], timeBounds[1],
+                    spatialBounds);
 
                 var server = opStateService.getServer(layer.server);
                 opLayerService.getFilteredJsonFeatures(layer, filter).then(

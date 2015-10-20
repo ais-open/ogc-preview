@@ -170,8 +170,53 @@ angular.module('opApp.query')
             }
 
             var spatialFilter =
-                //this.createCqlSpatialBBoxFilter(layer.fields.geometry.field, spatialBounds, crs);
-                this.createCqlSpatialIntersectsFilter(layer.fields.geometry.feidl, spatialBounds);
+                this.createCqlSpatialBBoxFilter(layer.fields.geometry.field, spatialBounds, crs);
+                //this.createCqlSpatialIntersectsFilter(layer.fields.geometry.field, spatialBounds);
+
+            if (spatialFilter !== null) {
+                cqlFilters.push(spatialFilter);
+            }
+
+            var customFilter = opStateService.getCustomFilterByLayer(layer.workspace + ':' + layer.name);
+
+            if (customFilter !== null) {
+                cqlFilters.push(customFilter);
+            }
+
+            if (cqlFilters.length > 0) {
+                response['cql_filter'] = cqlFilters.join(' AND ');
+            }
+
+            return response;
+        };
+
+        /**
+         * Create a parameter object that is a pure cql_filter or a combination cql/time filter based on whether the
+         * layer is time-enabled or not.
+         * @param layer object containing time and geometry field data for creating the filters
+         * @param startTime temporal lower bound
+         * @param stopTime temporal upper bound
+         * @param spatialBounds WKT geometry used to enforce intersection with results
+         * @returns {{}}
+         */
+        this.createWmsIntersectsFilterRequestForLayer = function (layer, startTime, stopTime, spatialBounds) {
+            var response = {};
+            var cqlFilters = [];
+
+            if (layer.fields.time !== null) {
+                if (angular.isDefined(layer.fields.time.wmsTime) && layer.fields.time.wmsTime === true) {
+                    response['time'] = this.createWmsTimeFilter(startTime, stopTime);
+                }
+                else {
+                    cqlFilters.push(this.createCqlTemporalFilter(
+                        layer.fields.time.start.field,
+                        layer.fields.time.stop.field,
+                        startTime, stopTime));
+                }
+            }
+
+            var spatialFilter =
+                this.createCqlSpatialIntersectsFilter(layer.fields.geometry.field, spatialBounds);
 
             if (spatialFilter !== null) {
                 cqlFilters.push(spatialFilter);
@@ -246,9 +291,45 @@ angular.module('opApp.query')
             }
 
             var spatialFilter =
-                //this.createCqlSpatialBBoxFilter(layer.fields.geometry.field, spatialBounds, crs);
+                this.createCqlSpatialBBoxFilter(layer.fields.geometry.field, spatialBounds, crs);
+                //this.createCqlSpatialIntersectsFilter(layer.fields.geometry.field, spatialBounds);
+            if (spatialFilter !== null) {
+                cqlFilters.push(spatialFilter);
+            }
+
+            var customFilter = opStateService.getCustomFilterByLayer(layer.workspace + ':' + layer.name);
+
+            if (customFilter !== null) {
+                cqlFilters.push(customFilter);
+            }
+
+            if (cqlFilters.length > 0) {
+                response['cql_filter'] = cqlFilters.join(' AND ');
+            }
+
+            return response;
+        };
+
+        /**
+         * Create a cql_filter for a layer given spatial WKT and temporal bounds
+         * @param layer
+         * @param startTime
+         * @param stopTime
+         * @param spatialBounds in WKT format
+         * @returns {{}}
+         */
+        this.createWfsIntersectsFilterRequestForLayer = function (layer, startTime, stopTime, spatialBounds) {
+            var cqlFilters = [];
+            var response = {};
+
+            if (layer.fields.time !== null) {
+                cqlFilters.push(this.createCqlTemporalFilter(
+                    layer.fields.time.start.field, layer.fields.time.stop.field, startTime, stopTime));
+            }
+
+            var spatialFilter =
                 this.createCqlSpatialIntersectsFilter(layer.fields.geometry.field, spatialBounds);
-                //this.createCqlSpatialContainsFilter(layer.fields.geometry.field, spatialBounds);
+
             if (spatialFilter !== null) {
                 cqlFilters.push(spatialFilter);
             }
