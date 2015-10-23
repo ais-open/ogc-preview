@@ -18,6 +18,7 @@ var gfilter = require('gulp-filter');
 
 var paths = {
     vendor: './app/bower_components',
+    //, '!./app/bower_components/Wicket/wicket-gmap3*', '!./app/bower_components/Wicket/wicket-arcgis*']
     scripts: ['./app/**/*.js', '!./app/bower_components/**', '!./app/config/**'],
     config: ['./app/config/*'],
     styles: ['./app/**/lib.less', './app/**/app.less'],
@@ -37,7 +38,8 @@ var getVersionJson = function() {
 };
 
 pipes.orderedVendorScripts = function () {
-    return plugins.order(['**/jquery.js', '**/angular.js']);
+    return plugins.order(['**/jquery.js', '**/angular.js', '**/leaflet-dist/leaflet.js', '**/wicket.js', '**/wicket-leaflet.js']);
+    //return plugins.order(['**/jquery.js', '**/angular.js']);
 };
 
 pipes.orderedAppScripts = function () {
@@ -84,7 +86,7 @@ pipes.builtAppScriptsProd = function () {
 
 pipes.builtVendorScriptsProd = function () {
     return gulp.src(bowerFiles(), {base: paths.vendor})
-        .pipe(gfilter('**/*.js'))
+        .pipe(gfilter(['**/*.js', '!**/wicket-arcgis.js', '!**/wicket-gmap3.js']))
         .pipe(pipes.orderedVendorScripts())
         .pipe(pipes.minifiedFileName())
         .pipe(plugins.concat('vendor.min.js'))
@@ -148,9 +150,9 @@ pipes.builtIndexProd = function () {
 
     //var partialScript = pipes.builtPartialsScriptProd();
     var vendorScripts = pipes.builtVendorScriptsProd();
-    series(pipes.copyPartialsProd(),pipes.copyAppScriptsProd());
+    var otherScripts = series(pipes.copyPartialsProd(),pipes.copyAppScriptsProd());
     var appStyles = series(pipes.builtStylesProd());
-    var scripts = series(vendorScripts);
+    var scripts = series(vendorScripts, otherScripts);
 
     return pipes.validatedIndex()
         .pipe(gulp.dest(paths.distProd)) // write first to get relative path for inject
@@ -285,7 +287,7 @@ gulp.task('watch-prod', ['clean-build-app-prod', 'bump'], function () {
     var proxy = proxyMiddleware('/geoserver', {target: 'http://demo.boundlessgeo.com'});
 
     browserSync.init({
-        port: 9000,
+        port: 9001,
         server: {
             baseDir: ["./dist"],
             middleware: [proxy]

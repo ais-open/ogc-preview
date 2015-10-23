@@ -101,7 +101,7 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
         };
 
         var isInt = function (value) {
-            return !isNaN(value) && parseInt(Number(value)) == value;
+            return !isNaN(value) && parseInt(Number(value)) == value; // jshint ignore:line
         };
 
         $scope.setDuration = function () {
