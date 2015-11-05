@@ -303,8 +303,11 @@ angular.module('opApp').controller('opLayerController',
                     spatialBounds);
 
                 var server = opStateService.getServer(layer.server);
-                opLayerService.getFilteredJsonFeatures(layer, filter).then(
+                opLayerService.getFilteredJsonFeatures(layer, filter, epsgCode).then(
                     function(result){
+                      if(result.hasOwnProperty('ServiceException')) {
+                        $log.log('GeoServer sent back an exception in ' + layer.title + '. Error: ' + JSON.stringify(result));
+                      } else {
                         result.kmlUrl = exportData(opExportService.createKmlExportRequest,
                             layer, timeBounds, spatialBounds, epsgCode, server.url + '/wms/kml');
                         result.csvUrl = exportData(opExportService.createCsvExportRequest,
@@ -314,9 +317,10 @@ angular.module('opApp').controller('opLayerController',
                         result.rssUrl = exportData(opExportService.createGeoRSSExportRequest,
                             layer, timeBounds, spatialBounds, epsgCode, server.url + '/wfs');
                         opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', result);
+                      }
                     },
                     function(reason){ $log.log(reason); });
-            }else{
+            } else {
                 opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', {error: 'nobbox'});
             }
         });

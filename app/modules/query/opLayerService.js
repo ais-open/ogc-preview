@@ -92,7 +92,7 @@ angular.module('opApp.query')
          *
          * NOTE: time value will be unset if layer is not time enabled
          *
-         * 
+         *
          {
             fields: {
                 time: {
@@ -208,7 +208,7 @@ angular.module('opApp.query')
 
         /**
          * Query a layer to determine if any data is present given temporal and spatial domains.
-         * 
+         *
          * @param layer object containing at minimum 'name', 'workspace' and 'time' properties
          * @param startBound begin time of temporal filter
          * @param endBound end time of temporal filter
@@ -226,9 +226,11 @@ angular.module('opApp.query')
          * @param filters
          * @returns {*}
          */
-        this.getFilteredJsonFeatures = function (layer, filters) {
+        this.getFilteredJsonFeatures = function (layer, filters, srs) {
+            // return opWebFeatureService.getFilteredJsonFeatures(layer.server, layer.name, layer.workspace, layer.fields,
+            //     filters, {maxFeatures: opConfig.wfsFeatureLimiter, srsName: 'EPSG:4326'});
             return opWebFeatureService.getFilteredJsonFeatures(layer.server, layer.name, layer.workspace, layer.fields,
-                filters, {maxFeatures: opConfig.wfsFeatureLimiter, srsName: 'EPSG:4326'});
+                filters, {maxFeatures: opConfig.wfsFeatureLimiter, srsName: srs});
         };
 
         /**
