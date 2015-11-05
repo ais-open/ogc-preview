@@ -6,7 +6,7 @@
 
 angular.module('opApp.query')
     .service('opWebFeatureService',
-    function ($q, $http, opConfig, opStateService, $log, toaster) {
+    function ($q, $http, opConfig, opStateService, $log, toaster, opPopupWindow) {
         'use strict';
 
         // Using WFS 1.1.0 for the very specific reason, that 2.0.0 always runs full table scan to get feature counts.
@@ -198,9 +198,10 @@ angular.module('opApp.query')
                     else {
                       if(result.data.indexOf('ServiceException') > -1) {
                         var errorString = xmlDoc.getElementsByTagNameNS('*', 'ServiceException')[0].childNodes[0].textContent;
-                        var logError = 'Investigate GeoServer layer: ' + name + '. Error returned: ' + errorString;
+                        var logError = 'GeoServer returned an exception (error) on this layer: ' + name + '. Error returned: ' + errorString + '. Please have someone investigate this layer.';
+                        opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', {error: logError});
                         $log.log(logError);
-                        toaster.pop('error', 'Layer Configuration Error', logError);
+                        deferred.resolve(result);
                       }
                       $log.log(params);
                       var error = 'Unable to find any features in ' + workspace + ':' + name +  ' with params: ' + JSON.stringify(params);

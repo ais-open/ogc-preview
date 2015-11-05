@@ -305,6 +305,8 @@ angular.module('opApp').controller('opLayerController',
                 var server = opStateService.getServer(layer.server);
                 opLayerService.getFilteredJsonFeatures(layer, filter, epsgCode).then(
                     function(result) {
+                      // data key should not exist
+                      if(!result.data) {
                         result.kmlUrl = exportData(opExportService.createKmlExportRequest,
                             layer, timeBounds, spatialBounds, epsgCode, server.url + '/wms/kml');
                         result.csvUrl = exportData(opExportService.createCsvExportRequest,
@@ -314,6 +316,7 @@ angular.module('opApp').controller('opLayerController',
                         result.rssUrl = exportData(opExportService.createGeoRSSExportRequest,
                             layer, timeBounds, spatialBounds, epsgCode, server.url + '/wfs');
                         opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', result);
+                      }
                     },
                     function(reason){ $log.log(reason); });
             } else {
