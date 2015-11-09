@@ -8,6 +8,7 @@ angular.module('opApp')
                 locationSelect: '=',
                 country: '='
             },
+
             link: function postLink(scope, element) {
                 scope.expanded = false;
                 scope.model = {
@@ -28,7 +29,14 @@ angular.module('opApp')
                     latValid: true,
                     lonValid: true,
                     distValid: true,
-                    countriesJson: ''
+                    countries: '',
+                    countryList: [
+                      'USA',
+                      'Canada',
+                      'Japan',
+                      'UK',
+                    ],
+                    selectedCountries: {}
                 };
 
                 /*
@@ -155,6 +163,8 @@ angular.module('opApp')
                     ];
                     scope.model.locationKey = 'world';
                     scope.country = '';
+                    $log.log("locationString: " + scope.locationSelect);
+                    scope.resetCountrySelection();
                     opStateService.setAttributeBBoxText(scope.locationSelect);
                 };
 
@@ -162,13 +172,34 @@ angular.module('opApp')
                     scope.model.locationKey = 'map';
                     scope.country = '';
                     scope.model.mapChanged = false;
+                    scope.resetCountrySelection();
                     opStateService.setAttributeBBoxCurrentBounds();
                 };
+
+                scope.addCountrySelection = function(country) {
+                  // country is geoJSON of country
+                  // country.id
+                  // country.properties.name
+                  // country.geometry is POLYGON
+                  opStateService.setAttributeBBoxCountry(country);
+                  $log.log("Adding country filter of: " + country.properties.name);
+                };
+
+                scope.resetCountrySelection = function() {
+                  scope.model.selectedCountries = {};
+                  $rootScope.$broadcast('remove-country-selections');
+                };
+
+                scope.removeCountrySelection = function(country) {
+                  opStateService.removeAttributeBBoxCountry(country);
+                  $log.log("Removing country filter of: " + country.properties.name);
+                }
+
                 scope.setLocationCountry = function () {
                     if (scope.country) {
                         scope.locationSelect = null;
                         scope.model.locationKey = 'country';
-                        opStateService.setAttributeBBoxCountry(scope.country);
+                        // opStateService.setAttributeBBoxCountry(scope.country);
                     }
                 };
 
@@ -234,6 +265,7 @@ angular.module('opApp')
                         if (scope.model.locationKey !== 'map') {
                             scope.model.locationKey = 'bounds';
                         }
+                        scope.resetCountrySelection();
                         opStateService.setAttributeBBoxText(scope.locationSelect);
                     }
                 };
@@ -305,6 +337,7 @@ angular.module('opApp')
                         ];
 
                         scope.locationKey = 'center';
+                        scope.resetCountrySelection();
                         opStateService.setAttributeBBoxText(scope.locationSelect);
                     }
                 };
@@ -350,6 +383,7 @@ angular.module('opApp')
                     if(scope.model.locationKey !== 'draw') {
                         scope.expanded = true;
                     }
+                    scope.resetCountrySelection();
                     scope.setLocationDraw();
                 });
 
@@ -392,7 +426,31 @@ angular.module('opApp')
                     $rootScope.$broadcast('drawClear');
                 };
 
-                scope.$on('mapBoundsChanged', function(){
+                scope.$on('bounds-from-route', function(event, boundsIn) {
+                  var bounds;
+                  if (boundsIn) {
+                      var coords = boundsIn.split(',');
+                      if (coords.length === 4) {
+                          bounds = L.latLngBounds({lon: coords[0], lat: coords[1]}, {lon: coords[2], lat: coords[3]});
+                      }
+                      else {
+                          $log.log('Unrecognized format of bounds parameter: ' + boundsIn);
+                      }
+                  }
+                  scope.model.latN = bounds.getNorth();
+                  scope.model.latS = bounds.getSouth();
+                  scope.model.latW = bounds.getWest();
+                  scope.model.latE = bounds.getEast();
+                });
+
+                scope.$on('bounds-current-bounds', function() {
+                  scope.setLocationBounds();
+                });
+
+                scope.$on('mapBoundsChanged', function(bounds){
+                  if(bounds === 'world') {
+                    scope.setLocationWorld();
+                  }
                     $timeout(function() {
                         scope.isDrawing = false;
                         scope.isDrawingPoly = false;
@@ -406,8 +464,13 @@ angular.module('opApp')
                 parseLocation(scope.locationSelect);
                 getCountries().then(
                     function (result) {
-                        scope.countriesJson = result.data.features;
-                    });
+                        scope.model.countries = result.data.features;
+                        // scope.model.countriesJson = result.data;
+                    }
+                );
+                // if(scope.model.locationKey === 'world') {
+                //   scope.setLocationWorld();
+                // }
             }
         };
     });

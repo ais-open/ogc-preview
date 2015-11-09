@@ -6,7 +6,7 @@
 
 angular.module('opApp.query')
     .service('opLayerService',
-    function ($q, $http, localStorageService, opConfig, opWebMapService, opWebFeatureService, opFilterService, opStateService, $log) {
+    function ($q, $http, localStorageService, opConfig, opWebMapService, opWebFeatureService, opFilterService, opStateService, $log, opPopupWindow) {
         'use strict';
 
         this.localStorageLayersKey = 'opApp.layersCache';
@@ -202,6 +202,10 @@ angular.module('opApp.query')
                     self.setFieldCache(layer, layer.fields);
 
                     $log.log('Unable to determine field types: ' + reason);
+                    var logError = 'Is this layer a raster?  If so, no feature data is available.';
+                    opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', {error: logError});
+                    $log.log(logError);
+                    deferred.resolve(reason);
                     $log.log('Assuming raster layer.');
                     deferred.resolve(layer.fields);
                 });

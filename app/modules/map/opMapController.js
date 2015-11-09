@@ -19,6 +19,7 @@ angular.module('opApp.map').controller('opMapController',
         var bboxLayer;
         var layerControl;
         var legendControl;
+        var drawnCountries = [];
 
         var checkForMapBoundsState  = function() {
             var bounds = opStateService.getBounds();
@@ -28,15 +29,18 @@ angular.module('opApp.map').controller('opMapController',
         };
 
         var checkForBBoxBoundsState  = function() {
-            var bboxBounds = opStateService.getAttributeBounds();
-            if (bboxBounds) {
+            // var bboxBounds = opStateService.getAttributeBounds();
+            var bboxBounds = opStateService.newGetAttributeBounds();
+
+            if(bboxBounds === 'world') {
+              drawWorldBounds();
+            } else if (bboxBounds) {
                 var rect = new L.rectangle(bboxBounds, { color: '#ffd800', weight: 2, opacity: 1, fill: false });
                 bboxLayer.clearLayers();
                 bboxLayer.addLayer(rect);
-
-                opPopupWindow.broadcast( opStateService.getResultsWindow(), 'mapBoundsChanged');
-                $rootScope.$broadcast('mapBoundsChanged');
             }
+            opPopupWindow.broadcast( opStateService.getResultsWindow(), 'mapBoundsChanged');
+            $rootScope.$broadcast('mapBoundsChanged');
         };
 
         var redrawRect = function(bounds) {
@@ -54,20 +58,62 @@ angular.module('opApp.map').controller('opMapController',
             }
         };
 
+        var drawWorldBounds = function() {
+          var bounds = [['-90', '-180'], ['90', '180']];
+          redrawRect(bounds);
+        };
+
         var drawCountry = function(geoJsonCountry) {
             var country = new L.geoJson(geoJsonCountry, {
                     color: '#ffd800', weight: 2, opacity: 1, fill: false
                 }
             );
-            var wkt = new Wkt.Wkt();
-            wkt.read(JSON.stringify(geoJsonCountry.geometry));
-            bboxLayer.clearLayers();
+
+            // remove other bbox layers if we're adding our first country
+            if(drawnCountries.length === 0 && bboxLayer.getLayers().length > 0) {
+              bboxLayer.clearLayers();
+            }
+
+            var wktCountry = new Wkt.Wkt();
+            wktCountry.read(JSON.stringify(geoJsonCountry.geometry));
+            var countryData = {
+              id: geoJsonCountry.id,
+              leafletId: country._leaflet_id,
+              wkt: wktCountry.write()
+            };
+
+            if(drawnCountries.indexOf(countryData) === -1) {
+              drawnCountries.push(countryData);
+            }
+
+            // create one large WKT from all the countries we have active
+            var wktTotal = new Wkt.Wkt();
+            wktTotal.read(drawnCountries[0].wkt);
+            for(var i = 1; i < drawnCountries.length; i++) {
+              wktTotal.type = 'multipolygon';
+              wktTotal.merge(new Wkt.Wkt(drawnCountries[i].wkt));
+            }
+
+            // bboxLayer.clearLayers(); // TODO put this back in
             bboxLayer.addLayer(country);
-            bboxLayer.wkt = wkt.write();
+            bboxLayer.wkt = wktTotal.write();
 
             //map.fitBounds(country);
             opPopupWindow.broadcast( opStateService.getResultsWindow(), 'mapBoundsChanged');
             $rootScope.$broadcast('mapBoundsChanged');
+        };
+
+        var removeCountryDraw = function(bounds) {
+          var countryId = bounds.id;
+          for(var i = 0; i < drawnCountries.length; i++) {
+            if(drawnCountries[i].id === countryId) {
+              // country found, can delete
+              var layerId = drawnCountries[i].leafletId;
+              bboxLayer.removeLayer(layerId);
+              drawnCountries.splice(i, 1);
+              break;
+            }
+          }
         };
 
         var drawCurrentBounds = function() {
@@ -86,7 +132,6 @@ angular.module('opApp.map').controller('opMapController',
                 $rootScope.$broadcast('mapBoundsChanged');
             }
         };
-
 
         var initializeMap = function () {
             $log.log('Starting up opMapController...');
@@ -280,12 +325,22 @@ angular.module('opApp.map').controller('opMapController',
         });
 
         $rootScope.$on('bounds-current-bounds', function() {
+            opStateService.setAttributeBBox(map.getBounds());
             drawCurrentBounds();
         });
 
         $rootScope.$on('bounds-country-bounds', function(event,  geoJsonCountry) {
             drawCountry(geoJsonCountry);
         });
+
+        $rootScope.$on('remove-country-bounds', function(event, bounds) {
+            removeCountryDraw(bounds);
+        });
+
+        $rootScope.$on('remove-country-selections', function() {
+            bboxLayer.clearLayers();
+            drawnCountries = [];
+        })
 
         /*
         Convert a mid point and radius (circle) to a polygon of x sides

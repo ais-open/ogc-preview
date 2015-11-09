@@ -51,6 +51,7 @@ angular.module('opApp')
 
         docLink: 'OGC-Preview User Guide.pptx',
 
+        // countryDataUrl: '/config/countries.geo.json',
         countryDataUrl: '/config/countries.geo.json',
 
         // Identification of the server(s) providing data layers for use by Feature Browser
@@ -59,29 +60,29 @@ angular.module('opApp')
         // with the lowest index (highest in this list)
         servers: [
             {
-                url: '/geoserver',
-                ajaxUrl: '/geoserver',
+                url: 'http://demo.boundlessgeo.com/geoserver',
+                ajaxUrl: 'http://demo.boundlessgeo.com/geoserver',
                 name: 'prod',
                 wmsVersion: '1.3.0',
                 wfsVersion: '1.0.0',
                 wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
             },
-            {
-                url: '/geoserver',
-                ajaxUrl: '/geoserver',
-                name: 'beta',
-                wmsVersion: '1.3.0',
-                wfsVersion: '1.0.0',
-                wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
-            },
-            {
-                url: '/geoserver',
-                ajaxUrl: '/geoserver',
-                name: 'dev',
-                wmsVersion: '1.3.0',
-                wfsVersion: '1.0.0',
-                wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
-            }
+            // {
+            //     url: '/geoserver',
+            //     ajaxUrl: '/geoserver',
+            //     name: 'beta',
+            //     wmsVersion: '1.3.0',
+            //     wfsVersion: '1.0.0',
+            //     wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
+            // },
+            // {
+            //     url: '/geoserver',
+            //     ajaxUrl: '/geoserver',
+            //     name: 'dev',
+            //     wmsVersion: '1.3.0',
+            //     wfsVersion: '1.0.0',
+            //     wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
+            // }
         ],
 
         // Used to make intelligent guesses as to what time fields are available
@@ -117,7 +118,7 @@ angular.module('opApp')
         // If a tag cannot be found for any layer it is not added as a selection.
         // Order is important as that is the order they will be rendered in layer control.
         recognizedTags: [ 'MODIS', 'VIIRS', 'TOPP' ],
-        
+
         getVersion: function(){
           return $http({ method: 'GET', url: 'config/version.json', timeout: 50000}).then(function (result) {
               return result.data;

@@ -18,6 +18,7 @@ var app = angular.module('opApp', [
     'restangular',
     'toaster',
     'ui.bootstrap',
+    'ui.select',
     'LocalStorageModule'
 ]);
 

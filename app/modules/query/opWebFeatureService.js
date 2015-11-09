@@ -127,7 +127,23 @@ angular.module('opApp.query')
             var typeName = workspace + ':' + name;
             var serviceParams = angular.extend({ version: wfsVersion, request: 'GetFeature', typeName: typeName }, params);
 
-            $http.get(ajaxUrl, {params: serviceParams, cache:true }).then(
+            // changed to POST request as our GET requests would sometimes exceed
+            // the max characters allowed in a URL.
+            $http({
+              method: 'POST',
+              url: ajaxUrl,
+              headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+              // we are overriding the transformRequest function to convert our POST
+              // data to urlencoded data as GeoServer requires this format for
+              // POSTs to work properly.
+              transformRequest: function(obj) {
+                var str = [];
+                for(var p in obj)
+                str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                return str.join("&");
+              },
+              data: serviceParams
+            }).then(
                 function (result) {
                     $log.log('Successfully retrieved GetFeature result.');
                     deferred.resolve(result);
@@ -136,8 +152,7 @@ angular.module('opApp.query')
                     // error
                     $log.log('Error retrieving GetFeature result');
                     deferred.reject(reason);
-                });
-
+            });
             return deferred.promise;
         };
 

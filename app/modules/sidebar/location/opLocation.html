@@ -117,11 +117,18 @@
 
               <a class="list-group-item" ng-class="{active: model.locationKey == 'country'}" href="" ng-click="model.locationKey = 'country'">Country...</a>
               <div class="details-box" ng-show="model.locationKey == 'country'">
-                  <select class="form-control" ng-model="country" ng-options="country.properties.name for country in countriesJson">
-                      <option value="">Select a country</option>
-                  </select>
+                <ui-select multiple append-to-body=true ng-disabled="false" on-select="addCountrySelection($item)" on-remove="removeCountrySelection($item)" ng-model="model.selectedCountries.selected" theme="select2" style="width:100%;">
+                  <ui-select-match placeholder="Type country name">
+                    <span ng-bind="$item.properties.name"></span>
+                  </ui-select-match>
+                  <ui-select-choices repeat="country in (model.countries | filter: $select.search) track by country.id">
+                    <span ng-bind-html="country.properties.name"></span>
+                  </ui-select-choices>
+                </ui-select>
               </div>
-
+              <!-- <div class="details-box" ng-show="model.locationKey == 'country'">
+                <op-field-select value="country" label="'Country'" options="model.countriesJson" select-id="code" select-text="short_name" select-alt="code"></op-field-select>
+              </div>-->
             <a class="list-group-item" ng-class="{active: model.locationKey == 'draw'}" href="" ng-click="model.locationKey = 'draw'">Manual Draw...</a>
             <div class="details-box" ng-show="model.locationKey == 'draw'">
                 <a href="" class="btn btn-info btn-sm pull-right" ng-click="clearManualDraw()" style="margin-left:10px;">Clear Drawing</a>

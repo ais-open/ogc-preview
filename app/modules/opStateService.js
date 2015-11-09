@@ -172,8 +172,27 @@ angular.module('opApp')
             return parseBBoxIntoBounds(bounds);
         };
 
+        this.newGetAttributeBounds = function() {
+            var bounds = this.getState(bboxId);
+
+            if (lastBBoxBounds === null) {
+                lastBBoxBounds = bounds;
+            }
+
+            if(bounds === 'world') {
+              return bounds;
+            } else {
+              return parseBBoxIntoBounds(bounds);
+            }
+
+        };
+
         this.setBounds = function(bounds) {
             mapState[boundsId] = bounds.toBBoxString();
+        };
+
+        this.setAttributeBounding = function(locationString) {
+
         };
 
         this.setAttributeBBox = function(bounds) {
@@ -212,6 +231,10 @@ angular.module('opApp')
 
         this.setAttributeBBoxCountry = function(geoJsonBounds) {
             debounceBroadcast('bounds-country-bounds', geoJsonBounds);
+        };
+
+        this.removeAttributeBBoxCountry = function(bounds) {
+            debounceBroadcast('remove-country-bounds', bounds);
         };
 
         this.getPermalink = function() {
@@ -436,6 +459,7 @@ angular.module('opApp')
             }
             else if (angular.isDefined(bboxValue) && lastBBoxBounds !== bboxValue) {
                 lastBBoxBounds = bboxValue;
+                debounceBroadcast('bounds-from-route', bboxValue);
                 debounceBroadcast('map-state-updated');
             }
             else if (angular.isDefined(datasetsValue) && lastDatasetsValue !== datasetsValue) {

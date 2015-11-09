@@ -669,7 +669,7 @@ angular.module('opApp').controller('opLayerController',
 
             }, function (reason) {
                 $scope.layersLoading = false;
-                toaster.pop('error', 'Configuration Error', 'Unable to retrieve layers... is your GeoServer running?\n' + reason);
+                toaster.pop('error', 'Configuration Error', 'Unable to retrieve layers... is your GeoServer running? Error: ' + JSON.stringify(reason));
             }).
               then(function() {
                   updateLayerSelections(serverName);
