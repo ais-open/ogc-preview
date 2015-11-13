@@ -195,6 +195,7 @@ angular.module('opApp')
 
         };
 
+
         this.setAttributeBBox = function(bounds) {
             if (bounds) {
                 mapState[bboxId] = bounds.toBBoxString();
