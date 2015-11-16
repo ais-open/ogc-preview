@@ -88,11 +88,17 @@ angular.module('opApp.map').controller('opMapController',
 
             // create one large WKT from all the countries we have active
             var wktTotal = new Wkt.Wkt();
-            wktTotal.read(drawnCountries[0].wkt);
-            for(var i = 1; i < drawnCountries.length; i++) {
-              wktTotal.type = 'multipolygon';
-              wktTotal.merge(new Wkt.Wkt(drawnCountries[i].wkt));
+
+            // add a blank multipology component because wicket requires
+            // merge to have the same type of components (or merge a polygon
+            // into a MULTIPOLYGON)
+            wktTotal.read("MULTIPOLYGON(())");
+            for(var i = 0; i < drawnCountries.length; i++) {
+              var countryWkt = new Wkt.Wkt(drawnCountries[i].wkt);
+              wktTotal.merge(countryWkt);
             }
+            // remove the first blank component we created
+            wktTotal.components.splice(0,1);
 
             // bboxLayer.clearLayers(); // TODO put this back in
             bboxLayer.addLayer(country);

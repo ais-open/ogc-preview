@@ -108,7 +108,7 @@ angular.module('opApp.query')
             var response = {};
             var cqlFilters = [];
 
-            if (layer.fields.time !== null) {
+            if (layer.fields.time !== null && angular.isDefined(layer.fields.time)) {
                 if (angular.isDefined(layer.fields.time.wmsTime) && layer.fields.time.wmsTime === true) {
                     response['time'] = this.createWmsTimeFilter(startTime, stopTime);
                 }
