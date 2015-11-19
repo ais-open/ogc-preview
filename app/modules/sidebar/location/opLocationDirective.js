@@ -1,476 +1,485 @@
 angular.module('opApp')
-    .directive('opLocation', function ($q, $http, $filter, $log, $rootScope, $timeout, opCoordinateConversionService, opStateService, opConfig) {
-        'use strict';
-        return {
-            templateUrl: 'modules/sidebar/location/opLocation.html',
-            restrict: 'EA',
-            scope: {
-                locationSelect: '=',
-                country: '='
-            },
+  .directive('opLocation', function($q, $http, $filter, $log, $rootScope, $timeout, opCoordinateConversionService, opStateService, opConfig) {
+    'use strict';
+    return {
+      templateUrl: 'modules/sidebar/location/opLocation.html',
+      restrict: 'EA',
+      scope: {
+        locationSelect: '=',
+        country: '='
+      },
 
-            link: function postLink(scope, element) {
-                scope.expanded = false;
-                scope.model = {
-                    mapChanged: false,
-                    locationKey: 'world',
-                    format: 'dd',
-                    latN: '',
-                    latS: '',
-                    lonE: '',
-                    lonW: '',
-                    lat: '',
-                    lon: '',
-                    dist: 100,
-                    latNValid: true,
-                    latSValid: true,
-                    lonEValid: true,
-                    lonWValid: true,
-                    latValid: true,
-                    lonValid: true,
-                    distValid: true,
-                    countries: '',
-                    countryList: [
-                      'USA',
-                      'Canada',
-                      'Japan',
-                      'UK',
-                    ],
-                    selectedCountries: {}
-                };
-
-                /*
-                Retrieves a GeoJSON file containing country names and geo boundary data
-                 */
-                var getCountries = function() {
-                    var deferred = $q.defer();
-                    var url = opConfig.countryDataUrl;
-
-                    $http.get(url).then(
-                        function (result) {
-                            $log.log('Successfully retrieved list of countries.');
-                            deferred.resolve(result);
-                        },
-                        function (reason) {
-                            $log.log('Error retrieving  list of countries.  Check countryDataUrl ?');
-                            deferred.reject(reason);
-                        });
-
-                    return deferred.promise;
-                };
-
-                var parseLocation = function (location) {
-                    if (_.isArray(location)) {
-                        if (location.length === 3) {
-                            scope.model.lat = location[0];
-                            scope.model.lon = location[1];
-                            scope.model.dist = location[2];
-                            scope.model.locationKey = 'center';
-                        } else if (location.join(',') === '-90,-180,90,180' && !scope.country) {
-                            scope.model.locationKey = 'world';
-                        } else if (scope.country) {
-                            scope.model.locationKey = 'country';
-                        } else if (location.length === 2) {
-                            scope.model.latS = location[0][0];
-                            scope.model.lonW = location[0][1];
-                            scope.model.latN = location[1][0];
-                            scope.model.lonE = location[1][1];
-                            scope.model.locationKey = 'bounds';
-                        } else {
-                            scope.locationKey = 'shape';
-                        }
-                    } else {
-                        scope.model.locationKey = 'world';
-                    }
-                };
-
-                scope.setFormat = function (newFormat) {
-                    var ne, sw, coords;
-                    switch (scope.model.format) {
-                        case 'dd':
-                            sw = opCoordinateConversionService.prepForDDBroadcast(scope.model.latS, scope.model.lonW);
-                            ne = opCoordinateConversionService.prepForDDBroadcast(scope.model.latN, scope.model.lonE);
-                            coords = opCoordinateConversionService.prepForDDBroadcast(scope.model.lat, scope.model.lon);
-                            break;
-                        case 'dms':
-                            sw = opCoordinateConversionService.prepForDMSBroadcast(scope.model.latS, scope.model.lonW);
-                            ne = opCoordinateConversionService.prepForDMSBroadcast(scope.model.latN, scope.model.lonE);
-                            coords = opCoordinateConversionService.prepForDMSBroadcast(scope.model.lat, scope.model.lon);
-                            break;
-                        case 'mgrs':
-                            if(scope.model.mgrsSW) {
-                                sw = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrsSW);
-                            }
-                            if(scope.model.mgrsNE) {
-                                ne = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrsNE);
-                            }
-                            if(scope.model.mgrs) {
-                                coords = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrs);
-                            }
-                            break;
-                    }
-                    scope.model.latS = '';
-                    scope.model.lonW = '';
-                    scope.model.latN = '';
-                    scope.model.lonE = '';
-                    scope.model.lat = '';
-                    scope.model.lon = '';
-
-                    switch (newFormat) {
-                        case 'dd':
-                            if (sw && ne) {
-                                scope.model.latS = sw.dd[0];
-                                scope.model.lonW = sw.dd[1];
-                                scope.model.latN = ne.dd[0];
-                                scope.model.lonE = ne.dd[1];
-                            }
-                            if (coords) {
-                                scope.model.lat = coords.dd[0];
-                                scope.model.lon = coords.dd[1];
-                            }
-                            break;
-                        case 'dms':
-                            if (sw && ne) {
-                                scope.model.latS = sw.dms[0];
-                                scope.model.lonW = sw.dms[1];
-                                scope.model.latN = ne.dms[0];
-                                scope.model.lonE = ne.dms[1];
-                            }
-                            if (coords) {
-                                scope.model.lat = coords.dms[0];
-                                scope.model.lon = coords.dms[1];
-                            }
-                            break;
-                        case 'mgrs':
-                            if (sw && ne) {
-                                scope.model.mgrsSW = sw.mgrs || '';
-                                scope.model.mgrsNE = ne.mgrs || '';
-                            }
-                            if (coords) {
-                                scope.model.mgrs = coords.mgrs || '';
-                            }
-                            break;
-                    }
-
-                    scope.model.format = newFormat;
-
-                };
-
-                scope.setLocationWorld = function () {
-                    scope.locationSelect = [
-                        ['-90', '-180'],
-                        ['90', '180']
-                    ];
-                    scope.model.locationKey = 'world';
-                    scope.country = '';
-                    $log.log("locationString: " + scope.locationSelect);
-                    scope.resetCountrySelection();
-                    opStateService.setAttributeBBoxText(scope.locationSelect);
-                };
-
-                scope.setLocationMap = function () {
-                    scope.model.locationKey = 'map';
-                    scope.country = '';
-                    scope.model.mapChanged = false;
-                    scope.resetCountrySelection();
-                    opStateService.setAttributeBBoxCurrentBounds();
-                };
-
-                scope.addCountrySelection = function(country) {
-                  // country is geoJSON of country
-                  // country.id
-                  // country.properties.name
-                  // country.geometry is POLYGON
-                  opStateService.setAttributeBBoxCountry(country);
-                  $log.log("Adding country filter of: " + country.properties.name);
-                };
-
-                scope.resetCountrySelection = function() {
-                  scope.model.selectedCountries = {};
-                  $rootScope.$broadcast('remove-country-selections');
-                };
-
-                scope.removeCountrySelection = function(country) {
-                  opStateService.removeAttributeBBoxCountry(country);
-                  $log.log("Removing country filter of: " + country.properties.name);
-                }
-
-                scope.setLocationCountry = function () {
-                    if (scope.country) {
-                        scope.locationSelect = null;
-                        scope.model.locationKey = 'country';
-                        // opStateService.setAttributeBBoxCountry(scope.country);
-                    }
-                };
-
-                scope.setLocationBounds = function () {
-                    if (scope.model.locationKey === 'center'){
-                        return;
-                    }
-                    var sw, ne;
-                    switch (scope.model.format) {
-                        case 'dd':
-                            scope.model.latSValid = opCoordinateConversionService.isValidLatDD(scope.model.latS);
-                            scope.model.lonWValid = opCoordinateConversionService.isValidLonDD(scope.model.lonW);
-                            scope.model.latNValid = opCoordinateConversionService.isValidLatDD(scope.model.latN);
-                            scope.model.lonEValid = opCoordinateConversionService.isValidLonDD(scope.model.lonE);
-                            break;
-                        case 'dms':
-                            scope.model.latSValid = opCoordinateConversionService.isValidLatDMS(scope.model.latS);
-                            scope.model.lonWValid = opCoordinateConversionService.isValidLonDMS(scope.model.lonW);
-                            scope.model.latNValid = opCoordinateConversionService.isValidLatDMS(scope.model.latN);
-                            scope.model.lonEValid = opCoordinateConversionService.isValidLonDMS(scope.model.lonE);
-                            break;
-                        case 'mgrs':
-                            scope.model.mgrsSWValid = opCoordinateConversionService.isValidMGRS(scope.model.mgrsSW);
-                            scope.model.mgrsNEValid = opCoordinateConversionService.isValidMGRS(scope.model.mgrsNE);
-                            break;
-                    }
-
-                    if ((scope.model.latN !== '' && scope.model.latS !== '' && scope.model.lonE !== '' && scope.model.lonW !== '') ||
-                        (scope.model.mgrsNE && scope.model.mgrsSW && scope.model.format === 'mgrs')) {
-                        scope.model.lat  = '';
-                        scope.model.lon  = '';
-                        scope.model.mgrs = '';
-                        scope.country    = '';
-                        switch (scope.model.format) {
-                            case 'dd':
-
-                                if (scope.model.latSValid && scope.model.lonWValid && scope.model.latNValid && scope.model.lonEValid) {
-                                    scope.locationSelect = [
-                                        [scope.model.latS, scope.model.lonW],
-                                        [scope.model.latN, scope.model.lonE]
-                                    ];
-                                }
-                                break;
-                            case 'dms':
-
-                                sw = opCoordinateConversionService.prepForDMSBroadcast(scope.model.latS, scope.model.lonW);
-                                ne = opCoordinateConversionService.prepForDMSBroadcast(scope.model.latN, scope.model.lonE);
-
-                                if (sw && ne) {
-                                    scope.locationSelect = [sw.dd, ne.dd];
-                                }
-                                break;
-                            case 'mgrs':
-                                sw = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrsSW);
-                                ne = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrsNE);
-
-                                if (sw && ne) {
-                                    scope.locationSelect = [sw.dd, ne.dd];
-                                }
-                                break;
-                        }
-
-                        if (scope.model.locationKey !== 'map') {
-                            scope.model.locationKey = 'bounds';
-                        }
-                        scope.resetCountrySelection();
-                        opStateService.setAttributeBBoxText(scope.locationSelect);
-                    }
-                };
-
-                scope.setLocationCenter = function () {
-                    if (scope.model.locationKey === 'bounds'){
-                        return;
-                    }
-                    var lat, lng, coords, dist = scope.model.dist;
-                    switch (scope.model.format) {
-                        case 'dd':
-                            scope.model.latValid = opCoordinateConversionService.isValidLatDD(scope.model.lat);
-                            scope.model.lonValid = opCoordinateConversionService.isValidLonDD(scope.model.lon);
-                            if (scope.model.latValid && scope.model.lonValid) {
-                                lat = scope.model.lat;
-                                lng = scope.model.lon;
-                            }
-                            break;
-                        case 'dms':
-                            scope.model.latValid = opCoordinateConversionService.isValidLatDMS(scope.model.lat);
-                            scope.model.lonValid = opCoordinateConversionService.isValidLonDMS(scope.model.lon);
-                            coords = opCoordinateConversionService.prepForDMSBroadcast(scope.model.lat, scope.model.lon);
-                            if (coords) {
-                                lat = coords.dd[0];
-                                lng = coords.dd[1];
-                            }
-                            break;
-                        case 'mgrs':
-                            scope.model.mgrsValid = opCoordinateConversionService.isValidMGRS(scope.model.mgrs);
-                            coords = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrs);
-                            if (coords) {
-                                lat = coords.dd[0];
-                                lng = coords.dd[1];
-                            }
-                            break;
-                    }
-                    if (lat && lng && dist) {
-                        scope.country = '';
-                        scope.model.latN = '';
-                        scope.model.latS = '';
-                        scope.model.lonE = '';
-                        scope.model.lonW = '';
-                        scope.model.mgrsSW = '';
-                        scope.model.mgrsNE = '';
-                        var nwBearing = 315 / 180 * Math.PI;
-                        var seBearing = 135 / 180 * Math.PI;
-                        var R = 6371; // km
-
-                        lat = lat / 180 * Math.PI;
-                        lng = lng / 180 * Math.PI;
-
-                        var lat1 = Math.asin(Math.sin(lat) * Math.cos(dist / R) +
-                            Math.cos(lat) * Math.sin(dist / R) * Math.cos(nwBearing));
-                        var lon1 = lng + Math.atan2(Math.sin(nwBearing) * Math.sin(dist / R) * Math.cos(lat),
-                                Math.cos(dist / R) - Math.sin(lat) * Math.sin(lat1));
-                        var lat2 = Math.asin(Math.sin(lat) * Math.cos(dist / R) +
-                            Math.cos(lat) * Math.sin(dist / R) * Math.cos(seBearing));
-                        var lon2 = lng + Math.atan2(Math.sin(seBearing) * Math.sin(dist / R) * Math.cos(lat),
-                                Math.cos(dist / R) - Math.sin(lat) * Math.sin(lat2));
-
-                        var finalLat1 = lat1 * 180 / Math.PI;
-                        var finalLat2 = lat2 * 180 / Math.PI;
-                        var finalLon1 = lon1 * 180 / Math.PI;
-                        var finalLon2 = lon2 * 180 / Math.PI;
-
-                        scope.locationSelect = [
-                            [String(finalLat2), String(finalLon1)],
-                            [String(finalLat1), String(finalLon2)]
-                        ];
-
-                        scope.locationKey = 'center';
-                        scope.resetCountrySelection();
-                        opStateService.setAttributeBBoxText(scope.locationSelect);
-                    }
-                };
-
-                scope.setLocationDraw = function() {
-                    scope.model.locationKey = 'draw';
-                };
-
-                element.find('.shape-upload-file').on('change', function () {
-                    element.find('.shape-upload').submit();
-                });
-                scope.uploadComplete = function (file) {
-                    console.log(file);
-                    scope.country = '';
-                    scope.model.latN = '';
-                    scope.model.latS = '';
-                    scope.model.lonE = '';
-                    scope.model.lonW = '';
-                    scope.model.mgrsSW = '';
-                    scope.model.mgrsNE = '';
-                    scope.model.lat = '';
-                    scope.model.lat = '';
-                    scope.model.mgrs = '';
-
-                    scope.locationSelect = file.geom;
-                    scope.locationKey = 'shape';
-                };
-
-                scope.$watch('model.latN', scope.setLocationBounds);
-                scope.$watch('model.latS', scope.setLocationBounds);
-                scope.$watch('model.lonE', scope.setLocationBounds);
-                scope.$watch('model.lonW', scope.setLocationBounds);
-                scope.$watch('model.mgrsSW', scope.setLocationBounds);
-                scope.$watch('model.mgrsNE', scope.setLocationBounds);
-                scope.$watch('model.lonW', scope.setLocationBounds);
-                scope.$watch('model.lat', scope.setLocationCenter);
-                scope.$watch('model.lon', scope.setLocationCenter);
-                scope.$watch('model.mgrs', scope.setLocationCenter);
-                scope.$watch('model.dist', scope.setLocationCenter);
-                scope.$watch('country', scope.setLocationCountry);
-
-                scope.$on('manual-draw-started', function() {
-                    if(scope.model.locationKey !== 'draw') {
-                        scope.expanded = true;
-                    }
-                    scope.resetCountrySelection();
-                    scope.setLocationDraw();
-                });
-
-                scope.$on('map-changed', function () {
-                    scope.model.mapChanged = true;
-                });
-
-                scope.$on('setBounds', function (e, data) {
-                    if (data.top >= 90 && data.bottom <= -90 && data.left <= -180 && data.right >= 180) {
-                        scope.setLocationWorld();
-                    } else {
-                        scope.model.latN = data.top;
-                        scope.model.latS = data.bottom;
-                        scope.model.lonE = data.right;
-                        scope.model.lonW = data.left;
-                        scope.locationSelect = [
-                            [data.bottom, data.left],
-                            [data.top, data.right]
-                        ];
-                    }
-                });
-
-                scope.drawStart = function (){
-                    $rootScope.$broadcast('drawStart');
-                    scope.isDrawing = true;
-                    scope.isDrawingPoly = false;
-                };
-
-                scope.drawStartPoly = function (){
-                    $rootScope.$broadcast('drawStartPoly');
-                    scope.isDrawingPoly = true;
-                    scope.isDrawing = false;
-                };
-
-                scope.clearManualDraw = function() {
-                    $rootScope.$broadcast('drawClear');
-                };
-
-                scope.drawClear = function (){
-                    $rootScope.$broadcast('drawClear');
-                };
-
-                scope.$on('bounds-from-route', function(event, boundsIn) {
-                  var bounds;
-                  if (boundsIn) {
-                      var coords = boundsIn.split(',');
-                      if (coords.length === 4) {
-                          bounds = L.latLngBounds({lon: coords[0], lat: coords[1]}, {lon: coords[2], lat: coords[3]});
-                      }
-                      else {
-                          $log.log('Unrecognized format of bounds parameter: ' + boundsIn);
-                      }
-                  }
-                  scope.model.latN = bounds.getNorth();
-                  scope.model.latS = bounds.getSouth();
-                  scope.model.latW = bounds.getWest();
-                  scope.model.latE = bounds.getEast();
-                });
-
-                scope.$on('bounds-current-bounds', function() {
-                  scope.setLocationBounds();
-                });
-
-                scope.$on('mapBoundsChanged', function(bounds){
-                  if(bounds === 'world') {
-                    scope.setLocationWorld();
-                  }
-                    $timeout(function() {
-                        scope.isDrawing = false;
-                        scope.isDrawingPoly = false;
-                    });
-                });
-
-                scope.friendlyLocation = function () {
-                    return scope.model.locationKey.charAt(0).toUpperCase() + scope.model.locationKey.slice(1);
-                };
-
-                parseLocation(scope.locationSelect);
-                getCountries().then(
-                    function (result) {
-                        scope.model.countries = result.data.features;
-                        // scope.model.countriesJson = result.data;
-                    }
-                );
-                // if(scope.model.locationKey === 'world') {
-                //   scope.setLocationWorld();
-                // }
-            }
+      link: function postLink(scope, element) {
+        scope.expanded = false;
+        scope.model = {
+          mapChanged: false,
+          locationKey: 'world',
+          format: 'dd',
+          latN: '',
+          latS: '',
+          lonE: '',
+          lonW: '',
+          lat: '',
+          lon: '',
+          dist: 100,
+          latNValid: true,
+          latSValid: true,
+          lonEValid: true,
+          lonWValid: true,
+          latValid: true,
+          lonValid: true,
+          distValid: true,
+          countries: '',
+          selectedCountries: {}
         };
-    });
+
+        /*
+        Retrieves a GeoJSON file containing country names and geo boundary data
+         */
+        var getCountries = function() {
+          var deferred = $q.defer();
+          var url = opConfig.countryDataUrl;
+
+          $http.get(url).then(
+            function(result) {
+              $log.log('Successfully retrieved list of countries.');
+              deferred.resolve(result);
+            },
+            function(reason) {
+              $log.log('Error retrieving  list of countries.  Check countryDataUrl ?');
+              deferred.reject(reason);
+            });
+
+          return deferred.promise;
+        };
+
+        var parseLocation = function(location) {
+          if (_.isArray(location)) {
+            if (location.length === 3) {
+              scope.model.lat = location[0];
+              scope.model.lon = location[1];
+              scope.model.dist = location[2];
+              scope.model.locationKey = 'center';
+            } else if (location.join(',') === '-90,-180,90,180' && !scope.country) {
+              scope.model.locationKey = 'world';
+            } else if (scope.country) {
+              scope.model.locationKey = 'country';
+            } else if (location.length === 2) {
+              scope.model.latS = location[0][0];
+              scope.model.lonW = location[0][1];
+              scope.model.latN = location[1][0];
+              scope.model.lonE = location[1][1];
+              scope.model.locationKey = 'bounds';
+            } else {
+              scope.locationKey = 'shape';
+            }
+          } else {
+            scope.model.locationKey = 'world';
+          }
+        };
+
+        scope.setFormat = function(newFormat) {
+          var ne, sw, coords;
+          switch (scope.model.format) {
+            case 'dd':
+              sw = opCoordinateConversionService.prepForDDBroadcast(scope.model.latS, scope.model.lonW);
+              ne = opCoordinateConversionService.prepForDDBroadcast(scope.model.latN, scope.model.lonE);
+              coords = opCoordinateConversionService.prepForDDBroadcast(scope.model.lat, scope.model.lon);
+              break;
+            case 'dms':
+              sw = opCoordinateConversionService.prepForDMSBroadcast(scope.model.latS, scope.model.lonW);
+              ne = opCoordinateConversionService.prepForDMSBroadcast(scope.model.latN, scope.model.lonE);
+              coords = opCoordinateConversionService.prepForDMSBroadcast(scope.model.lat, scope.model.lon);
+              break;
+            case 'mgrs':
+              if (scope.model.mgrsSW) {
+                sw = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrsSW);
+              }
+              if (scope.model.mgrsNE) {
+                ne = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrsNE);
+              }
+              if (scope.model.mgrs) {
+                coords = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrs);
+              }
+              break;
+          }
+          scope.model.latS = '';
+          scope.model.lonW = '';
+          scope.model.latN = '';
+          scope.model.lonE = '';
+          scope.model.lat = '';
+          scope.model.lon = '';
+
+          switch (newFormat) {
+            case 'dd':
+              if (sw && ne) {
+                scope.model.latS = sw.dd[0];
+                scope.model.lonW = sw.dd[1];
+                scope.model.latN = ne.dd[0];
+                scope.model.lonE = ne.dd[1];
+              }
+              if (coords) {
+                scope.model.lat = coords.dd[0];
+                scope.model.lon = coords.dd[1];
+              }
+              break;
+            case 'dms':
+              if (sw && ne) {
+                scope.model.latS = sw.dms[0];
+                scope.model.lonW = sw.dms[1];
+                scope.model.latN = ne.dms[0];
+                scope.model.lonE = ne.dms[1];
+              }
+              if (coords) {
+                scope.model.lat = coords.dms[0];
+                scope.model.lon = coords.dms[1];
+              }
+              break;
+            case 'mgrs':
+              if (sw && ne) {
+                scope.model.mgrsSW = sw.mgrs || '';
+                scope.model.mgrsNE = ne.mgrs || '';
+              }
+              if (coords) {
+                scope.model.mgrs = coords.mgrs || '';
+              }
+              break;
+          }
+
+          scope.model.format = newFormat;
+
+        };
+
+        scope.setLocationWorld = function() {
+          scope.locationSelect = '-180,-90,180,90';
+          scope.model.locationKey = 'world';
+          scope.country = '';
+          $log.log("locationString: " + scope.locationSelect);
+          scope.resetCountrySelection();
+          opStateService.setAttributeBBoxText(scope.locationSelect);
+        };
+
+        scope.setLocationMap = function() {
+          scope.model.locationKey = 'map';
+          scope.country = '';
+          scope.model.mapChanged = false;
+          scope.resetCountrySelection();
+          opStateService.setAttributeBBoxCurrentBounds();
+        };
+
+        scope.addCountrySelection = function(country) {
+          var countryString = $.map(scope.model.selectedCountries.selected,
+            function(selected) {
+              return selected.id;
+            }).join(',');
+          scope.model.locationSelect = 'country:' + countryString;
+          opStateService.setAttributeBBoxCountry(country, scope.model.locationSelect);
+          $log.log("Adding country filter of: " + country.properties.name);
+        };
+
+        scope.resetCountrySelection = function() {
+          scope.model.selectedCountries = {};
+          $rootScope.$broadcast('remove-country-selections');
+        };
+
+        scope.removeCountrySelection = function(country) {
+          opStateService.removeAttributeBBoxCountry(country);
+          $log.log("Removing country filter of: " + country.properties.name);
+        }
+
+        scope.setLocationCountry = function() {
+          // moved to aux functions
+        };
+
+        scope.setLocationBounds = function() {
+          if (scope.model.locationKey === 'center') {
+            return;
+          }
+          var sw, ne;
+          switch (scope.model.format) {
+            case 'dd':
+              scope.model.latSValid = opCoordinateConversionService.isValidLatDD(scope.model.latS);
+              scope.model.lonWValid = opCoordinateConversionService.isValidLonDD(scope.model.lonW);
+              scope.model.latNValid = opCoordinateConversionService.isValidLatDD(scope.model.latN);
+              scope.model.lonEValid = opCoordinateConversionService.isValidLonDD(scope.model.lonE);
+              break;
+            case 'dms':
+              scope.model.latSValid = opCoordinateConversionService.isValidLatDMS(scope.model.latS);
+              scope.model.lonWValid = opCoordinateConversionService.isValidLonDMS(scope.model.lonW);
+              scope.model.latNValid = opCoordinateConversionService.isValidLatDMS(scope.model.latN);
+              scope.model.lonEValid = opCoordinateConversionService.isValidLonDMS(scope.model.lonE);
+              break;
+            case 'mgrs':
+              scope.model.mgrsSWValid = opCoordinateConversionService.isValidMGRS(scope.model.mgrsSW);
+              scope.model.mgrsNEValid = opCoordinateConversionService.isValidMGRS(scope.model.mgrsNE);
+              break;
+          }
+
+          if ((scope.model.latN !== '' && scope.model.latS !== '' && scope.model.lonE !== '' && scope.model.lonW !== '') ||
+            (scope.model.mgrsNE && scope.model.mgrsSW && scope.model.format === 'mgrs')) {
+            scope.model.lat = '';
+            scope.model.lon = '';
+            scope.model.mgrs = '';
+            scope.country = '';
+            switch (scope.model.format) {
+              case 'dd':
+
+                if (scope.model.latSValid && scope.model.lonWValid && scope.model.latNValid && scope.model.lonEValid) {
+                  // scope.locationSelect = [
+                  //   [scope.model.latS, scope.model.lonW],
+                  //   [scope.model.latN, scope.model.lonE]
+                  // ];
+                  scope.locationSelect = String(scope.model.lonW) + ',' + String(scope.model.latN) + ',' + String(scope.model.lonE) + ',' + String(scope.model.latS);
+                }
+                break;
+              case 'dms':
+
+                sw = opCoordinateConversionService.prepForDMSBroadcast(scope.model.latS, scope.model.lonW);
+                ne = opCoordinateConversionService.prepForDMSBroadcast(scope.model.latN, scope.model.lonE);
+
+                if (sw && ne) {
+                  // scope.locationSelect = [sw.dd, ne.dd];
+                  scope.locationSelect = String(scope.model.lonW) + ',' + String(scope.model.latN) + ',' + String(scope.model.lonE) + ',' + String(scope.model.latS);
+                }
+                break;
+              case 'mgrs':
+                sw = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrsSW);
+                ne = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrsNE);
+
+
+                if (sw && ne) {
+                  scope.model.latN = ne.dd[0];
+                  scope.model.lonE = ne.dd[1];
+                  scope.model.latS = sw.dd[0];
+                  scope.model.lonW = sw.dd[1];
+                  // scope.locationSelect = [sw.dd, ne.dd];
+                  scope.locationSelect = String(scope.model.lonW) + ',' + String(scope.model.latN) + ',' + String(scope.model.lonE) + ',' + String(scope.model.latS);
+                }
+                break;
+            }
+
+            if (scope.model.locationKey !== 'map') {
+              scope.model.locationKey = 'bounds';
+            }
+            scope.resetCountrySelection();
+            opStateService.setAttributeBBoxText(scope.locationSelect);
+          }
+        };
+
+        scope.setLocationCenter = function() {
+          if (scope.model.locationKey === 'bounds') {
+            return;
+          }
+          var lat, lng, coords, dist = scope.model.dist;
+          switch (scope.model.format) {
+            case 'dd':
+              scope.model.latValid = opCoordinateConversionService.isValidLatDD(scope.model.lat);
+              scope.model.lonValid = opCoordinateConversionService.isValidLonDD(scope.model.lon);
+              if (scope.model.latValid && scope.model.lonValid) {
+                lat = scope.model.lat;
+                lng = scope.model.lon;
+              }
+              break;
+            case 'dms':
+              scope.model.latValid = opCoordinateConversionService.isValidLatDMS(scope.model.lat);
+              scope.model.lonValid = opCoordinateConversionService.isValidLonDMS(scope.model.lon);
+              coords = opCoordinateConversionService.prepForDMSBroadcast(scope.model.lat, scope.model.lon);
+              if (coords) {
+                lat = coords.dd[0];
+                lng = coords.dd[1];
+              }
+              break;
+            case 'mgrs':
+              scope.model.mgrsValid = opCoordinateConversionService.isValidMGRS(scope.model.mgrs);
+              coords = opCoordinateConversionService.prepForMGRSBroadcast(scope.model.mgrs);
+              if (coords) {
+                lat = coords.dd[0];
+                lng = coords.dd[1];
+              }
+              break;
+          }
+          if (lat && lng && dist) {
+            scope.country = '';
+            scope.model.latN = '';
+            scope.model.latS = '';
+            scope.model.lonE = '';
+            scope.model.lonW = '';
+            scope.model.mgrsSW = '';
+            scope.model.mgrsNE = '';
+            var nwBearing = 315 / 180 * Math.PI;
+            var seBearing = 135 / 180 * Math.PI;
+            var R = 6371; // km
+
+            lat = lat / 180 * Math.PI;
+            lng = lng / 180 * Math.PI;
+
+            var lat1 = Math.asin(Math.sin(lat) * Math.cos(dist / R) +
+              Math.cos(lat) * Math.sin(dist / R) * Math.cos(nwBearing));
+            var lon1 = lng + Math.atan2(Math.sin(nwBearing) * Math.sin(dist / R) * Math.cos(lat),
+              Math.cos(dist / R) - Math.sin(lat) * Math.sin(lat1));
+            var lat2 = Math.asin(Math.sin(lat) * Math.cos(dist / R) +
+              Math.cos(lat) * Math.sin(dist / R) * Math.cos(seBearing));
+            var lon2 = lng + Math.atan2(Math.sin(seBearing) * Math.sin(dist / R) * Math.cos(lat),
+              Math.cos(dist / R) - Math.sin(lat) * Math.sin(lat2));
+
+            var finalLat1 = lat1 * 180 / Math.PI;
+            var finalLat2 = lat2 * 180 / Math.PI;
+            var finalLon1 = lon1 * 180 / Math.PI;
+            var finalLon2 = lon2 * 180 / Math.PI;
+
+//            lon1, lat2, lon2, lat2
+            scope.locationSelect = String(finalLon1) + ',' + String(finalLat2) + ',' + String(finalLon2) + ',' + String(finalLat1);
+            // scope.locationSelect = [
+            //   [String(finalLat2), String(finalLon1)],
+            //   [String(finalLat1), String(finalLon2)]
+            // ];
+
+            scope.locationKey = 'center';
+            scope.resetCountrySelection();
+            opStateService.setAttributeBBoxText(scope.locationSelect);
+          }
+        };
+
+        scope.setLocationDraw = function() {
+          scope.model.locationKey = 'draw';
+        };
+
+        element.find('.shape-upload-file').on('change', function() {
+          element.find('.shape-upload').submit();
+        });
+        scope.uploadComplete = function(file) {
+          console.log(file);
+          scope.country = '';
+          scope.model.latN = '';
+          scope.model.latS = '';
+          scope.model.lonE = '';
+          scope.model.lonW = '';
+          scope.model.mgrsSW = '';
+          scope.model.mgrsNE = '';
+          scope.model.lat = '';
+          scope.model.lat = '';
+          scope.model.mgrs = '';
+
+          scope.locationSelect = file.geom;
+          scope.locationKey = 'shape';
+        };
+
+        scope.$watch('model.latN', scope.setLocationBounds);
+        scope.$watch('model.latS', scope.setLocationBounds);
+        scope.$watch('model.lonE', scope.setLocationBounds);
+        scope.$watch('model.lonW', scope.setLocationBounds);
+        scope.$watch('model.mgrsSW', scope.setLocationBounds);
+        scope.$watch('model.mgrsNE', scope.setLocationBounds);
+        scope.$watch('model.lonW', scope.setLocationBounds);
+        scope.$watch('model.lat', scope.setLocationCenter);
+        scope.$watch('model.lon', scope.setLocationCenter);
+        scope.$watch('model.mgrs', scope.setLocationCenter);
+        scope.$watch('model.dist', scope.setLocationCenter);
+        scope.$watch('country', scope.setLocationCountry);
+
+        scope.$on('manual-draw-started', function() {
+          if (scope.model.locationKey !== 'draw') {
+            scope.expanded = true;
+          }
+          scope.resetCountrySelection();
+          scope.setLocationDraw();
+        });
+
+        scope.$on('map-changed', function() {
+          scope.model.mapChanged = true;
+        });
+
+        // scope.$on('setBounds', function(e, data) {
+        //   if (data.top >= 90 && data.bottom <= -90 && data.left <= -180 && data.right >= 180) {
+        //     scope.setLocationWorld();
+        //   } else {
+        //     scope.model.latN = data.top;
+        //     scope.model.latS = data.bottom;
+        //     scope.model.lonE = data.right;
+        //     scope.model.lonW = data.left;
+        //     scope.locationSelect = [
+        //       [data.bottom, data.left],
+        //       [data.top, data.right]
+        //     ];
+        //   }
+        // });
+
+        scope.drawStart = function() {
+          $rootScope.$broadcast('drawStart');
+          scope.isDrawing = true;
+          scope.isDrawingPoly = false;
+        };
+
+        scope.clearManualDraw = function() {
+          $rootScope.$broadcast('drawClear');
+        };
+
+        scope.drawClear = function() {
+          $rootScope.$broadcast('drawClear');
+        };
+
+        scope.$on('box-bounds-from-route', function(event, coords) {
+          var west = Number(coords[0]);
+          var north = Number(coords[1]);
+          var east = Number(coords[2]);
+          var south = Number(coords[3]);
+          if (north > 90) {
+            north = 90;
+          }
+          if (south < -90) {
+            south = -90;
+          }
+          if (east > 180) {
+            east = 180;
+          }
+          if (west < -180) {
+            west = -180;
+          }
+          scope.model.latN = north;
+          scope.model.latS = south;
+          scope.model.lonW = west;
+          scope.model.lonE = east;
+          scope.setLocationBounds();
+        });
+
+        scope.$on('country-bounds-from-route', function(event, countries) {
+          // look up country = id
+          // scope.setLocationCountry();
+          scope.model.locationKey = 'country';
+          scope.model.selectedCountries.selected = [];
+          for(var i = 0; i < countries.length; i++) {
+            for(var j = 0; j < scope.model.countries.length; j++) {
+              if(scope.model.countries[j].id === countries[i]) {
+                scope.model.selectedCountries.selected.push(scope.model.countries[j]);
+                scope.addCountrySelection(scope.model.countries[j]);
+              }
+            }
+          }
+        });
+
+        scope.$on('default-from-route', function() {
+          scope.model.locationKey = 'world';
+          scope.setLocationWorld();
+        });
+
+        // scope.$on('bounds-current-bounds', function() {
+        //   scope.setLocationBounds();
+        // });
+
+        scope.friendlyLocation = function() {
+          return scope.model.locationKey.charAt(0).toUpperCase() + scope.model.locationKey.slice(1);
+        };
+
+        parseLocation(scope.locationSelect);
+        getCountries().then(
+          function(result) {
+            scope.model.countries = result.data.features;
+            // scope.model.countriesJson = result.data;
+          }
+        );
+        // if(scope.model.locationKey === 'world') {
+        //   scope.setLocationWorld();
+        // }
+      }
+    };
+  });

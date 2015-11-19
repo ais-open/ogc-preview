@@ -30,14 +30,36 @@ angular.module('opApp.map').controller('opMapController',
 
         var checkForBBoxBoundsState  = function() {
             // var bboxBounds = opStateService.getAttributeBounds();
-            var bboxBounds = opStateService.newGetAttributeBounds();
+            var boundsString = opStateService.newGetAttributeBounds();
 
-            if(bboxBounds === 'world') {
-              drawWorldBounds();
-            } else if (bboxBounds) {
-                var rect = new L.rectangle(bboxBounds, { color: '#ffd800', weight: 2, opacity: 1, fill: false });
-                bboxLayer.clearLayers();
-                bboxLayer.addLayer(rect);
+            var countryIdent = 'country:';
+            if(boundsString) {
+              if(boundsString.indexOf(countryIdent) > -1) {
+                 var countryString = boundsString.substring(countryIdent.length,boundsString.length);
+                 var countries = countryString.split(',');
+                 $timeout(function() {
+                   $rootScope.$broadcast('country-bounds-from-route', countries);
+                 }, 1000);
+              } else {
+                var coords = boundsString.split(',');
+                if(coords.length > 4) {
+                  // circle?
+                  // polygon?
+                } else if (coords.length === 4) {
+                  // bounding box
+                  $timeout(function() {
+                    $rootScope.$broadcast('box-bounds-from-route', coords);
+                  }, 1000)
+                } else {
+                  $timeout(function() {
+                    $rootScope.$broadcast('default-from-route');
+                  }, 1000)
+                }
+              }
+            } else {
+              $timeout(function() {
+                $rootScope.$broadcast('default-from-route');
+              }, 1000)
             }
             opPopupWindow.broadcast( opStateService.getResultsWindow(), 'mapBoundsChanged');
             $rootScope.$broadcast('mapBoundsChanged');
@@ -227,7 +249,10 @@ angular.module('opApp.map').controller('opMapController',
             map.addControl(drawControl);
 
             map.on('draw:created', function() {
-                $rootScope.$broadcast('manual-draw-started');
+              // $timeout(function() {
+              //   $rootScope.$broadcast('manual-draw-started');
+              // }, 1000);
+              $rootScope.$broadcast('manual-draw-started');
             });
 
             map.on('moveend', setBounds);
@@ -279,6 +304,7 @@ angular.module('opApp.map').controller('opMapController',
                 }
                 bboxLayer.addLayer(layer);
                 bboxLayer.wkt = wkt.write();
+                var bounds = layer.getBounds();
 
                 opStateService.setAttributeBBox(layer.getBounds());
                 var results = opStateService.getResultsWindow();
@@ -326,8 +352,10 @@ angular.module('opApp.map').controller('opMapController',
             legendControl.updateLegend(legends);
         });
 
-        $rootScope.$on('bounds-text-updated', function(event, bounds) {
-            redrawRect(bounds);
+        $rootScope.$on('bounds-text-updated', function(event, boundsString) {
+          var bounds = boundsString.split(',');
+          var leafletBounds = [[bounds[1], bounds[0]],[bounds[3], bounds[2]]];
+            redrawRect(leafletBounds);
         });
 
         $rootScope.$on('bounds-current-bounds', function() {

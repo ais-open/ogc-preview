@@ -174,17 +174,7 @@ angular.module('opApp')
 
         this.newGetAttributeBounds = function() {
             var bounds = this.getState(bboxId);
-
-            if (lastBBoxBounds === null) {
-                lastBBoxBounds = bounds;
-            }
-
-            if(bounds === 'world') {
-              return bounds;
-            } else {
-              return parseBBoxIntoBounds(bounds);
-            }
-
+            return bounds;
         };
 
         this.setBounds = function(bounds) {
@@ -230,11 +220,36 @@ angular.module('opApp')
             debounceBroadcast('bounds-current-bounds');
         };
 
-        this.setAttributeBBoxCountry = function(geoJsonBounds) {
-            debounceBroadcast('bounds-country-bounds', geoJsonBounds);
+        this.setAttributeBBoxCountry = function(geoJsonBounds, countryBboxList) {
+            if(countryBboxList) {
+              mapState[bboxId] = countryBboxList;
+            }
+            // dont use debounce broadcast here
+            $rootScope.$broadcast('bounds-country-bounds', geoJsonBounds);
         };
 
         this.removeAttributeBBoxCountry = function(bounds) {
+          var countryList = mapState[bboxId];
+          var country = bounds.id;
+
+          if(countryList.indexOf(country) > -1) {
+            // exists
+            var countryIdent = 'country:';
+            var countryString = countryList.substring(countryIdent.length,countryList.length);
+            var countries = countryString.split(',');
+            countries.splice(countryString.indexOf(country), 1);
+            var newString = countryIdent + countries.join(',');
+            // if we end up deleting the last country, remove bbox from our state
+            if(newString === countryIdent) {
+              delete mapState[bboxId];
+              if (state[bboxId]){
+                delete state[bboxId];
+                serializeState();
+              }
+            } else {
+              mapState[bboxId] = newString;
+            }
+          }
             debounceBroadcast('remove-country-bounds', bounds);
         };
 
