@@ -253,6 +253,12 @@ angular.module('opApp')
             debounceBroadcast('remove-country-bounds', bounds);
         };
 
+        this.setAttributeBboxPolyCircle = function(circleString) {
+          if(circleString) {
+            mapState[bboxId] = circleString;
+          }
+        }
+
         this.getPermalink = function() {
             var self = this;
 

@@ -33,6 +33,7 @@ angular.module('opApp.map').controller('opMapController',
             var boundsString = opStateService.newGetAttributeBounds();
 
             var countryIdent = 'country:';
+            var circleIdent = 'circle:';
             if(boundsString) {
               if(boundsString.indexOf(countryIdent) > -1) {
                  var countryString = boundsString.substring(countryIdent.length,boundsString.length);
@@ -40,6 +41,14 @@ angular.module('opApp.map').controller('opMapController',
                  $timeout(function() {
                    $rootScope.$broadcast('country-bounds-from-route', countries);
                  }, 1000);
+              } else if(boundsString.indexOf(circleIdent) > -1) {
+                // circle
+                var circleString = boundsString.substring(circleIdent.length,boundsString.length);
+                var circleData = circleString.split(',');
+                var lat = circleData[0];
+                var long = circleData[1];
+                var radius = circleData[2];
+                drawCircle(lat, long, radius);
               } else {
                 var coords = boundsString.split(',');
                 if(coords.length > 4) {
@@ -65,10 +74,24 @@ angular.module('opApp.map').controller('opMapController',
             $rootScope.$broadcast('mapBoundsChanged');
         };
 
+        var drawCircle = function(lat, long, radius) {
+          var wkt = new Wkt.Wkt();
+          var polyCircle = createCirclePoly(lat, long, radius);
+          wkt.fromObject(polyCircle);
+          var origin = L.latLng(lat, long);
+          var circleLayer = new L.circle(origin, radius, {
+                  color: '#ffd800', weight: 2, opacity: 0.3, fill: true
+              });
+
+          bboxLayer.clearLayers();
+          bboxLayer.addLayer(circleLayer);
+          bboxLayer.wkt = wkt.write();
+        };
+
         var redrawRect = function(bounds) {
             if (bounds) {
 
-                var rect = new L.rectangle(bounds, { color: '#ffd800', weight: 2, opacity: 1, fill: false });
+                var rect = new L.rectangle(bounds, { color: '#ffd800', weight: 2, opacity: 0.3, fill: true });
                 var wkt = new Wkt.Wkt();
                 wkt.fromObject(rect);
                 bboxLayer.clearLayers();
@@ -249,9 +272,6 @@ angular.module('opApp.map').controller('opMapController',
             map.addControl(drawControl);
 
             map.on('draw:created', function() {
-              // $timeout(function() {
-              //   $rootScope.$broadcast('manual-draw-started');
-              // }, 1000);
               $rootScope.$broadcast('manual-draw-started');
             });
 
@@ -286,27 +306,20 @@ angular.module('opApp.map').controller('opMapController',
                     // layer is a circle drawing
                     var origin = layer.getLatLng();
                     var radius = layer.getRadius();
-                    // configurable
-                    var vertices = 60;
-
-                    var polys = createGeodesicPolygon(origin, radius, vertices, 0);
-                    var polygon = [];
-
-                    for(var i = 0; i < polys.length; i++) {
-                        var geometry = [polys[i].lat, polys[i].lng];
-                        polygon.push(geometry);
-                    }
-                    var polyCircle = L.polygon(polygon);
+                    var polyCircle = createCirclePoly(origin.lat, origin.lng, radius);
                     wkt.fromObject(polyCircle);
+                    var circleString = 'circle:' + origin.lat + ',' + origin.lng + ',' + radius;
+                    opStateService.setAttributeBboxPolyCircle(circleString);
                 } else {
                     // layer is a polygon
                     wkt.read(JSON.stringify(layer.toGeoJSON()));
+                    opStateService.setAttributeBBox(layer.getBounds());
                 }
                 bboxLayer.addLayer(layer);
                 bboxLayer.wkt = wkt.write();
                 var bounds = layer.getBounds();
 
-                opStateService.setAttributeBBox(layer.getBounds());
+                // opStateService.setAttributeBBox(layer.getBounds());
                 var results = opStateService.getResultsWindow();
                 // Handle the case when result window is opened and then closed
                 // causing draw complete operation to fail making it impossible to
@@ -320,6 +333,19 @@ angular.module('opApp.map').controller('opMapController',
             map.on('move', function() {
                 $rootScope.$broadcast('map-changed');
             });
+        };
+
+        var createCirclePoly = function(lat, long, radius) {
+          var vertices = 120;
+          var origin = L.latLng(lat, long);
+          var polys = createGeodesicPolygon(origin, radius, vertices);
+          var polygon = [];
+
+          for(var i = 0; i < polys.length; i++) {
+              var geometry = [polys[i].lat, polys[i].lng];
+              polygon.push(geometry);
+          }
+          return L.polygon(polygon);
         };
 
         /**
