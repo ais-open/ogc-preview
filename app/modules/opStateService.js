@@ -386,8 +386,8 @@ angular.module('opApp')
 
             // Duration handling
             if (filter.type === 'duration') {
-                stopTime = moment().endOf('hour');
-                startTime = moment(stopTime).subtract(filter.interval, filter.value).startOf('hour');
+                stopTime = moment().endOf('hour').utc();
+                startTime = moment(stopTime).subtract(filter.interval, filter.value).startOf('hour').utc();
             }
             // Range handling
             else if (filter.type === 'range') {
