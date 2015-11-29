@@ -30,7 +30,8 @@ angular.module('opApp')
           lonValid: true,
           distValid: true,
           countries: '',
-          selectedCountries: {}
+          selectedCountries: {},
+          shapeToGeoUrl: opConfig.shapeToGeoUrl
         };
 
         /*
@@ -347,6 +348,7 @@ angular.module('opApp')
         element.find('.shape-upload-file').on('change', function() {
           element.find('.shape-upload').submit();
         });
+
         scope.uploadComplete = function(file) {
           console.log(file);
           scope.country = '';
@@ -359,7 +361,7 @@ angular.module('opApp')
           scope.model.lat = '';
           scope.model.lat = '';
           scope.model.mgrs = '';
-
+          // TOOO file should contain the GEOJson to send to the mapController
           scope.locationSelect = file.geom;
           scope.locationKey = 'shape';
         };

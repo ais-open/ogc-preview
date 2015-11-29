@@ -126,9 +126,15 @@
                   </ui-select-choices>
                 </ui-select>
               </div>
-              <!-- <div class="details-box" ng-show="model.locationKey == 'country'">
-                <op-field-select value="country" label="'Country'" options="model.countriesJson" select-id="code" select-text="short_name" select-alt="code"></op-field-select>
-              </div>-->
+
+              <a class="list-group-item" ng-class="{active: model.locationKey == 'shape'}" href="" ng-click="model.locationKey = 'shape'">Shapefile...</a>
+              <div class="details-box" ng-show="model.locationKey == 'shape'">
+              <form action="/shapes"  ng-upload="uploadComplete(content);" class="shape-upload">
+                <input type="file" class="shape-upload-file" />
+                <a href="" class="btn btn-info">Select Shapefile...</a>
+              </form>
+              </div>
+
             <a class="list-group-item" ng-class="{active: model.locationKey == 'draw'}" href="" ng-click="model.locationKey = 'draw'">Manual Draw...</a>
             <div class="details-box" ng-show="model.locationKey == 'draw'">
                 <a href="" class="btn btn-info btn-sm pull-right" ng-click="clearManualDraw()" style="margin-left:10px;">Clear Drawing</a>

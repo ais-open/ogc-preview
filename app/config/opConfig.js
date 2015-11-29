@@ -53,6 +53,7 @@ angular.module('opApp')
 
         // countryDataUrl: '/config/countries.geo.json',
         countryDataUrl: '/config/countries.geo.json',
+        shapeToGeoUrl: '/shapes',
 
         // Identification of the server(s) providing data layers for use by Feature Browser
         // order here matters for priority of layers
