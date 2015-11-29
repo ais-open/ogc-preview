@@ -23,7 +23,6 @@
         <ul class="nav navbar-nav navbar-right">
             <li><a href="{{docLink}}" target="_blank">User Guide</a></li>
             <li><a href="" ng-click="showAbout()">About</a></li>
-            <li><a href="" ng-click="showFeedback()">Feedback [+]</a></li>
             <li ng-if="announcementCount > 0">
                 <a href="" ng-click="showAnnouncements()">News <span ng-if="announcementCount > 0" ng-class="{'news-text': announcementsEnabled, 'news-symbol': !announcementsEnabled}">{{announcementCount}}</span></a>
             </li>
