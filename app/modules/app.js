@@ -15,7 +15,7 @@ var app = angular.module('opApp', [
     'ngSanitize',
     'ngRoute',
     'ngAnimate',
-    'ngUpload',
+    'ngFileUpload',
     'restangular',
     'toaster',
     'ui.bootstrap',

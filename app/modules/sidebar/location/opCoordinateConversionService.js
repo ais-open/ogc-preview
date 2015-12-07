@@ -14,7 +14,7 @@ angular.module('opApp').factory('opCoordinateConversionService',
 
     /*
     Converts latitude decimal degrees (float) into degrees, minutes, seconds as a string in the format:
-    'XX°XX'XX.XXX'
+    'XXï¿½XX'XX.XXX'
      */
     var ddLatToDMSLat = function (lat) {
         var degrees;
@@ -24,12 +24,12 @@ angular.module('opApp').factory('opCoordinateConversionService',
             degrees = truncate(lat);
             minutes = truncate((lat - degrees) * 60);
             seconds = ((((lat - degrees) * 60) - minutes) * 60).toFixed(3);
-            return degrees + '°' + minutes + '\'' + seconds + '"';
+            return degrees + 'ï¿½' + minutes + '\'' + seconds + '"';
         } else if (lat < 0 && lat >= -90) {
             degrees = truncate(lat);
             minutes = truncate((Math.abs(lat) - Math.abs(degrees)) * 60);
             seconds = ((((Math.abs(lat) - Math.abs(degrees)) * 60) - minutes) * 60).toFixed(3);
-            return degrees + '°' + minutes + '\'' + seconds + '"';
+            return degrees + 'ï¿½' + minutes + '\'' + seconds + '"';
         } else {
             return 'Invalid Latitude';
         }
@@ -37,7 +37,7 @@ angular.module('opApp').factory('opCoordinateConversionService',
 
     /*
     Converts longitude decimal degrees (float) into degrees, minutes, seconds as a string in the format:
-     'XX°XX'XX.XXX'
+     'XXï¿½XX'XX.XXX'
      */
     var ddLonToDMSLon = function (lon) {
         var degrees;
@@ -47,12 +47,12 @@ angular.module('opApp').factory('opCoordinateConversionService',
             degrees = truncate(lon);
             minutes = truncate((lon - degrees) * 60);
             seconds = ((((lon - degrees) * 60) - minutes) * 60).toFixed(3);
-            return degrees + '°' + minutes + '\'' + seconds + '"';
+            return degrees + 'ï¿½' + minutes + '\'' + seconds + '"';
         } else if (lon < 0 && lon >= -180) {
             degrees = truncate((lon));
             minutes = truncate((Math.abs(lon) - Math.abs(degrees)) * 60);
             seconds = ((((Math.abs(lon) - Math.abs(degrees)) * 60) - minutes) * 60).toFixed(3);
-            return degrees + '°' + minutes + '\'' + seconds + '"';
+            return degrees + 'ï¿½' + minutes + '\'' + seconds + '"';
         } else {
             return 'Invalid longitude';
         }
@@ -137,8 +137,8 @@ angular.module('opApp').factory('opCoordinateConversionService',
      */
     coordService.prepForDMSBroadcast = function (latDMS, lonDMS) {
         var latDegree, latMinute, latSecond, lonDegree, lonMinute, lonSecond;
-        latDMS = latDMS.replace(/[NS ]/ig, '').split(/[°'"]/);
-        lonDMS = lonDMS.replace(/[EW ]/ig, '').split(/[°'"]/);
+        latDMS = latDMS.replace(/[NS ]/ig, '').split(/[ï¿½'"]/);
+        lonDMS = lonDMS.replace(/[EW ]/ig, '').split(/[ï¿½'"]/);
 
         if (latDMS.length >= 3) {
             latDegree = parseInt(latDMS[0], 10);
@@ -175,8 +175,8 @@ angular.module('opApp').factory('opCoordinateConversionService',
         ) {
             var results = {
                 dms: [
-                    latDegree + '°' + latMinute + '\'' + latSecond + '"',
-                    lonDegree + '°' + lonMinute + '\'' + lonSecond + '"'],
+                    latDegree + 'ï¿½' + latMinute + '\'' + latSecond + '"',
+                    lonDegree + 'ï¿½' + lonMinute + '\'' + lonSecond + '"'],
                 dd: [
                     dmsLatToDDLat(latDegree, latMinute, latSecond),
                     dmsLonToDDLon(lonDegree, lonMinute, lonSecond)],
@@ -232,7 +232,7 @@ angular.module('opApp').factory('opCoordinateConversionService',
             return true;
         }
         var latDegree, latMinute, latSecond;
-        latDMS = latDMS.replace(/[NS ]/ig, '').split(/[°'"]/);
+        latDMS = latDMS.replace(/[NS ]/ig, '').split(/[ï¿½'"]/);
 
         if (latDMS.length >= 3) {
             latDegree = parseInt(latDMS[0], 10);
@@ -258,7 +258,7 @@ angular.module('opApp').factory('opCoordinateConversionService',
             return true;
         }
         var lonDegree, lonMinute, lonSecond;
-        lonDMS = lonDMS.replace(/[EW ]/ig, '').split(/[°'"]/);
+        lonDMS = lonDMS.replace(/[EW ]/ig, '').split(/[ï¿½'"]/);
 
         if (lonDMS.length >= 3) {
             lonDegree = parseInt(lonDMS[0], 10);

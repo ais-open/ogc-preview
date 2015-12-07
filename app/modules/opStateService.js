@@ -228,6 +228,10 @@ angular.module('opApp')
             $rootScope.$broadcast('bounds-country-bounds', geoJsonBounds);
         };
 
+        this.setAttributeBBoxFile = function(geoJsonBounds) {
+          $rootScope.$broadcast('bounds-file-bounds', geoJsonBounds);
+        };
+
         this.removeAttributeBBoxCountry = function(bounds) {
           var countryList = mapState[bboxId];
           var country = bounds.id;

@@ -1,5 +1,5 @@
 angular.module('opApp')
-  .directive('opLocation', function($q, $http, $filter, $log, $rootScope, $timeout, opCoordinateConversionService, opStateService, opConfig) {
+  .directive('opLocation', function($q, $http, $filter, $log, $rootScope, $timeout, opCoordinateConversionService, opStateService, opConfig, Upload) {
     'use strict';
     return {
       templateUrl: 'modules/sidebar/location/opLocation.html',
@@ -52,6 +52,10 @@ angular.module('opApp')
             });
 
           return deferred.promise;
+        };
+
+        var verifyUpload = function(content) {
+          var file = content;
         };
 
         var parseLocation = function(location) {
@@ -149,6 +153,20 @@ angular.module('opApp')
 
           scope.model.format = newFormat;
 
+        };
+
+        scope.uploadFile = function(file) {
+            var upload = Upload.upload({
+              url: '/shapes/',
+              data: {file: file}
+            });
+
+            upload.then(function(resp) {
+              console.log(JSON.stringify(resp.data));
+              opStateService.setAttributeBBoxFile(resp.data);
+            }, function (resp) {
+              console.log('error: ' + resp.status);
+            });
         };
 
         scope.setLocationWorld = function() {

@@ -108,6 +108,23 @@ angular.module('opApp.map').controller('opMapController',
           redrawRect(bounds);
         };
 
+        var drawFileBounds = function(bounds) {
+          var fileBounds = new L.geoJson(bounds, {
+                  color: '#ffd800', weight: 2, opacity: 1, fill: false
+              }
+          );
+
+          var wktBounds = new Wkt.Wkt();
+          wktBounds.read(JSON.stringify(bounds.geometry));
+
+          bboxLayer.addLayer(fileBounds);
+          bboxLayer.wkt = wktTotal.write();
+
+          map.fitBounds(fileBounds);
+          opPopupWindow.broadcast( opStateService.getResultsWindow(), 'mapBoundsChanged');
+          $rootScope.$broadcast('mapBoundsChanged');
+        }
+
         var drawCountry = function(geoJsonCountry) {
             var country = new L.geoJson(geoJsonCountry, {
                     color: '#ffd800', weight: 2, opacity: 1, fill: false
@@ -391,6 +408,10 @@ angular.module('opApp.map').controller('opMapController',
 
         $rootScope.$on('bounds-country-bounds', function(event,  geoJsonCountry) {
             drawCountry(geoJsonCountry);
+        });
+
+        $rootScope.$on('bounds-file-bounds', function(event, bounds) {
+          drawFileBounds(bounds);
         });
 
         $rootScope.$on('remove-country-bounds', function(event, bounds) {
