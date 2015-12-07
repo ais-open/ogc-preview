@@ -122,7 +122,7 @@ angular.module('opApp.query')
 
             var spatialFilter = null;
 
-            if (layer.fields.geometry !== null) {
+            if (layer.fields.geometry !== null && angular.isDefined(layer.fields.geometry)) {
                 spatialFilter =
                     this.createCqlSpatialIntersectsFilter(layer.fields.geometry.field, spatialBounds);
             }
