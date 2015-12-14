@@ -37,7 +37,7 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
         $scope.startDate = moment.utc().startOf('d').format('MM/DD/YYYY');
         $scope.startTime = moment.utc().startOf('d').format('HH:mm:ss');
         $scope.endDate = moment.utc().startOf('d').add('days', 1).format('MM/DD/YYYY');
-        $scope.endTime = moment.utc().startOf('d').add('days', 1).format('HH:mm:ss');
+        $scope.endTime = moment.utc().endOf('d').add('days', 1).format('HH:mm:ss');
 
 
         $scope.rangeTimeout = false;
