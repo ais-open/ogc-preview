@@ -269,7 +269,7 @@ gulp.task('prod-artifacts', ['clean-build-app-prod'], pipes.buildArtifacts);
 // clean, build, and watch live changes to the dev environment
 gulp.task('watch-dev', ['build-styles-dev', 'validate-app-scripts', 'bump'], function () {
     var proxy = proxyMiddleware('/geoserver', {target: 'http://demo.boundlessgeo.com'});
-    var proxy2 = proxyMiddleware('/shapes/', {target: 'http://10.3.2.117:8000/'});
+    var proxy2 = proxyMiddleware('/shapes/', {target: 'http://10.3.2.136:8000/'});
 
     browserSync.init({
         port: 3000,

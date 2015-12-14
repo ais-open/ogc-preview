@@ -127,15 +127,19 @@
                 </ui-select>
               </div>
 
-              <!-- <a class="list-group-item" ng-class="{active: model.locationKey == 'shape'}" href="" ng-click="model.locationKey = 'shape'">Shapefile...</a>
+              <a class="list-group-item" ng-class="{active: model.locationKey == 'shape'}" href="" ng-click="model.locationKey = 'shape'">Shapefile...</a>
               <div class="details-box" ng-show="model.locationKey == 'shape'">
-                <button ngf-select="uploadFile($file)" class="btn btn-info">Select Shapefile...</button>
-              </div> -->
+                <button ngf-select="uploadFile($file)" class="btn btn-info center-block" style="margin-bottom:12px;">Select Shapefile...</button>
+                <div class="float-label white">
+                    <input type="text" ng-model="model.shapeGeoJson"/>
+                    <label>GeoJSON equivalent</label>
+                </div>
+              </div>
 
             <a class="list-group-item" ng-class="{active: model.locationKey == 'draw'}" href="" ng-click="model.locationKey = 'draw'">Manual Draw...</a>
             <div class="details-box" ng-show="model.locationKey == 'draw'">
-                <a href="" class="btn btn-info btn-sm pull-right" ng-click="clearManualDraw()" style="margin-left:10px;">Clear Drawing</a>
-                <p class="small" style="margin-left:10px;">Use the custom extent drawing tools on the map.</p>
+              <a href="" class="btn btn-info btn-sm pull-right" ng-click="clearManualDraw()" style="margin-left:10px;">Clear Drawing</a>
+              <p class="small" style="margin-left:10px;">Use the custom extent drawing tools on the map.</p>
             </div>
         </div>
     </div>

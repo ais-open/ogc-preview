@@ -6,7 +6,7 @@ angular.module('opApp')
       restrict: 'EA',
       scope: {
         locationSelect: '=',
-        country: '='
+        country: '=',
       },
 
       link: function postLink(scope, element) {
@@ -31,6 +31,7 @@ angular.module('opApp')
           distValid: true,
           countries: '',
           selectedCountries: {},
+          shapeGeoJson: '',
           shapeToGeoUrl: opConfig.shapeToGeoUrl
         };
 
@@ -157,15 +158,17 @@ angular.module('opApp')
 
         scope.uploadFile = function(file) {
             var upload = Upload.upload({
-              url: '/shapes/',
+              url: '/shapes/?view=geojson',
               data: {file: file}
             });
 
             upload.then(function(resp) {
-              console.log(JSON.stringify(resp.data));
+              $log.log(JSON.stringify(resp.data));
+              scope.model.shapeGeoJson = JSON.stringify(resp.data);
               opStateService.setAttributeBBoxFile(resp.data);
             }, function (resp) {
-              console.log('error: ' + resp.status);
+              scope.model.shapeGeoJson = 'Error converting shapefile.';
+              $log.log('error: ' + resp.status);
             });
         };
 
@@ -361,27 +364,6 @@ angular.module('opApp')
 
         scope.setLocationDraw = function() {
           scope.model.locationKey = 'draw';
-        };
-
-        element.find('.shape-upload-file').on('change', function() {
-          element.find('.shape-upload').submit();
-        });
-
-        scope.uploadComplete = function(file) {
-          console.log(file);
-          scope.country = '';
-          scope.model.latN = '';
-          scope.model.latS = '';
-          scope.model.lonE = '';
-          scope.model.lonW = '';
-          scope.model.mgrsSW = '';
-          scope.model.mgrsNE = '';
-          scope.model.lat = '';
-          scope.model.lat = '';
-          scope.model.mgrs = '';
-          // TOOO file should contain the GEOJson to send to the mapController
-          scope.locationSelect = file.geom;
-          scope.locationKey = 'shape';
         };
 
         scope.$watch('model.latN', scope.setLocationBounds);

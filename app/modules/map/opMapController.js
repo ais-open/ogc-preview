@@ -80,7 +80,7 @@ angular.module('opApp.map').controller('opMapController',
           wkt.fromObject(polyCircle);
           var origin = L.latLng(lat, long);
           var circleLayer = new L.circle(origin, radius, {
-                  color: '#ffd800', weight: 2, opacity: 0.3, fill: true
+                  color: '#ffd800', weight: 2, opacity: 1, fill: false
               });
 
           bboxLayer.clearLayers();
@@ -91,7 +91,7 @@ angular.module('opApp.map').controller('opMapController',
         var redrawRect = function(bounds) {
             if (bounds) {
 
-                var rect = new L.rectangle(bounds, { color: '#ffd800', weight: 2, opacity: 0.3, fill: true });
+                var rect = new L.rectangle(bounds, { color: '#ffd800', weight: 2, opacity: 1, fill: false });
                 var wkt = new Wkt.Wkt();
                 wkt.fromObject(rect);
                 bboxLayer.clearLayers();
@@ -114,9 +114,22 @@ angular.module('opApp.map').controller('opMapController',
               }
           );
 
-          var wktBounds = new Wkt.Wkt();
-          wktBounds.read(JSON.stringify(bounds.geometry));
+          //create one large WKT from all the countries we have active
+          var wktTotal = new Wkt.Wkt();
+          wktTotal.read("MULTIPOLYGON(())");
 
+          var wktObject = new Wkt.Wkt();
+          for(var i = 0; i < bounds.features.length; i++) {
+            var object = bounds.features[i].geometry;
+            wktObject.read(JSON.stringify(object));
+            wktTotal.merge(wktObject);
+          }
+          wktTotal.components.splice(0,1);
+          bboxLayer.wkt = wktTotal.write();
+
+          // var wktBounds = new Wkt.Wkt();
+          // wktBounds.read(JSON.stringify(bounds.geometry));
+          bboxLayer.clearLayers();
           bboxLayer.addLayer(fileBounds);
           bboxLayer.wkt = wktTotal.write();
 
