@@ -320,7 +320,13 @@ angular.module('opApp').controller('opLayerController',
                     },
                     function(reason){ $log.log(reason); });
             } else {
+              if(layer.raster) {
+                var logError = 'Is this layer a raster?  If so, no feature data is available.';
+                opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', {error: logError});
+              } else {
                 opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', {error: 'nobbox'});
+              }
+
             }
         });
 
