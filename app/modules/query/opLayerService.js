@@ -200,14 +200,12 @@ angular.module('opApp.query')
                     // This is to allow time-enabled raster mosaics to function.
                     //layer.fields = { time: null, geometry: null };
                     self.setFieldCache(layer, layer.fields);
+                    layer.raster = true;
 
                     $log.log('Unable to determine field types: ' + reason);
-                    var logError = 'Is this layer a raster?  If so, no feature data is available.';
-                    opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', {error: logError});
-                    $log.log(logError);
                     deferred.resolve(reason);
                     $log.log('Assuming raster layer.');
-                    deferred.resolve(layer.fields);
+                    // deferred.resolve(layer.fields);
                 });
 
             return deferred.promise;
@@ -292,6 +290,8 @@ angular.module('opApp.query')
                         var xmlDoc = $.parseXML(result.data);
 
                         var nodes = xmlDoc.getElementsByTagName('Layer');
+                        // digitalgblobe testing
+                        // var nodes = xmlDoc.getElementsByTagName('FeatureType');
 
                         // Skip first Layer element, this contains all the CRS garbage and is just a container for the child Layers
                         for (var i = 1; i < nodes.length; i++) {
