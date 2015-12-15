@@ -453,15 +453,18 @@ angular.module('opApp').controller('opLayerController',
                             $log.log('Time values identified. ' +
                                 'Start: \'' + result.time.start.value + '\', ' +
                                 'Stop: \'' + result.time.stop.value + '\'');
+                            layer.timeEnabled = true;
                         }
                         else {
                             $log.log('Time values were not identified as layer is not configured for WMS time');
+                            layer.timeEnabled = false;
                         }
                     }
                 },
                 function (reason) {
                     $log.log('Couldn\'t identify time values for this layer... how embarrassing: ' + reason);
                     toaster.pop('note', 'Date/Time', 'Unable to detect time fields for layer \'' + layer.title + '\'.  Date/Time filtering will not be applied to this layer.');
+                    layer.timeEnabled = false;
                 }
             )
                 /* Regardless of time enablement, add layer to the map.  We are chaining behind time checking to ensure

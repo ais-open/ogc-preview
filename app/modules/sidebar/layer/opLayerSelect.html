@@ -29,12 +29,20 @@
                      <span ng-if="!DEBUG && !isLayerDuped(layer.uid)" ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}}</span>
                      <span class="icons">
                          <div ng-if="layer.active && layer.loading" class="spinner"><div class="spinner-image"></div></div>
-                         <a op-popup="Layer: <b>{{layer.title}}</b>
+                         <a ng-if="layer.timeEnabled" op-popup="Layer: <b>{{layer.title}}</b>
                            <br>Server: <b>{{layer.server}}</b>
                            <br/>{{layer.abstract | plainTextToHtml}}<br>
                            <p> Start time: {{layer.fields.time.start.value}}</p>
+                           Stop time: {{layer.fields.time.stop.value}}</p>
                            <p>Legend:<br/><img src='{{layer.legendGraphic}}' />
-                           </p>" href=""><i class="icon-help"></i></a>
+                           </p>" href=""><i class="icon-help"></i>
+                         </a>
+                         <a ng-if="!layer.timeEnabled" op-popup="Layer: <b>{{layer.title}}</b>
+                           <br>Server: <b>{{layer.server}}</b>
+                           <br/>{{layer.abstract | plainTextToHtml}}<br>
+                           <p>Legend:<br/><img src='{{layer.legendGraphic}}' />
+                           </p>" href=""><i class="icon-help"></i>
+                         </a>
                      </span>
                  </label>
                </span>
