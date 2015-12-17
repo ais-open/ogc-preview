@@ -275,10 +275,10 @@ angular.module('opApp').controller('opLayerController',
             }
         };
 
-        var exportData = function (exportGenerator, layer, bounds, spatialBounds, crs, url) {
+        var exportData = function (exportGenerator, layer, bounds, spatialBounds, url) {
             //var bounds = opStateService.getTimeBoundsFromTemporalFilter();
             if (angular.isDefined(layer.active) && layer.active !== null && layer.active) {
-                var params = exportGenerator(layer, bounds[0], bounds[1], spatialBounds, crs);
+                var params = exportGenerator(layer, bounds[0], bounds[1], spatialBounds);
 
                 return url + '?' + $.param(params);
             }
@@ -308,13 +308,13 @@ angular.module('opApp').controller('opLayerController',
                       // data key should not exist
                       if(!result.data) {
                         result.kmlUrl = exportData(opExportService.createKmlExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wms/kml');
+                            layer, timeBounds, spatialBounds, server.url + '/wms/kml');
                         result.csvUrl = exportData(opExportService.createCsvExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wfs');
+                            layer, timeBounds, spatialBounds, server.url + '/wfs');
                         result.shpUrl = exportData(opExportService.createShapefileExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wfs');
+                            layer, timeBounds, spatialBounds, server.url + '/wfs');
                         result.rssUrl = exportData(opExportService.createGeoRSSExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wfs');
+                            layer, timeBounds, spatialBounds, server.url + '/wfs');
                         opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', result);
                       }
                     },

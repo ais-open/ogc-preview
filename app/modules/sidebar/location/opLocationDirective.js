@@ -9,7 +9,7 @@ angular.module('opApp')
         country: '=',
       },
 
-      link: function postLink(scope, element) {
+      link: function postLink(scope) {
         scope.expanded = false;
         scope.model = {
           mapChanged: false,
@@ -53,10 +53,6 @@ angular.module('opApp')
             });
 
           return deferred.promise;
-        };
-
-        var verifyUpload = function(content) {
-          var file = content;
         };
 
         var parseLocation = function(location) {
@@ -176,7 +172,7 @@ angular.module('opApp')
           scope.locationSelect = '-180,-90,180,90';
           scope.model.locationKey = 'world';
           scope.country = '';
-          $log.log("locationString: " + scope.locationSelect);
+          $log.log('locationString: ' + scope.locationSelect);
           scope.resetCountrySelection();
           opStateService.setAttributeBBoxText(scope.locationSelect);
         };
@@ -196,7 +192,7 @@ angular.module('opApp')
             }).join(',');
           scope.model.locationSelect = 'country:' + countryString;
           opStateService.setAttributeBBoxCountry(country, scope.model.locationSelect);
-          $log.log("Adding country filter of: " + country.properties.name);
+          $log.log('Adding country filter of: ' + country.properties.name);
         };
 
         scope.resetCountrySelection = function() {
@@ -206,8 +202,8 @@ angular.module('opApp')
 
         scope.removeCountrySelection = function(country) {
           opStateService.removeAttributeBBoxCountry(country);
-          $log.log("Removing country filter of: " + country.properties.name);
-        }
+          $log.log('Removing country filter of: ' + country.properties.name);
+        };
 
         scope.setLocationCountry = function() {
           // moved to aux functions

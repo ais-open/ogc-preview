@@ -51,31 +51,28 @@ angular.module('opApp.map').controller('opMapController',
                 drawCircle(lat, long, radius);
               } else {
                 var coords = boundsString.split(',');
-                if(coords.length > 4) {
-                  // circle?
-                  // polygon?
-                } else if (coords.length === 4) {
+                if (coords.length === 4) {
                   // bounding box
                   $timeout(function() {
                     $rootScope.$broadcast('box-bounds-from-route', coords);
-                  }, 1000)
-                } else {
+                  }, 1000);
+                } else if (coords.length < 4) {
                   $timeout(function() {
                     $rootScope.$broadcast('default-from-route');
-                  }, 1000)
+                  }, 1000);
                 }
               }
             } else {
               $timeout(function() {
                 $rootScope.$broadcast('default-from-route');
-              }, 1000)
+              }, 1000);
             }
             opPopupWindow.broadcast( opStateService.getResultsWindow(), 'mapBoundsChanged');
             $rootScope.$broadcast('mapBoundsChanged');
         };
 
         var drawCircle = function(lat, long, radius) {
-          var wkt = new Wkt.Wkt();
+          var wkt = new Wkt.Wkt(); // jshint ignore:line
           var polyCircle = createCirclePoly(lat, long, radius);
           wkt.fromObject(polyCircle);
           var origin = L.latLng(lat, long);
@@ -92,7 +89,7 @@ angular.module('opApp.map').controller('opMapController',
             if (bounds) {
 
                 var rect = new L.rectangle(bounds, { color: '#ffd800', weight: 2, opacity: 1, fill: false });
-                var wkt = new Wkt.Wkt();
+                var wkt = new Wkt.Wkt(); // jshint ignore:line
                 wkt.fromObject(rect);
                 bboxLayer.clearLayers();
                 bboxLayer.addLayer(rect);
@@ -103,10 +100,10 @@ angular.module('opApp.map').controller('opMapController',
             }
         };
 
-        var drawWorldBounds = function() {
-          var bounds = [['-90', '-180'], ['90', '180']];
-          redrawRect(bounds);
-        };
+        // var drawWorldBounds = function() {
+        //   var bounds = [['-90', '-180'], ['90', '180']];
+        //   redrawRect(bounds);
+        // };
 
         var drawFileBounds = function(bounds) {
           var fileBounds = new L.geoJson(bounds, {
@@ -115,10 +112,10 @@ angular.module('opApp.map').controller('opMapController',
           );
 
           //create one large WKT from all the countries we have active
-          var wktTotal = new Wkt.Wkt();
-          wktTotal.read("MULTIPOLYGON(())");
+          var wktTotal = new Wkt.Wkt(); // jshint ignore:line
+          wktTotal.read('MULTIPOLYGON(())');
 
-          var wktObject = new Wkt.Wkt();
+          var wktObject = new Wkt.Wkt(); // jshint ignore:line
           for(var i = 0; i < bounds.features.length; i++) {
             var object = bounds.features[i].geometry;
             wktObject.read(JSON.stringify(object));
@@ -136,7 +133,7 @@ angular.module('opApp.map').controller('opMapController',
           map.fitBounds(fileBounds);
           opPopupWindow.broadcast( opStateService.getResultsWindow(), 'mapBoundsChanged');
           $rootScope.$broadcast('mapBoundsChanged');
-        }
+        };
 
         var drawCountry = function(geoJsonCountry) {
             var country = new L.geoJson(geoJsonCountry, {
@@ -149,11 +146,11 @@ angular.module('opApp.map').controller('opMapController',
               bboxLayer.clearLayers();
             }
 
-            var wktCountry = new Wkt.Wkt();
+            var wktCountry = new Wkt.Wkt(); // jshint ignore:line
             wktCountry.read(JSON.stringify(geoJsonCountry.geometry));
             var countryData = {
               id: geoJsonCountry.id,
-              leafletId: country._leaflet_id,
+              leafletId: country._leaflet_id, // jshint ignore:line
               wkt: wktCountry.write()
             };
 
@@ -162,14 +159,14 @@ angular.module('opApp.map').controller('opMapController',
             }
 
             // create one large WKT from all the countries we have active
-            var wktTotal = new Wkt.Wkt();
+            var wktTotal = new Wkt.Wkt(); // jshint ignore:line
 
             // add a blank multipology component because wicket requires
             // merge to have the same type of components (or merge a polygon
             // into a MULTIPOLYGON)
-            wktTotal.read("MULTIPOLYGON(())");
+            wktTotal.read('MULTIPOLYGON(())');
             for(var i = 0; i < drawnCountries.length; i++) {
-              var countryWkt = new Wkt.Wkt(drawnCountries[i].wkt);
+              var countryWkt = new Wkt.Wkt(drawnCountries[i].wkt); // jshint ignore:line
               wktTotal.merge(countryWkt);
             }
             // remove the first blank component we created
@@ -202,7 +199,7 @@ angular.module('opApp.map').controller('opMapController',
             if(bounds) {
                 var rect = new L.rectangle(bounds, { color: '#ffd800', weight: 4, opacity: 1, fill: false });
 
-                var wkt = new Wkt.Wkt();
+                var wkt = new Wkt.Wkt(); // jshint ignore:line
                 wkt.fromObject(rect);
 
                 bboxLayer.clearLayers();
@@ -329,7 +326,7 @@ angular.module('opApp.map').controller('opMapController',
 
             map.on('draw:created', function (e) {
                 var layer = e.layer;
-                var wkt = new Wkt.Wkt();
+                var wkt = new Wkt.Wkt(); // jshint ignore:line
                 // check if we're drawing a polygon or circle
                 // if circle, we need to do a bunch of math to make it a polygon
                 if(layer._mRadius) {
@@ -347,7 +344,6 @@ angular.module('opApp.map').controller('opMapController',
                 }
                 bboxLayer.addLayer(layer);
                 bboxLayer.wkt = wkt.write();
-                var bounds = layer.getBounds();
 
                 // opStateService.setAttributeBBox(layer.getBounds());
                 var results = opStateService.getResultsWindow();
@@ -434,7 +430,7 @@ angular.module('opApp.map').controller('opMapController',
         $rootScope.$on('remove-country-selections', function() {
             bboxLayer.clearLayers();
             drawnCountries = [];
-        })
+        });
 
         /*
         Convert a mid point and radius (circle) to a polygon of x sides
@@ -449,18 +445,18 @@ angular.module('opApp.map').controller('opMapController',
          */
         var createGeodesicPolygon = function (origin, radius, sides) {
 
-            var latlon = origin;
+            var latLon = origin;
             var angle;
-            var new_lonlat;
-            var geom_point;
+            var newLonLat;
+            var geomPoint;
             var points = [];
 
             for (var i = 0; i < sides; i++) {
                 angle = (i * 360 / sides);
-                new_lonlat = destinationVincenty(latlon, angle, radius);
-                geom_point = L.latLng(new_lonlat.lng, new_lonlat.lat);
+                newLonLat = destinationVincenty(latLon, angle, radius);
+                geomPoint = L.latLng(newLonLat.lng, newLonLat.lat);
 
-                points.push(geom_point);
+                points.push(geomPoint);
             }
 
             return points;
@@ -503,10 +499,13 @@ angular.module('opApp.map').controller('opMapController',
             var A = 1 + uSq/16384*(4096+uSq*(-768+uSq*(320-175*uSq)));
             var B = uSq/1024 * (256+uSq*(-128+uSq*(74-47*uSq)));
             var sigma = s / (b*A), sigmaP = 2*Math.PI;
+            var cos2SigmaM;
+            var sinSigma;
+            var cosSigma;
             while (Math.abs(sigma-sigmaP) > 1e-12) {
-                var cos2SigmaM = Math.cos(2*sigma1 + sigma);
-                var sinSigma = Math.sin(sigma);
-                var cosSigma = Math.cos(sigma);
+                cos2SigmaM = Math.cos(2*sigma1 + sigma);
+                sinSigma = Math.sin(sigma);
+                cosSigma = Math.cos(sigma);
                 var deltaSigma = B*sinSigma*(cos2SigmaM+B/4*(cosSigma*(-1+2*cos2SigmaM*cos2SigmaM)-
                     B/6*cos2SigmaM*(-3+4*sinSigma*sinSigma)*(-3+4*cos2SigmaM*cos2SigmaM)));
                 sigmaP = sigma;
@@ -519,7 +518,7 @@ angular.module('opApp.map').controller('opMapController',
             var C = f/16*cosSqAlpha*(4+f*(4-3*cosSqAlpha));
             var lam = lambda - (1-C) * f * sinAlpha *
                 (sigma + C*sinSigma*(cos2SigmaM+C*cosSigma*(-1+2*cos2SigmaM*cos2SigmaM)));
-            var revAz = Math.atan2(sinAlpha, -tmp);  // final bearing
+            // var revAz = Math.atan2(sinAlpha, -tmp);  // final bearing
             var lamFunc = lon1 + (lam * 180/pi); //converts lam radius to degrees
             var lat2a = lat2 * 180/pi; //converts lat2a radius to degrees
 

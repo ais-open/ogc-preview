@@ -6,7 +6,7 @@
 
 angular.module('opApp.query')
     .service('opLayerService',
-    function ($q, $http, localStorageService, opConfig, opWebMapService, opWebFeatureService, opFilterService, opStateService, $log, opPopupWindow) {
+    function ($q, $http, localStorageService, opConfig, opWebMapService, opWebFeatureService, opFilterService, opStateService, $log) {
         'use strict';
 
         this.localStorageLayersKey = 'opApp.layersCache';
@@ -290,8 +290,6 @@ angular.module('opApp.query')
                         var xmlDoc = $.parseXML(result.data);
 
                         var nodes = xmlDoc.getElementsByTagName('Layer');
-                        // digitalgblobe testing
-                        // var nodes = xmlDoc.getElementsByTagName('FeatureType');
 
                         // Skip first Layer element, this contains all the CRS garbage and is just a container for the child Layers
                         for (var i = 1; i < nodes.length; i++) {

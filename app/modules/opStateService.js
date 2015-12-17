@@ -181,11 +181,6 @@ angular.module('opApp')
             mapState[boundsId] = bounds.toBBoxString();
         };
 
-        this.setAttributeBounding = function(locationString) {
-
-        };
-
-
         this.setAttributeBBox = function(bounds) {
             if (bounds) {
                 mapState[bboxId] = bounds.toBBoxString();
@@ -261,7 +256,7 @@ angular.module('opApp')
           if(circleString) {
             mapState[bboxId] = circleString;
           }
-        }
+        };
 
         this.getPermalink = function() {
             var self = this;

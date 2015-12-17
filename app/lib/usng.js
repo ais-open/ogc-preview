@@ -1,3 +1,4 @@
+/* jshint ignore:start */
 // ***************************************************************************
 // *  usng.js  (U.S. National Grid functions)
 // *  Module to calculate National Grid Coordinates
@@ -832,3 +833,4 @@ function GUsngtoLL(str) {
     USNGtoLL(str,latlng)
     return(new GLatLng(latlng[0],latlng[1]))
 }
+/* jshint ignore:end */

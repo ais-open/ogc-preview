@@ -270,16 +270,15 @@ gulp.task('prod-artifacts', ['clean-build-app-prod'], pipes.buildArtifacts);
 gulp.task('watch-dev', ['build-styles-dev', 'validate-app-scripts', 'bump'], function () {
     var proxy = proxyMiddleware('/geoserver', {target: 'http://demo.boundlessgeo.com'});
     var proxy2 = proxyMiddleware('/shapes/', {target: 'http://10.3.2.136:8000/'});
+    var proxy3 = proxyMiddleware('/geoserver2', {target: 'http://172.17.0.3'});
 
     browserSync.init({
         port: 3000,
         server: {
             baseDir: ['./app','./.tmp'],
-            middleware: [proxy, proxy2]
+            middleware: [proxy, proxy2, proxy3]
         }
     });
-
-    var proxy = proxyMiddleware('/geoserver', {target: 'http://demo.boundlessgeo.com'});
 
     gulp.watch(paths.stylesAll, ['build-styles-dev']);
     gulp.watch(['./app/**/*.*', '!./app/**/*.+(css|less)']).on('change', browserSync.reload);

@@ -68,22 +68,14 @@ angular.module('opApp')
                 wfsVersion: '1.0.0',
                 wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
             },
-            {
-              url: 'https://services.digitalglobe.com/mapservice/wmsaccess?connectid=1b848ee7-e2b9-426d-87ad-ac573438bbc8&request=GetCapabilities&service=WMS',
-              ajaxUrl: 'https://services.digitalglobe.com/mapservice/wmsaccess?connectid=1b848ee7-e2b9-426d-87ad-ac573438bbc8&request=GetCapabilities&service=WMS',
-              name: 'DigitalGlobe',
-              wmsVersion: '1.3.0',
-              wfsVersion: '1.0.0',
-              wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
-
-            },
             // {
-            //     url: '/geoserver',
-            //     ajaxUrl: '/geoserver',
-            //     name: 'beta',
-            //     wmsVersion: '1.3.0',
-            //     wfsVersion: '1.0.0',
-            //     wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
+            //   url: 'https://services.digitalglobe.com/mapservice/wmsaccess?connectid=1b848ee7-e2b9-426d-87ad-ac573438bbc8&request=GetCapabilities&service=WMS',
+            //   ajaxUrl: 'https://services.digitalglobe.com/mapservice/wmsaccess?connectid=1b848ee7-e2b9-426d-87ad-ac573438bbc8&request=GetCapabilities&service=WMS',
+            //   name: 'DigitalGlobe',
+            //   wmsVersion: '1.3.0',
+            //   wfsVersion: '1.0.0',
+            //   wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
+            //
             // },
             // {
             //     url: '/geoserver',

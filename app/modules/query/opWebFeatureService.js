@@ -138,9 +138,12 @@ angular.module('opApp.query')
               // POSTs to work properly.
               transformRequest: function(obj) {
                 var str = [];
-                for(var p in obj)
-                str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-                return str.join("&");
+                for(var p in obj) {
+                  if(obj.hasOwnProperty(p)) {
+                    str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+                  }
+                }
+                return str.join('&');
               },
               data: serviceParams
             }).then(
@@ -153,6 +156,7 @@ angular.module('opApp.query')
                     $log.log('Error retrieving GetFeature result');
                     deferred.reject(reason);
             });
+
             return deferred.promise;
         };
 
