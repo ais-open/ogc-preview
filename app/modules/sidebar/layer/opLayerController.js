@@ -4,7 +4,7 @@
 
 angular.module('opApp').controller('opLayerController',
     function ($rootScope, $scope, $location, $timeout, $window, moment, toaster, L, opConfig, opLayerService, opWebMapService,
-              opWebFeatureService, opStateService, opFilterService, opExportService, opPopupWindow, $log, $sce) {
+              opWebFeatureService, opStateService, opFilterService, opExportService, opPopupWindow, $log) {
         'use strict';
 
         String.prototype.hashCode = function(){
@@ -31,20 +31,12 @@ angular.module('opApp').controller('opLayerController',
          }
        };
 
+       // tell wheether popover is open or closed
        $scope.isOpen = false;
-
-       $scope.$watch($scope.isOpen, function(newVal) {
-         var val = newVal;
-       });
 
        $scope.setTransparency = function(layer, value) {
          layer.mapHandle.setOpacity(value);
        };
-
-        $scope.getPopoverContent = function(input, input2) {
-          var output =  "<button ng-click=\"getLatestData();\" class='btn btn-info center-block' style='margin-bottom:12px;'>Get Latest Data</button>"
-          return output;
-        };
 
         var LayerGroups = function () {
             var self = {};
@@ -711,7 +703,7 @@ angular.module('opApp').controller('opLayerController',
                        value: 100,
                        floor: 0,
                        ceil: 100
-                    }
+                    };
                 }
                 groupLayers(layers, opConfig.recognizedTags);
                 $scope.tags = $scope.tags.concat($scope.layerGroups.getGroupTags());
