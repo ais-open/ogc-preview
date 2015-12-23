@@ -20,6 +20,7 @@ var app = angular.module('opApp', [
     'toaster',
     'ui.bootstrap',
     'ui.select',
+    'rzModule',
     'LocalStorageModule'
 ]);
 

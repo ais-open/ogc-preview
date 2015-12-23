@@ -1,7 +1,7 @@
 {
   "name": "ogc-preview",
   "description": "OGC Preview",
-  "version": "0.5.15",
+  "version": "0.6.3",
   "dependencies": {
     "angular": "1.4.6",
     "angular-animate": "1.4.6",
@@ -10,7 +10,7 @@
     "angular-resource": "1.4.6",
     "angular-route": "1.4.6",
     "angular-sanitize": "1.4.6",
-    "angular-ui-bootstrap-bower": "0.13.4",
+    "angularjs-slider": "~2.3.0",
     "AngularJS-Toaster": "0.4.15",
     "es5-shim": "2.1.0",
     "jquery": "1.10.2",

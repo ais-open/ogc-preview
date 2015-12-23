@@ -294,6 +294,10 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
             updateTemporalFilters();
         });
 
+        $scope.$on('latest-data-button', function(event, times) {
+          $scope.setDateRange(times);
+        });
+
         var updateTemporalFilters = function () {
             /*
              use initializing variable to keep filters from being pushed back out to location causing an endless

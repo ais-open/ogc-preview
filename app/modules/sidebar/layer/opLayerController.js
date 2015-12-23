@@ -4,7 +4,7 @@
 
 angular.module('opApp').controller('opLayerController',
     function ($rootScope, $scope, $location, $timeout, $window, moment, toaster, L, opConfig, opLayerService, opWebMapService,
-              opWebFeatureService, opStateService, opFilterService, opExportService, opPopupWindow, $log) {
+              opWebFeatureService, opStateService, opFilterService, opExportService, opPopupWindow, $log, $sce) {
         'use strict';
 
         String.prototype.hashCode = function(){
@@ -19,6 +19,31 @@ angular.module('opApp').controller('opLayerController',
                 hash = hash & hash; // Convert to 32bit integer
             }
             return hash;
+        };
+        $scope.popOverHtml = '';
+
+        $scope.onTransparencyChange = function(layer) {
+         if(layer.active) {
+             // translate from scale 0-100 to 0-1
+             var value = layer.transparencySlider.value * 0.01;
+            //  console.log('New transparency value for ' + layer.name + ' is : ' + value);
+             $scope.setTransparency(layer, value);
+         }
+       };
+
+       $scope.isOpen = false;
+
+       $scope.$watch($scope.isOpen, function(newVal) {
+         var val = newVal;
+       });
+
+       $scope.setTransparency = function(layer, value) {
+         layer.mapHandle.setOpacity(value);
+       };
+
+        $scope.getPopoverContent = function(input, input2) {
+          var output =  "<button ng-click=\"getLatestData();\" class='btn btn-info center-block' style='margin-bottom:12px;'>Get Latest Data</button>"
+          return output;
         };
 
         var LayerGroups = function () {
@@ -641,6 +666,15 @@ angular.module('opApp').controller('opLayerController',
             }
         });
 
+        $scope.getLatestData = function(layer) {
+          // var test = moment().toString();
+          var stopTime = moment(layer.fields.time.stop.value);
+          // var stopTime = moment(test);
+          var startTime = moment(stopTime).subtract(1, 'd');
+          var times = [startTime, stopTime];
+          $rootScope.$broadcast('latest-data-button', times);
+        };
+
         $scope.updateLayers = function(force, serverName) {
             var server = opStateService.getServer(serverName);
             var previousActiveServerCount = opStateService.getPreviouslyActiveServer().length;
@@ -671,6 +705,13 @@ angular.module('opApp').controller('opLayerController',
                     var hash = hashString.hashCode();
                     layer.uid = hash;
                     layer.legendGraphic = opWebMapService.getLegendGraphicUrl(serverName, layer.workspace + ':' + layer.name);
+
+                    // lets add transparency slider info to each as well
+                    layer.transparencySlider = {
+                       value: 100,
+                       floor: 0,
+                       ceil: 100
+                    }
                 }
                 groupLayers(layers, opConfig.recognizedTags);
                 $scope.tags = $scope.tags.concat($scope.layerGroups.getGroupTags());
