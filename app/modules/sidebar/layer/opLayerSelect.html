@@ -37,7 +37,7 @@
                                 <div class="close" ng-click="$parent.isOpen = false">&times;</div>
                                 Layer: <b>{{layer.title}}</b>
                                 <br>Server: <b>{{layer.server}}</b>
-                                <br/>{{layer.abstract | plainTextToHtml}}<br>
+                                <br/><p ng-bind-html="layer.abstract | plainTextToHtml"></p><br>
                                 <hr />
                                 <p> Opacity: <p>
                                 <rzslider ng-click="stopPropagation();" rz-slider-model='layer.transparencySlider.value' rz-slider-options='{floor: 0, ceil: 100, onChange: onTransparencyChange(layer)}'></rzslider>
