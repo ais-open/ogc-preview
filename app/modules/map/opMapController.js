@@ -432,6 +432,14 @@ angular.module('opApp.map').controller('opMapController',
             drawnCountries = [];
         });
 
+        $rootScope.$on('latest-data-button-zoom', function(event, layer) {
+          var southWest = L.latLng(layer.southBbox, layer.westBbox);
+          var northEast = L.latLng(layer.northBbox, layer.eastBbox);
+          var bounds = L.latLngBounds(southWest, northEast);
+          // max zoom is arbitrary, I didn't want it zooming in all the way and losing context
+          map.fitBounds(bounds, {maxZoom: 5});
+        });
+
         /*
         Convert a mid point and radius (circle) to a polygon of x sides
         @param  origin  Leaflet lat/long object

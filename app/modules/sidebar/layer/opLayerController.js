@@ -665,6 +665,7 @@ angular.module('opApp').controller('opLayerController',
           var startTime = moment(stopTime).subtract(1, 'd');
           var times = [startTime, stopTime];
           $rootScope.$broadcast('latest-data-button', times);
+          $rootScope.$broadcast('latest-data-button-zoom', layer);
         };
 
         $scope.updateLayers = function(force, serverName) {

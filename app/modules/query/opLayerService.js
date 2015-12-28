@@ -352,6 +352,23 @@ angular.module('opApp.query')
                                                 }
                                             }
                                             break;
+                                        case 'EX_GeographicBoundingBox':
+                                          for(var b = 0; b < node.childNodes.length; b++) {
+                                            var childNode = node.childNodes.item(b);
+                                            if(childNode.nodeName === 'westBoundLongitude') {
+                                              layer.westBbox = childNode.textContent;
+                                            }
+                                            if(childNode.nodeName === 'eastBoundLongitude') {
+                                              layer.eastBbox = childNode.textContent;
+                                            }
+                                            if(childNode.nodeName === 'southBoundLatitude') {
+                                              layer.southBbox = childNode.textContent;
+                                            }
+                                            if(childNode.nodeName === 'northBoundLatitude') {
+                                              layer.northBbox = childNode.textContent;
+                                            }
+                                          }
+                                          break;
                                     }
                                 }
                             }
