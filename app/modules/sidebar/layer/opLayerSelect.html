@@ -31,7 +31,7 @@
                      <span class="icons">
                          <div ng-if="layer.active && layer.loading" class="spinner"><div class="spinner-image"></div></div>
 
-                           <button uib-popover-template="'popover.html'" popover-title="" ng-click="stopPropagation();" popover-placement="right" popover-append-to-body="true" popover-is-open="isOpen" type="button" class="btn icon-help" href=""></button>
+                           <button ng-click="refreshSlider();" uib-popover-template="'popover.html'" popover-title="" popover-placement="right" popover-append-to-body="true" popover-is-open="isOpen" type="button" class="btn icon-help" href=""></button>
                            <script id="popover.html" type="text/ng-template">
                               <div>
                                 <div class="close" ng-click="$parent.isOpen = false">&times;</div>
@@ -40,7 +40,7 @@
                                 <br/><p ng-bind-html="layer.abstract | plainTextToHtml"></p><br>
                                 <hr />
                                 <p> Opacity: <p>
-                                <rzslider ng-click="stopPropagation();" rz-slider-model='layer.transparencySlider.value' rz-slider-options='{floor: 0, ceil: 100, onChange: onTransparencyChange(layer)}'></rzslider>
+                                <rzslider rz-slider-model='layer.transparencySlider.value' rz-slider-options='{floor: 0, ceil: 100, onChange: onTransparencyChange(layer)}'></rzslider>
                                 <hr />
                                 <p ng-if="!layer.timeEnabled">This layer does not appear to be time enabled.</p>
                                 <p ng-if="layer.timeEnabled">This layer is time enabled.</p>

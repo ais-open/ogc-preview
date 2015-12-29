@@ -670,6 +670,14 @@ angular.module('opApp').controller('opLayerController',
           $rootScope.$broadcast('latest-data-button-zoom', layer);
         };
 
+        // per https://github.com/angular-slider/angularjs-slider
+        // this forces the slider to render correctly on load.
+        $scope.refreshSlider = function() {
+          $timeout(function () {
+            $scope.$broadcast('rzSliderForceRender');
+          });
+        };
+
         $scope.updateLayers = function(force, serverName) {
             var server = opStateService.getServer(serverName);
             var previousActiveServerCount = opStateService.getPreviouslyActiveServer().length;
