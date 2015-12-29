@@ -44,13 +44,15 @@ angular.module('opApp.results').directive('opResults', function() {
             });
 
             $scope.$on('queryWfsResult', function (e, data){
-                $scope.model.loading = false;
-                $scope.model.kmlUrl = data.kmlUrl;
-                $scope.model.csvUrl = data.csvUrl;
-                $scope.model.shpUrl = data.shpUrl;
-                $scope.model.rssUrl = data.rssUrl;
-                $scope.model.error = data.error;
-                $scope.model.currentData = _.map(data.features, 'properties');
+                if($scope.model.currentTab === data.layer) {
+                    $scope.model.loading = false;
+                    $scope.model.kmlUrl = data.kmlUrl;
+                    $scope.model.csvUrl = data.csvUrl;
+                    $scope.model.shpUrl = data.shpUrl;
+                    $scope.model.rssUrl = data.rssUrl;
+                    $scope.model.error = data.error;
+                    $scope.model.currentData = _.map(data.features, 'properties');
+                }
             });
 
             $scope.$on('mapBoundsChanged', function (){

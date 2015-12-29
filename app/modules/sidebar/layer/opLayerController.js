@@ -289,6 +289,7 @@ angular.module('opApp').controller('opLayerController',
                 (!angular.isDefined(params.cql_filter) || params.cql_filter !== layer.params.cql_filter))) {// jshint ignore:line
                 layer.params = params;
                 layer.mapHandle.setParams(params);
+                $scope.$broadcast('queryWfs', layer);
             }
         };
 
@@ -332,6 +333,7 @@ angular.module('opApp').controller('opLayerController',
                             layer, timeBounds, spatialBounds, server.url + '/wfs');
                         result.rssUrl = exportData(opExportService.createGeoRSSExportRequest,
                             layer, timeBounds, spatialBounds, server.url + '/wfs');
+                        result.layer = layer;
                         opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', result);
                       }
                     },
