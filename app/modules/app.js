@@ -3,6 +3,7 @@ var app = angular.module('opApp', [
     'opApp.sidebar',
     'opApp.sidebar.layer',
     'opApp.sidebar.temporal',
+    'opApp.sidebar.location',
     'opApp.ui',
     'opApp.results',
     'opApp.map',
@@ -14,9 +15,12 @@ var app = angular.module('opApp', [
     'ngSanitize',
     'ngRoute',
     'ngAnimate',
+    'ngFileUpload',
     'restangular',
     'toaster',
     'ui.bootstrap',
+    'ui.select',
+    'rzModule',
     'LocalStorageModule'
 ]);
 

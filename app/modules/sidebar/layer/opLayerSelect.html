@@ -1,4 +1,5 @@
 <div class="section" ng-controller="opLayerController as fbLayerCtrl">
+
     <h4 class="header">
         <a href="" ng-click="layerExpanded = !layerExpanded">
             <span class="icon" ng-bind-html="layerExpanded ? '&#x25bc;' : '&#x25ba;'"></span>
@@ -21,14 +22,34 @@
                <span ng-repeat="group in (groups = layerGroups.getGroups() | tagFilter)" ng-show="isGroupVisible(group.getTag())" >
                  <a ng-if="layerGroups.getCount() > 1" ng-click="group.toggleChecked()" href="" class="check-header">{{ group.getTag() }}</a>
                  <!-- Using ng-if per David Benson - "Bootstrap uses first-child/last-child and potentially has padding issues" -->
-                 <label class="checkbox" ng-repeat="layer in group.getLayers() | orderBy:'title'" ng-if="isLayerVisible(layer.uid) && isHighestPriority(layer.uid)">
+                 <label class="checkbox" ng-repeat="layer in group.getLayers() | orderBy:'title'" ng-if="isLayerVisible(layer.uid)">
                      <!--tooltip-placement="right" tooltip-append-to-body="true" tooltip-html-unsafe="<b>{{layer.title}}</b><br/>{{layer.abstract | plainTextToHtml}}"-->
                      <input type="checkbox" ng-model="layer.active" name="layers" ng-click="datasetStateChanged(layer.uid)"/>
                      <span ng-if="DEBUG" ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}} | {{layer.server}}</span>
-                     <span ng-if="!DEBUG" ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}}</span>
+                     <span ng-if="!DEBUG && isLayerDuped(layer.uid)" ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}} | {{layer.server}}</span>
+                     <span ng-if="!DEBUG && !isLayerDuped(layer.uid)" ng-class="{noData: layer.hasData !== undefined && !layer.hasData }">{{layer.title}}</span>
                      <span class="icons">
                          <div ng-if="layer.active && layer.loading" class="spinner"><div class="spinner-image"></div></div>
-                         <a op-popup="Layer: <b>{{layer.title}}</b><br>Server: <b>{{layer.server}}</b><br/>{{layer.abstract | plainTextToHtml}}<p>Legend:<br/><img src='{{layer.legendGraphic}}' /></p>" href=""><i class="icon-help"></i></a>
+
+                           <button ng-click="refreshSlider();" uib-popover-template="'popover.html'" popover-title="" popover-placement="right" popover-append-to-body="true" popover-is-open="isOpen" type="button" class="btn icon-help" href=""></button>
+                           <script id="popover.html" type="text/ng-template">
+                              <div>
+                                <div class="close" ng-click="$parent.isOpen = false">&times;</div>
+                                Layer: <b>{{layer.title}}</b>
+                                <br>Server: <b>{{layer.server}}</b>
+                                <br/><p ng-bind-html="layer.abstract | plainTextToHtml"></p><br>
+                                <hr />
+                                <p> Opacity: <p>
+                                <rzslider rz-slider-model='layer.transparencySlider.value' rz-slider-options='{floor: 0, ceil: 100, onChange: onTransparencyChange(layer)}'></rzslider>
+                                <hr />
+                                <p ng-if="!layer.timeEnabled">This layer does not appear to be time enabled.</p>
+                                <p ng-if="layer.timeEnabled">This layer is time enabled.</p>
+                                <p ng-if="layer.timeEnabled">Start time: {{layer.fields.time.start.value}}</p>
+                                <p ng-if="layer.timeEnabled">Stop time: {{layer.fields.time.stop.value}}</p>
+                                <button ng-if="layer.timeEnabled" ng-click='getLatestData(layer);' class='btn btn-info center-block' style='margin-bottom:12px;'>Zoom To Latest Day of Data</button>
+                              </div>
+                           </script>
+                         </div>
                      </span>
                  </label>
                </span>

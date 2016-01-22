@@ -4,7 +4,7 @@
 
 
 angular.module('opApp.filters')
-    .filter('plainTextToHtml', function() {
+    .filter('plainTextToHtml', function($sce) {
         'use strict';
 
         return function(plainText) {
@@ -36,6 +36,6 @@ angular.module('opApp.filters')
 
             output = autoLinked.join(' ');
 
-            return output;
+            return $sce.trustAsHtml(output);
         };
     });

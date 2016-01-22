@@ -47,39 +47,27 @@ angular.module('opApp')
             crs: L.CRS.EPSG4326
         },
 
+        // shown above the header banner
         classification: 'UNCLASSIFIED',
 
+        // file/URL location of the User Guide (for header link)
         docLink: 'OGC-Preview User Guide.pptx',
 
-        // Identification of the server(s) providing data layers for use by Feature Browser
-        // order here matters for priority of layers
-        // if multiple geoservers have the same named layer, we will display the one from the server
-        // with the lowest index (highest in this list)
+        // Endpoint for retreiving list of country boundaries in GeoJSON format
+        countryDataUrl: '/config/countries.geo.json',
+        // Endpoint for converting shape files to geoJSON
+        shapeToGeoUrl: 'http://10.3.2.100:8000/shapes/',
+
+        // Identification of the server(s) providing data layers
         servers: [
             {
-                url: '/geoserver',
-                ajaxUrl: '/geoserver',
+                url: 'http://demo.boundlessgeo.com/geoserver',
+                ajaxUrl: 'http://demo.boundlessgeo.com/geoserver',
                 name: 'prod',
                 wmsVersion: '1.3.0',
                 wfsVersion: '1.0.0',
-                wfsOutputFormat: 'text/xml; subtype=gml/3.1.1',
+                wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
             },
-            {
-                url: '/geoserver',
-                ajaxUrl: '/geoserver',
-                name: 'beta',
-                wmsVersion: '1.3.0',
-                wfsVersion: '1.0.0',
-                wfsOutputFormat: 'text/xml; subtype=gml/3.1.1',
-            },
-            {
-                url: '/geoserver',
-                ajaxUrl: '/geoserver',
-                name: 'dev',
-                wmsVersion: '1.3.0',
-                wfsVersion: '1.0.0',
-                wfsOutputFormat: 'text/xml; subtype=gml/3.1.1',
-            }
         ],
 
         // Used to make intelligent guesses as to what time fields are available
@@ -95,11 +83,12 @@ angular.module('opApp')
         // Cap value for features returned by WMS tile set per layer
         wmsFeatureLimiter : 10000,
         wfsFeatureLimiter : 1000,
-        // 2 minutes cache period on all layers
+        // 2 minutes cache period on all layers (cache period in seconds)
         cachePeriod: 60 * 2,
-        // 2 minutes cache period for layer metadata
+        // 2 minutes cache period for layer metadata (cache period in seconds)
         layerCachePeriod: 60 * 2,
 
+        // time filtering configuration
         maxDaysBack: 14,
         defaultDaysBack : 1,
 
@@ -115,7 +104,8 @@ angular.module('opApp')
         // If a tag cannot be found for any layer it is not added as a selection.
         // Order is important as that is the order they will be rendered in layer control.
         recognizedTags: [ 'MODIS', 'VIIRS', 'TOPP' ],
-        
+
+        // helper function for gulp that bumps version numbers up with each build
         getVersion: function(){
           return $http({ method: 'GET', url: 'config/version.json', timeout: 50000}).then(function (result) {
               return result.data;

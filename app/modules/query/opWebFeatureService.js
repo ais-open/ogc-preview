@@ -6,7 +6,7 @@
 
 angular.module('opApp.query')
     .service('opWebFeatureService',
-    function ($q, $http, opConfig, opStateService, $log) {
+    function ($q, $http, opConfig, opStateService, $log, toaster, opPopupWindow) {
         'use strict';
 
         // Using WFS 1.1.0 for the very specific reason, that 2.0.0 always runs full table scan to get feature counts.
@@ -127,7 +127,26 @@ angular.module('opApp.query')
             var typeName = workspace + ':' + name;
             var serviceParams = angular.extend({ version: wfsVersion, request: 'GetFeature', typeName: typeName }, params);
 
-            $http.get(ajaxUrl, {params: serviceParams, cache:true }).then(
+            // changed to POST request as our GET requests would sometimes exceed
+            // the max characters allowed in a URL.
+            $http({
+              method: 'POST',
+              url: ajaxUrl,
+              headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+              // we are overriding the transformRequest function to convert our POST
+              // data to urlencoded data as GeoServer requires this format for
+              // POSTs to work properly.
+              transformRequest: function(obj) {
+                var str = [];
+                for(var p in obj) {
+                  if(obj.hasOwnProperty(p)) {
+                    str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+                  }
+                }
+                return str.join('&');
+              },
+              data: serviceParams
+            }).then(
                 function (result) {
                     $log.log('Successfully retrieved GetFeature result.');
                     deferred.resolve(result);
@@ -136,7 +155,7 @@ angular.module('opApp.query')
                     // error
                     $log.log('Error retrieving GetFeature result');
                     deferred.reject(reason);
-                });
+            });
 
             return deferred.promise;
         };
@@ -196,10 +215,17 @@ angular.module('opApp.query')
                         deferred.resolve(json);
                     }
                     else {
-                        $log.log(params);
-                        var error = 'Unable to find any features in ' + workspace + ':' + name +  ' with params: ' + JSON.stringify(params);
-                        $log.log(error);
-                        deferred.resolve(json);
+                      if(result.data.indexOf('ServiceException') > -1) {
+                        var errorString = xmlDoc.getElementsByTagNameNS('*', 'ServiceException')[0].childNodes[0].textContent;
+                        var logError = 'GeoServer returned an exception (error) on this layer: ' + name + '. Error returned: ' + errorString + '. Please have someone investigate this layer.';
+                        opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', {error: logError});
+                        $log.log(logError);
+                        deferred.resolve(result);
+                      }
+                      $log.log(params);
+                      var error = 'Unable to find any features in ' + workspace + ':' + name +  ' with params: ' + JSON.stringify(params);
+                      $log.log(error);
+                      deferred.resolve(json);
                     }
                 },
                 function (reason) {
@@ -315,10 +341,10 @@ angular.module('opApp.query')
                         }
                     }
                     else {
-                        var error = 'Unable to find value of expected field: ' + field;
-                        error += ' This is likely a result of layer having no records.';
-                        $log.log(error);
-                        deferred.reject(error);
+                      var error = 'Unable to find value of expected field: ' + field;
+                      error += ' This is likely a result of layer having no records.';
+                      $log.log(error);
+                      deferred.reject(error);
                     }
                 },
                 function (reason) {

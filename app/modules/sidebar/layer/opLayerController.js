@@ -20,6 +20,23 @@ angular.module('opApp').controller('opLayerController',
             }
             return hash;
         };
+        $scope.popOverHtml = '';
+
+        $scope.onTransparencyChange = function(layer) {
+         if(layer.active) {
+             // translate from scale 0-100 to 0-1
+             var value = layer.transparencySlider.value * 0.01;
+            //  console.log('New transparency value for ' + layer.name + ' is : ' + value);
+             $scope.setTransparency(layer, value);
+         }
+       };
+
+       // tell wheether popover is open or closed
+       $scope.isOpen = false;
+
+       $scope.setTransparency = function(layer, value) {
+         layer.mapHandle.setOpacity(value);
+       };
 
         var LayerGroups = function () {
             var self = {};
@@ -272,13 +289,14 @@ angular.module('opApp').controller('opLayerController',
                 (!angular.isDefined(params.cql_filter) || params.cql_filter !== layer.params.cql_filter))) {// jshint ignore:line
                 layer.params = params;
                 layer.mapHandle.setParams(params);
+                $scope.$broadcast('queryWfs', layer);
             }
         };
 
-        var exportData = function (exportGenerator, layer, bounds, spatialBounds, crs, url) {
+        var exportData = function (exportGenerator, layer, bounds, spatialBounds, url) {
             //var bounds = opStateService.getTimeBoundsFromTemporalFilter();
             if (angular.isDefined(layer.active) && layer.active !== null && layer.active) {
-                var params = exportGenerator(layer, bounds[0], bounds[1], spatialBounds, crs);
+                var params = exportGenerator(layer, bounds[0], bounds[1], spatialBounds);
 
                 return url + '?' + $.param(params);
             }
@@ -287,31 +305,47 @@ angular.module('opApp').controller('opLayerController',
         // watch for wfs query from popup window, this could be refactored somewhere else.
         $scope.$on('queryWfs', function(e, layer) {
             var timeBounds = opStateService.getTimeBoundsFromTemporalFilter();
-            var mapBounds = $scope.map.getFilterBounds();
-            var spatialBounds;
+            //var mapBounds = $scope.map.getFilterBounds();
+            var boundsAsWKT = $scope.map.getFilterBounds();
+            //var spatialBounds;
 
-            if (mapBounds.isValid() && angular.isDefined(layer) && angular.isDefined(layer.active) && layer.active !== null && layer.active && layer.fields.geometry) {
-                spatialBounds = mapBounds.toBBoxString();
+            var spatialBounds = boundsAsWKT;
+
+            //if (mapBounds.isValid() && angular.isDefined(layer) && angular.isDefined(layer.active) && layer.active !== null && layer.active && layer.fields.geometry) {
+            if (boundsAsWKT !== '' && angular.isDefined(boundsAsWKT) && angular.isDefined(layer) && angular.isDefined(layer.active) && layer.active !== null && layer.active && layer.fields.geometry) {
+                //spatialBounds = mapBounds.toBBoxString();
                 var epsgCode = opStateService.getLeafletMapCRS();
-                var filter = opFilterService.createWfsBBoxFilterRequestForLayer(layer, timeBounds[0], timeBounds[1],
-                    spatialBounds, epsgCode);
+                //var filter = opFilterService.createWfsBBoxFilterRequestForLayer(layer, timeBounds[0], timeBounds[1],
+                //    spatialBounds, epsgCode);
+                var filter = opFilterService.createWfsIntersectsFilterRequestForLayer(layer, timeBounds[0], timeBounds[1],
+                    spatialBounds);
 
                 var server = opStateService.getServer(layer.server);
-                opLayerService.getFilteredJsonFeatures(layer, filter).then(
-                    function(result){
+                opLayerService.getFilteredJsonFeatures(layer, filter, epsgCode).then(
+                    function(result) {
+                      // data key should not exist
+                      if(!result.data) {
                         result.kmlUrl = exportData(opExportService.createKmlExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wms/kml');
+                            layer, timeBounds, spatialBounds, server.url + '/wms/kml');
                         result.csvUrl = exportData(opExportService.createCsvExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wfs');
+                            layer, timeBounds, spatialBounds, server.url + '/wfs');
                         result.shpUrl = exportData(opExportService.createShapefileExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wfs');
+                            layer, timeBounds, spatialBounds, server.url + '/wfs');
                         result.rssUrl = exportData(opExportService.createGeoRSSExportRequest,
-                            layer, timeBounds, spatialBounds, epsgCode, server.url + '/wfs');
+                            layer, timeBounds, spatialBounds, server.url + '/wfs');
+                        result.layer = layer;
                         opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', result);
+                      }
                     },
                     function(reason){ $log.log(reason); });
-            }else{
+            } else {
+              if(layer.raster) {
+                var logError = 'Is this layer a raster?  If so, no feature data is available.';
+                opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', {error: logError});
+              } else {
                 opPopupWindow.broadcast( opStateService.getResultsWindow(), 'queryWfsResult', {error: 'nobbox'});
+              }
+
             }
         });
 
@@ -372,6 +406,17 @@ angular.module('opApp').controller('opLayerController',
             return true;
         };
 
+        $scope.isLayerDuped = function(layerUid) {
+            var layer = getLayerByUid($scope.layers, layerUid);
+            for(var i = 0; i < $scope.layers.length; i++) {
+                if(layer.title === $scope.layers[i].title && layer.server !== $scope.layers[i].server) {
+                    // layer is duped
+                    return true;
+                }
+            }
+            return false;
+        };
+
         $scope.isGroupVisible = function(groupTag) {
             if ($scope.filter === '') {
                 return true;
@@ -395,7 +440,8 @@ angular.module('opApp').controller('opLayerController',
 
         $scope.datasetStateChanged = function (layerUid) {
             var layer = getLayerByUid($scope.layers, layerUid);
-            if (layer.active && layer.mapHandle !== null && layer.mapHandle !== undefined){
+            // layer.active gets set by checkbox before this code executes
+            if (!layer.active && layer.mapHandle !== null && layer.mapHandle !== undefined){
                 $log.log('disabling already enabled layer: \'' + layer.name + '\'');
                 removeLayer(layer);
 
@@ -432,15 +478,18 @@ angular.module('opApp').controller('opLayerController',
                             $log.log('Time values identified. ' +
                                 'Start: \'' + result.time.start.value + '\', ' +
                                 'Stop: \'' + result.time.stop.value + '\'');
+                            layer.timeEnabled = true;
                         }
                         else {
                             $log.log('Time values were not identified as layer is not configured for WMS time');
+                            layer.timeEnabled = false;
                         }
                     }
                 },
                 function (reason) {
                     $log.log('Couldn\'t identify time values for this layer... how embarrassing: ' + reason);
                     toaster.pop('note', 'Date/Time', 'Unable to detect time fields for layer \'' + layer.title + '\'.  Date/Time filtering will not be applied to this layer.');
+                    layer.timeEnabled = false;
                 }
             )
                 /* Regardless of time enablement, add layer to the map.  We are chaining behind time checking to ensure
@@ -611,6 +660,24 @@ angular.module('opApp').controller('opLayerController',
             }
         });
 
+        $scope.getLatestData = function(layer) {
+          // var test = moment().toString();
+          var stopTime = moment(layer.fields.time.stop.value);
+          // var stopTime = moment(test);
+          var startTime = moment(stopTime).subtract(1, 'd');
+          var times = [startTime, stopTime];
+          $rootScope.$broadcast('latest-data-button', times);
+          $rootScope.$broadcast('latest-data-button-zoom', layer);
+        };
+
+        // per https://github.com/angular-slider/angularjs-slider
+        // this forces the slider to render correctly on load.
+        $scope.refreshSlider = function() {
+          $timeout(function () {
+            $scope.$broadcast('rzSliderForceRender');
+          });
+        };
+
         $scope.updateLayers = function(force, serverName) {
             var server = opStateService.getServer(serverName);
             var previousActiveServerCount = opStateService.getPreviouslyActiveServer().length;
@@ -641,6 +708,13 @@ angular.module('opApp').controller('opLayerController',
                     var hash = hashString.hashCode();
                     layer.uid = hash;
                     layer.legendGraphic = opWebMapService.getLegendGraphicUrl(serverName, layer.workspace + ':' + layer.name);
+
+                    // lets add transparency slider info to each as well
+                    layer.transparencySlider = {
+                       value: 100,
+                       floor: 0,
+                       ceil: 100
+                    };
                 }
                 groupLayers(layers, opConfig.recognizedTags);
                 $scope.tags = $scope.tags.concat($scope.layerGroups.getGroupTags());
@@ -648,7 +722,7 @@ angular.module('opApp').controller('opLayerController',
 
             }, function (reason) {
                 $scope.layersLoading = false;
-                toaster.pop('error', 'Configuration Error', 'Unable to retrieve layers... is your GeoServer running?\n' + reason);
+                toaster.pop('error', 'Configuration Error', 'Unable to retrieve layers... is your GeoServer running? Error: ' + JSON.stringify(reason));
             }).
               then(function() {
                   updateLayerSelections(serverName);

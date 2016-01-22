@@ -172,6 +172,11 @@ angular.module('opApp')
             return parseBBoxIntoBounds(bounds);
         };
 
+        this.newGetAttributeBounds = function() {
+            var bounds = this.getState(bboxId);
+            return bounds;
+        };
+
         this.setBounds = function(bounds) {
             mapState[boundsId] = bounds.toBBoxString();
         };
@@ -188,6 +193,69 @@ angular.module('opApp')
                     serializeState();
                 }
             }
+        };
+
+        this.setAttributeBBoxText = function(bounds) {
+            if (bounds) {
+                mapState[bboxId] = bounds;
+                debounceBroadcast('bounds-text-updated', bounds);
+            }
+            else {
+                debounceBroadcast('bounds-text-updated','');
+                delete mapState[bboxId];
+                // If bbox is on the query string remove it when cancels happen
+                if (state[bboxId]){
+                    delete state[bboxId];
+                    serializeState();
+                }
+            }
+        };
+
+        this.setAttributeBBoxCurrentBounds = function() {
+            debounceBroadcast('bounds-current-bounds');
+        };
+
+        this.setAttributeBBoxCountry = function(geoJsonBounds, countryBboxList) {
+            if(countryBboxList) {
+              mapState[bboxId] = countryBboxList;
+            }
+            // dont use debounce broadcast here
+            $rootScope.$broadcast('bounds-country-bounds', geoJsonBounds);
+        };
+
+        this.setAttributeBBoxFile = function(geoJsonBounds) {
+          $rootScope.$broadcast('bounds-file-bounds', geoJsonBounds);
+        };
+
+        this.removeAttributeBBoxCountry = function(bounds) {
+          var countryList = mapState[bboxId];
+          var country = bounds.id;
+
+          if(countryList.indexOf(country) > -1) {
+            // exists
+            var countryIdent = 'country:';
+            var countryString = countryList.substring(countryIdent.length,countryList.length);
+            var countries = countryString.split(',');
+            countries.splice(countryString.indexOf(country), 1);
+            var newString = countryIdent + countries.join(',');
+            // if we end up deleting the last country, remove bbox from our state
+            if(newString === countryIdent) {
+              delete mapState[bboxId];
+              if (state[bboxId]){
+                delete state[bboxId];
+                serializeState();
+              }
+            } else {
+              mapState[bboxId] = newString;
+            }
+          }
+            debounceBroadcast('remove-country-bounds', bounds);
+        };
+
+        this.setAttributeBboxPolyCircle = function(circleString) {
+          if(circleString) {
+            mapState[bboxId] = circleString;
+          }
         };
 
         this.getPermalink = function() {
@@ -317,8 +385,8 @@ angular.module('opApp')
 
             // Duration handling
             if (filter.type === 'duration') {
-                stopTime = moment().endOf('hour');
-                startTime = moment(stopTime).subtract(filter.interval, filter.value).startOf('hour');
+                stopTime = moment().endOf('hour').utc();
+                startTime = moment(stopTime).subtract(filter.interval, filter.value).startOf('hour').utc();
             }
             // Range handling
             else if (filter.type === 'range') {
@@ -412,6 +480,7 @@ angular.module('opApp')
             }
             else if (angular.isDefined(bboxValue) && lastBBoxBounds !== bboxValue) {
                 lastBBoxBounds = bboxValue;
+                debounceBroadcast('bounds-from-route', bboxValue);
                 debounceBroadcast('map-state-updated');
             }
             else if (angular.isDefined(datasetsValue) && lastDatasetsValue !== datasetsValue) {
@@ -558,6 +627,9 @@ angular.module('opApp')
             $timeout(function(){
                 $rootScope.$broadcast('servers-updated', [serversToTurnOn, serversToTurnOff]);
             }, 500);
+
+            // after turning on active servers, cache our state of servers on
+            previousActiveServer = activeServer;
 
         };
     }

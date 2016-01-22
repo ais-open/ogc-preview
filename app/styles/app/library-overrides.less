@@ -1,0 +1,7 @@
+// seems to be a small bug in ui-select that makes the search box have a
+// really tiny width (like 10px) until you click elsewhere in the app which
+// forces some update to happen and makes the width 100%.  Here I'm just forcing
+// this to happen right away
+.ui-select-multiple input.ui-select-search {
+    width: 100% !important;
+}

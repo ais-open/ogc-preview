@@ -92,7 +92,7 @@ angular.module('opApp.query')
          *
          * NOTE: time value will be unset if layer is not time enabled
          *
-         * 
+         *
          {
             fields: {
                 time: {
@@ -146,11 +146,12 @@ angular.module('opApp.query')
             }
 
             /*
-            There are 3 types of layers we are concerned with identifying:
+            There are 4 types of layers we are concerned with identifying:
 
              No time fields at all
              Time fields but not WMS TIME enabled
              Time fields WITH WMS TIME enabled
+             Raster layers without known time fields, but temporally enabled via WMS TIME
              */
             opWebFeatureService.extractFieldsAndTypes(layer.server, layer.name, layer.workspace).then(
                 function (fields) {
@@ -195,12 +196,16 @@ angular.module('opApp.query')
                     deferred.resolve(layer.fields);
                 },
                 function (reason) {
-                    layer.fields = { time: null, geometry: null };
+                    // Disabling the forced override that happens for geometry and time fields.
+                    // This is to allow time-enabled raster mosaics to function.
+                    //layer.fields = { time: null, geometry: null };
                     self.setFieldCache(layer, layer.fields);
+                    layer.raster = true;
 
                     $log.log('Unable to determine field types: ' + reason);
+                    deferred.resolve(reason);
                     $log.log('Assuming raster layer.');
-                    deferred.resolve(layer.fields);
+                    // deferred.resolve(layer.fields);
                 });
 
             return deferred.promise;
@@ -208,7 +213,7 @@ angular.module('opApp.query')
 
         /**
          * Query a layer to determine if any data is present given temporal and spatial domains.
-         * 
+         *
          * @param layer object containing at minimum 'name', 'workspace' and 'time' properties
          * @param startBound begin time of temporal filter
          * @param endBound end time of temporal filter
@@ -226,9 +231,11 @@ angular.module('opApp.query')
          * @param filters
          * @returns {*}
          */
-        this.getFilteredJsonFeatures = function (layer, filters) {
+        this.getFilteredJsonFeatures = function (layer, filters, srs) {
+            // return opWebFeatureService.getFilteredJsonFeatures(layer.server, layer.name, layer.workspace, layer.fields,
+            //     filters, {maxFeatures: opConfig.wfsFeatureLimiter, srsName: 'EPSG:4326'});
             return opWebFeatureService.getFilteredJsonFeatures(layer.server, layer.name, layer.workspace, layer.fields,
-                filters, {maxFeatures: opConfig.wfsFeatureLimiter, srsName: 'EPSG:4326'});
+                filters, {maxFeatures: opConfig.wfsFeatureLimiter, srsName: srs});
         };
 
         /**
@@ -345,6 +352,23 @@ angular.module('opApp.query')
                                                 }
                                             }
                                             break;
+                                        case 'EX_GeographicBoundingBox':
+                                          for(var b = 0; b < node.childNodes.length; b++) {
+                                            var childNode = node.childNodes.item(b);
+                                            if(childNode.nodeName === 'westBoundLongitude') {
+                                              layer.westBbox = childNode.textContent;
+                                            }
+                                            if(childNode.nodeName === 'eastBoundLongitude') {
+                                              layer.eastBbox = childNode.textContent;
+                                            }
+                                            if(childNode.nodeName === 'southBoundLatitude') {
+                                              layer.southBbox = childNode.textContent;
+                                            }
+                                            if(childNode.nodeName === 'northBoundLatitude') {
+                                              layer.northBbox = childNode.textContent;
+                                            }
+                                          }
+                                          break;
                                     }
                                 }
                             }

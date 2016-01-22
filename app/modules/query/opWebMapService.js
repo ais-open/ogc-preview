@@ -21,8 +21,13 @@ angular.module('opApp.query')
             var version = server.wmsVersion;
 
             $log.log('Requesting capabilities from server ' + server.name);
+
             var params = { version: version, request: 'GetCapabilities' };
             var url = server.ajaxUrl + '/wms';
+            if(!!server.getCapabilitiesUrl) {
+              url = server.getCapabilitiesUrl;
+            }
+
             $http.get(url, { params: params }).then(function (result) {
                 $log.log('Successfully retrieved GetCapabilities result.');
                 deferred.resolve(result);

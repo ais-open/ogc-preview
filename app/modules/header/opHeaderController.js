@@ -33,13 +33,6 @@ angular.module('opApp.header').controller('opHeaderController',
         $scope.openResults = function (){
             opPopupWindow.showPopup('results.html');
         };
-        $scope.drawStart = function (){
-            $rootScope.$broadcast('drawStart');
-            $scope.isDrawing = true;
-        };
-        $scope.drawClear = function (){
-            $rootScope.$broadcast('drawClear');
-        };
 
         $scope.showBookmark = function () {
             $scope.bamfLink = opStateService.getPermalink();
@@ -149,17 +142,10 @@ angular.module('opApp.header').controller('opHeaderController',
             }
             return link;
         };
- 
+
         $scope.showAbout = function() {
             $modal.open({
                 templateUrl: 'modules/header/opAbout.html',
-                windowClass: 'small-modal'
-            });
-        };
-
-        $scope.showFeedback = function () {
-            $modal.open({
-                templateUrl: 'modules/header/opFeedback.html',
                 windowClass: 'small-modal'
             });
         };
@@ -171,13 +157,6 @@ angular.module('opApp.header').controller('opHeaderController',
         $scope.$on('announcementsChanged', function (e, messages, enabled) {
             $scope.announcementCount = messages.length;
             $scope.announcementsEnabled = enabled;
-        });
-
-
-        $scope.$on('mapBoundsChanged', function(){
-            $timeout(function() {
-                $scope.isDrawing = false;
-            });
         });
 
         $scope.$on('filters-updated', function() {

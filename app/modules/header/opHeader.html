@@ -15,8 +15,6 @@
         <!--</ul>-->
         <!--<ul class="nav navbar-nav">-->
             <li><a href="" ng-click="openResults();">View Attributes</a></li>
-            <li><a href="" ng-class="{active: isDrawing}" ng-click="drawStart();" tooltip="Select Region" tooltip-placement="bottom"><i class="map-icon icon-square"></i></a></li>
-            <li><a href="" ng-click="drawClear();"  tooltip="Clear Selection" tooltip-placement="bottom"><i class="map-icon icon-x"></i></a></li>
             <li><a href="" ng-click="showBookmark();" tooltip="Bookmark" tooltip-placement="bottom"><i class="icon-lg icon-theme-lg-link"></i></a></li>
             <li><a href="" ng-if="!kmlEnabled" tooltip-html-unsafe="<div style='white-space: nowrap'>No layers selected</div>" tooltip-placement="bottom"><i class="export export-kml-nohover"></i></a></li>
             <li><a href="" ng-click="showKmlLink();" ng-if="kmlEnabled && !kmlSingleServer" tooltip-html-unsafe="<div style='min-width: 100px'>Create KML from enabled layers</div>" tooltip-placement="bottom"><i class="export export-kml"></i></a></li>
@@ -24,8 +22,7 @@
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <li><a href="{{docLink}}" target="_blank">User Guide</a></li>
-            <li><a href="" ng-click="showAbout()">About</a></li>
-            <li><a href="" ng-click="showFeedback()">Feedback [+]</a></li>
+            <li><a href="" ng-click="showAbout()">Help</a></li>
             <li ng-if="announcementCount > 0">
                 <a href="" ng-click="showAnnouncements()">News <span ng-if="announcementCount > 0" ng-class="{'news-text': announcementsEnabled, 'news-symbol': !announcementsEnabled}">{{announcementCount}}</span></a>
             </li>
