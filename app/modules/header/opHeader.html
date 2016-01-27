@@ -5,12 +5,12 @@
     <div class="application-logo"></div>
     <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav server-list" style="margin-left:80px;">
-            <li class="server-list" ng-repeat="server in servers" ng-class="{active: server.active}">
+            <li class="server-list" ng-repeat="server in servers" ng-style="DEBUG && {'padding-right': '15px'}" ng-class="{active: server.active}">
                 <a ng-click="toggleServer($index)" href="" >
                     {{server.name}}
                 </a>
-                <div ng-if="server.loading" class="server-loading-spinner"></div>
-                <div ng-click="refreshServer($index)" ng-if="!server.loading" class="server-refresh glyphicon glyphicon-refresh"></div>
+                <div ng-if="server.loading && DEBUG" class="server-loading-spinner"></div>
+                <div ng-if="!server.loading && DEBUG" ng-click="refreshServer($index)" class="server-refresh glyphicon glyphicon-refresh"></div>
             </li>
         <!--</ul>-->
         <!--<ul class="nav navbar-nav">-->

@@ -20,6 +20,7 @@ angular.module('opApp.header').controller('opHeaderController',
         $scope.kmlSingleServer = false;
         $scope.KmlLayers = [];
         $scope.KmlServers = [];
+        $scope.DEBUG = opStateService.isDebug();
 
         $scope.isActive = function (viewLocation) {
             return viewLocation === $location.path();
