@@ -1,30 +1,42 @@
-<div class="classification"><a href="" ng-click="showSecurityBanner()">About</a> | This page contains dynamic content -- Highest Possible Classification is {{classification}}</div>
+<div class="classification"><a href="" ng-click="showSecurityBanner()">About</a> | This page contains dynamic content --
+    Highest Possible Classification is {{classification}}
+</div>
 <op-announcements></op-announcements>
 <div class="navbar navbar-inverse navbar-fixed-top" ng-class="{'announcements-enabled': announcementsEnabled}">
 
     <div class="application-logo"></div>
     <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav server-list" style="margin-left:80px;">
-            <li class="server-list" ng-repeat="server in servers" ng-style="DEBUG && {'padding-right': '15px'}" ng-class="{active: server.active}">
-                <a ng-click="toggleServer($index)" href="" >
+            <li class="server-list" ng-repeat="server in servers" ng-style="DEBUG && {'padding-right': '15px'}"
+                ng-class="{active: server.active}">
+                <a ng-click="toggleServer($index)" href="">
                     {{server.name}}
                 </a>
                 <div ng-if="server.loading && DEBUG" class="server-loading-spinner"></div>
-                <div ng-if="!server.loading && DEBUG" ng-click="refreshServer($index)" class="server-refresh glyphicon glyphicon-refresh"></div>
+                <div ng-if="!server.loading && DEBUG" ng-click="refreshServer($index)"
+                     class="server-refresh glyphicon glyphicon-refresh"></div>
             </li>
-        <!--</ul>-->
-        <!--<ul class="nav navbar-nav">-->
+            <!--</ul>-->
+            <!--<ul class="nav navbar-nav">-->
             <li><a href="" ng-click="openResults();">View Attributes</a></li>
-            <li><a href="" ng-click="showBookmark();" tooltip="Bookmark" tooltip-placement="bottom"><i class="icon-lg icon-theme-lg-link"></i></a></li>
-            <li><a href="" ng-if="!kmlEnabled" tooltip-html-unsafe="<div style='white-space: nowrap'>No layers selected</div>" tooltip-placement="bottom"><i class="export export-kml-nohover"></i></a></li>
-            <li><a href="" ng-click="showKmlLink();" ng-if="kmlEnabled && !kmlSingleServer" tooltip-html-unsafe="<div style='min-width: 100px'>Create KML from enabled layers</div>" tooltip-placement="bottom"><i class="export export-kml"></i></a></li>
-            <li><a href="{{kmlLink}}" ng-if="kmlEnabled && kmlSingleServer" tooltip-html-unsafe="<div style='min-width: 100px'>Create KML from enabled layers</div>" tooltip-placement="bottom"><i class="export export-kml"></i></a></li>
+            <li><a href="" ng-click="showBookmark();" tooltip="Bookmark" tooltip-placement="bottom"><i
+                    class="icon-lg icon-theme-lg-link"></i></a></li>
+            <li><a href="" ng-if="!kmlEnabled"
+                   tooltip-html-unsafe="<div style='white-space: nowrap'>No layers selected</div>"
+                   tooltip-placement="bottom"><i class="export export-kml-nohover"></i></a></li>
+            <li><a href="" ng-click="showKmlLink();" ng-if="kmlEnabled && !kmlSingleServer"
+                   tooltip-html-unsafe="<div style='min-width: 100px'>Create KML from enabled layers</div>"
+                   tooltip-placement="bottom"><i class="export export-kml"></i></a></li>
+            <li><a href="{{kmlLink}}" ng-if="kmlEnabled && kmlSingleServer"
+                   tooltip-html-unsafe="<div style='min-width: 100px'>Create KML from enabled layers</div>"
+                   tooltip-placement="bottom"><i class="export export-kml"></i></a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <li><a href="{{docLink}}" target="_blank">User Guide</a></li>
             <li><a href="" ng-click="showAbout()">Help</a></li>
             <li ng-if="announcementCount > 0">
-                <a href="" ng-click="showAnnouncements()">News <span ng-if="announcementCount > 0" ng-class="{'news-text': announcementsEnabled, 'news-symbol': !announcementsEnabled}">{{announcementCount}}</span></a>
+                <a href="" ng-click="showAnnouncements()">News <span ng-if="announcementCount > 0"
+                                                                     ng-class="{'news-text': announcementsEnabled, 'news-symbol': !announcementsEnabled}">{{announcementCount}}</span></a>
             </li>
         </ul>
     </div>

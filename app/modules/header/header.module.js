@@ -1,1 +1,1 @@
-angular.module('opApp.header',[]);
+angular.module('opApp.header', []);

@@ -20,7 +20,7 @@ angular.module('opApp.header')
          * @param val   time
          * @returns {*}
          */
-        var storedMin = function(val) {
+        var storedMin = function (val) {
             if (val !== undefined) {
                 localStorageService.set('announcementMin', val);
                 minTime = moment(val);
@@ -36,7 +36,7 @@ angular.module('opApp.header')
          * @param val   time
          * @returns {*}
          */
-        var storedMax = function(val) {
+        var storedMax = function (val) {
             if (val !== undefined) {
                 localStorageService.set('announcementMax', val);
                 maxTime = moment(val);
@@ -55,7 +55,11 @@ angular.module('opApp.header')
          * @returns {*}
          */
         self.getAnnouncements = function () {
-            return $http({ method: 'GET', url: 'config/announcements.json?_=' + moment().valueOf(), timeout: 50000}).then(function (result) {
+            return $http({
+                method: 'GET',
+                url: 'config/announcements.json?_=' + moment().valueOf(),
+                timeout: 50000
+            }).then(function (result) {
                 return result.data;
             });
         };
@@ -79,7 +83,7 @@ angular.module('opApp.header')
                 }).sortBy('pubdate').reverse().value();
 
                 // Adjust all the message attributes for display
-                self.messages = _.each(self.messages, function(msg) {
+                self.messages = _.each(self.messages, function (msg) {
                     msg.title = msg.title || 'Attention';
 
                     if (msg.category) {
@@ -89,7 +93,7 @@ angular.module('opApp.header')
                     }
 
                     if (msg.state === 'failure') {
-                        msg.icon= 'exclaim';
+                        msg.icon = 'exclaim';
                     } else if (msg.state === 'success') {
                         msg.icon = 'checkmark';
                     } else {
@@ -123,7 +127,7 @@ angular.module('opApp.header')
         };
 
         // Use local storage to figure out which messages have been viewed
-        self.save = function() {
+        self.save = function () {
             if (!self.messages.length) {
                 return;
             }
@@ -144,7 +148,7 @@ angular.module('opApp.header')
         };
 
         // Load the static announcement data at startup
-        $timeout(function() {
+        $timeout(function () {
             self.load();
-        },100); // Delaying IE to load scripts and give a chance to attach listeners
+        }, 100); // Delaying IE to load scripts and give a chance to attach listeners
     });

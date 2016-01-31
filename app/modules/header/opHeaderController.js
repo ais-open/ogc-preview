@@ -34,7 +34,7 @@ angular.module('opApp.header').controller('opHeaderController',
         /**
          * Open the results popup
          */
-        $scope.openResults = function (){
+        $scope.openResults = function () {
             opPopupWindow.showPopup('results.html');
         };
 
@@ -59,12 +59,12 @@ angular.module('opApp.header').controller('opHeaderController',
 
             // gross?
             var val = opStateService.getDatasets();
-            for(var i = 0; i < val.length; i++) {
+            for (var i = 0; i < val.length; i++) {
                 var splitVals = val[i].split(':');
                 var server = splitVals[0];
                 var layer = splitVals[2];
                 var serverIndex = servers.indexOf(server);
-                if(serverIndex === -1) {
+                if (serverIndex === -1) {
                     servers.push(server);
                     serverIndex = servers.indexOf(server);
                     layers[serverIndex].push(layer);
@@ -76,7 +76,7 @@ angular.module('opApp.header').controller('opHeaderController',
             $scope.KmlLayers = layers;
             $scope.KmlServers = servers;
             var serverCount = servers.length;
-            for(var j = 0; j < serverCount; j++) {
+            for (var j = 0; j < serverCount; j++) {
                 $scope.kmlLinks[j] = $scope.buildKmlLink($scope.KmlServers[j]);
             }
             $modal.open({
@@ -89,7 +89,7 @@ angular.module('opApp.header').controller('opHeaderController',
          * @param serverNum     number as defined in the opConfig
          * @returns {*}
          */
-        $scope.getLayersForServer = function(serverNum) {
+        $scope.getLayersForServer = function (serverNum) {
             return $scope.KmlLayers[serverNum];
         };
 
@@ -97,7 +97,7 @@ angular.module('opApp.header').controller('opHeaderController',
          * Force a refresh of a server's data
          * @param server    server to refresh
          */
-        $scope.refreshServer = function(server) {
+        $scope.refreshServer = function (server) {
             var serverData = $scope.servers[server];
             $rootScope.$broadcast('refresh-server', serverData);
         };
@@ -105,7 +105,7 @@ angular.module('opApp.header').controller('opHeaderController',
         /**
          * Get the version number of the app
          */
-        opConfig.getVersion().then(function (data){
+        opConfig.getVersion().then(function (data) {
             $scope.version = data;
         });
 
@@ -114,7 +114,7 @@ angular.module('opApp.header').controller('opHeaderController',
          * @param serverName    server name
          * @returns {string}
          */
-        $scope.buildKmlLink = function(serverName) {
+        $scope.buildKmlLink = function (serverName) {
             var val = opStateService.getDatasets();
 
             var server = opStateService.getServer(serverName);
@@ -123,11 +123,11 @@ angular.module('opApp.header').controller('opHeaderController',
                 $scope.kmlEnabled = true;
                 link = server.url + '/wms/kml?layers=';
                 var serverVals = [];
-                for(var i = 0; i < val.length; i++) {
+                for (var i = 0; i < val.length; i++) {
                     var splitVal = val[i].split(':');
                     // getting rid of server name as geoserver has no concept of this when querying for KML link
                     var layerVal = splitVal[1] + ':' + splitVal[2];
-                    if(splitVal[0] === serverName) {
+                    if (splitVal[0] === serverName) {
                         serverVals.push(layerVal);
                     }
                 }
@@ -149,9 +149,9 @@ angular.module('opApp.header').controller('opHeaderController',
                     }
                     else if (timeFilter.type === 'range') {
                         timeStr = timeFilter.start.format('YYYY-MM-DDTHH:mm:ss\\Z') + '/' +
-                          timeFilter.stop.format('YYYY-MM-DDTHH:mm:ss\\Z');
+                            timeFilter.stop.format('YYYY-MM-DDTHH:mm:ss\\Z');
                         titleString = 'OGC between ' + timeFilter.start.format('YYYY-MM-DDTHH:mm:ss\\Z') + ' and ' +
-                          timeFilter.stop.format('YYYY-MM-DDTHH:mm:ss\\Z');
+                            timeFilter.stop.format('YYYY-MM-DDTHH:mm:ss\\Z');
                     }
                 }
 
@@ -168,7 +168,7 @@ angular.module('opApp.header').controller('opHeaderController',
         /**
          * Show the about modal
          */
-        $scope.showAbout = function() {
+        $scope.showAbout = function () {
             $modal.open({
                 templateUrl: 'modules/header/opAbout.html',
                 windowClass: 'small-modal'
@@ -193,15 +193,15 @@ angular.module('opApp.header').controller('opHeaderController',
         /**
          * Broadcast receiver for when the filters are updated
          */
-        $scope.$on('filters-updated', function() {
+        $scope.$on('filters-updated', function () {
             var val = opStateService.getDatasets();
             var serversActive = opStateService.getActiveServer();
-            if(val.length > 0) {
+            if (val.length > 0) {
                 $scope.kmlEnabled = true;
             } else {
                 $scope.kmlEnabled = false;
             }
-            if(serversActive.length === 1) {
+            if (serversActive.length === 1) {
                 $scope.kmlSingleServer = true;
                 $scope.kmlLink = $scope.buildKmlLink(serversActive[0].name);
             } else {
@@ -213,27 +213,27 @@ angular.module('opApp.header').controller('opHeaderController',
          * this is strictly here to toggle the CSS class when the servers are updated directly via
          * the URL params (so that we can toggle the tabs active or not)
          */
-        $scope.$on('servers-updated', function(event, args) {
+        $scope.$on('servers-updated', function (event, args) {
             var serversOn = args[0];
             var serversOff = args[1];
             var serversActive = opStateService.getActiveServer();
-            if(serversActive.length === 1) {
+            if (serversActive.length === 1) {
                 $scope.kmlSingleServer = true;
                 $scope.kmlLink = $scope.buildKmlLink(serversActive[0].name);
             } else {
                 $scope.kmlSingleServer = false;
             }
 
-            serversOn.forEach(function(serverOn) {
-                $scope.servers.forEach(function(server) {
-                    if(serverOn.name === server.name) {
+            serversOn.forEach(function (serverOn) {
+                $scope.servers.forEach(function (server) {
+                    if (serverOn.name === server.name) {
                         server.active = true;
                     }
                 });
             });
 
-            serversOff.forEach(function(serverOff) {
-                $scope.servers.forEach(function(server) {
+            serversOff.forEach(function (serverOff) {
+                $scope.servers.forEach(function (server) {
                     if (serverOff.name === server.name) {
                         server.active = false;
                     }
@@ -244,9 +244,9 @@ angular.module('opApp.header').controller('opHeaderController',
         /**
          * Get our server names from the config
          */
-        $scope.getServerNames = function() {
+        $scope.getServerNames = function () {
             $scope.servers = opConfig.servers;
-            $scope.servers.forEach(function(server) {
+            $scope.servers.forEach(function (server) {
                 server.active = false;
                 server.loaded = false;
             });
@@ -256,7 +256,7 @@ angular.module('opApp.header').controller('opHeaderController',
          * Toggle a server on or off
          * @param server
          */
-        $scope.toggleServer = function(server) {
+        $scope.toggleServer = function (server) {
             $scope.servers[server].active = !$scope.servers[server].active;
             $scope.updateStateService();
         };
@@ -264,7 +264,7 @@ angular.module('opApp.header').controller('opHeaderController',
         /**
          * Update the state service for when a server is on or off
          */
-        $scope.updateStateService = function() {
+        $scope.updateStateService = function () {
             opStateService.setActiveServerData($scope.servers);
             $log.log('server changed, new data: ' + JSON.stringify($scope.servers));
         };

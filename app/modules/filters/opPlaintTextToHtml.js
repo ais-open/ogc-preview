@@ -4,17 +4,16 @@
 
 
 angular.module('opApp.filters')
-    .filter('plainTextToHtml', function($sce) {
+    .filter('plainTextToHtml', function ($sce) {
         'use strict';
 
-        return function(plainText) {
-            if (!plainText)
-            {
+        return function (plainText) {
+            if (!plainText) {
                 return '';
             }
 
             var output = [];
-            $.each(plainText.split('\n'), function(key, value){
+            $.each(plainText.split('\n'), function (key, value) {
                 output.push(value);
             });
 
@@ -25,7 +24,7 @@ angular.module('opApp.filters')
             // rudimentary URLs.  We are assuming that any space delimited string that starts with http:// or https://
             // is a link.
             var autoLinked = [];
-            $.each(output.split(' '), function(key, value) {
+            $.each(output.split(' '), function (key, value) {
                 if (value.indexOf('http://') === 0 || value.indexOf('https://') === 0) {
                     autoLinked.push('<a href="' + value + '" target="_blank">' + value + '</a>');
                 }

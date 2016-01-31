@@ -1,21 +1,26 @@
-<div class="section" >
+<div class="section">
     <h4 class="header">
         <a href="" ng-click="expanded = !expanded">
             <span class="icon" ng-bind-html="expanded ? '&#x25bc;' : '&#x25ba;'"></span>
             Location
-            <span ng-if="!expanded"  class="detail">{{friendlyLocation()}}</span>
+            <span ng-if="!expanded" class="detail">{{friendlyLocation()}}</span>
         </a>
     </h4>
 
     <div ng-show="expanded">
         <div class="list-group">
-            <a class="list-group-item" ng-class="{active: model.locationKey == 'world'}" href="" ng-click="setLocationWorld()">Whole World</a>
-            <a class="list-group-item" ng-class="{active: model.locationKey == 'map'}" href="" ng-click="setLocationMap()">Constrain to Map</a>
-            <div class="details-box" ng-if="model.locationKey == 'map' && model.mapChanged" style="padding-left:10px;padding-right:10px;">
-                <a href="" class="btn btn-info btn-sm pull-right" ng-click="setLocationMap()" style="margin-left:10px;"><i class="glyphicon glyphicon-refresh"></i> Update</a>
+            <a class="list-group-item" ng-class="{active: model.locationKey == 'world'}" href=""
+               ng-click="setLocationWorld()">Whole World</a>
+            <a class="list-group-item" ng-class="{active: model.locationKey == 'map'}" href=""
+               ng-click="setLocationMap()">Constrain to Map</a>
+            <div class="details-box" ng-if="model.locationKey == 'map' && model.mapChanged"
+                 style="padding-left:10px;padding-right:10px;">
+                <a href="" class="btn btn-info btn-sm pull-right" ng-click="setLocationMap()" style="margin-left:10px;"><i
+                        class="glyphicon glyphicon-refresh"></i> Update</a>
                 <p class="small">The map view has changed. Click update to use the new map view.</p>
             </div>
-            <a class="list-group-item" ng-class="{active: model.locationKey == 'bounds'}" href="" ng-click="model.locationKey = 'bounds'">Bounds...</a>
+            <a class="list-group-item" ng-class="{active: model.locationKey == 'bounds'}" href=""
+               ng-click="model.locationKey = 'bounds'">Bounds...</a>
 
             <div class="details-box" ng-show="model.locationKey == 'bounds'">
                 <div class="row inline-row">
@@ -28,7 +33,7 @@
                     </div>
                     <div class="col-sm-6" ng-if="model.format !== 'mgrs'">
                         <div class="float-label">
-                            <input type="text" ng-model="model.lonE" required />
+                            <input type="text" ng-model="model.lonE" required/>
                             <label>Longitude E</label>
                             <div class="bg" ng-class="{invalid: !model.lonEValid && model.lonE}"></div>
                         </div>
@@ -65,14 +70,16 @@
                     </div>
                 </div>
                 <div class="tr-options">
-                    <a ng-click="setFormat('dd');" href="" ng-class="{active: model.format === 'dd'}">Decimal Degrees</a>
+                    <a ng-click="setFormat('dd');" href="" ng-class="{active: model.format === 'dd'}">Decimal
+                        Degrees</a>
                     <a ng-click="setFormat('dms');" href="" ng-class="{active: model.format === 'dms'}">DMS</a>
                     <a ng-click="setFormat('mgrs');" href="" ng-class="{active: model.format === 'mgrs'}">MGRS</a>
                 </div>
 
             </div>
 
-            <a class="list-group-item" ng-class="{active: model.locationKey == 'center'}" href="" ng-click="model.locationKey = 'center'; model.country=''">Center Point...</a>
+            <a class="list-group-item" ng-class="{active: model.locationKey == 'center'}" href=""
+               ng-click="model.locationKey = 'center'; model.country=''">Center Point...</a>
 
             <div class="details-box" ng-show="model.locationKey == 'center'">
                 <div class="row inline-row">
@@ -108,38 +115,48 @@
                     </div>
                 </div>
                 <div class="tr-options">
-                    <a ng-click="setFormat('dd');" href="" ng-class="{active: model.format === 'dd'}">Decimal Degrees</a>
+                    <a ng-click="setFormat('dd');" href="" ng-class="{active: model.format === 'dd'}">Decimal
+                        Degrees</a>
                     <a ng-click="setFormat('dms');" href="" ng-class="{active: model.format === 'dms'}">DMS</a>
                     <a ng-click="setFormat('mgrs');" href="" ng-class="{active: model.format === 'mgrs'}">MGRS</a>
                 </div>
 
             </div>
 
-              <a class="list-group-item" ng-class="{active: model.locationKey == 'country'}" href="" ng-click="model.locationKey = 'country'">Country...</a>
-              <div class="details-box" ng-show="model.locationKey == 'country'">
-                <ui-select multiple append-to-body=true ng-disabled="false" on-select="addCountrySelection($item)" on-remove="removeCountrySelection($item)" ng-model="model.selectedCountries.selected" theme="select2" style="width:100%;">
-                  <ui-select-match placeholder="Type country name">
-                    <span ng-bind="$item.properties.name"></span>
-                  </ui-select-match>
-                  <ui-select-choices repeat="country in (model.countries | filter: $select.search) track by country.id">
-                    <span ng-bind-html="country.properties.name"></span>
-                  </ui-select-choices>
+            <a class="list-group-item" ng-class="{active: model.locationKey == 'country'}" href=""
+               ng-click="model.locationKey = 'country'">Country...</a>
+            <div class="details-box" ng-show="model.locationKey == 'country'">
+                <ui-select multiple append-to-body=true ng-disabled="false" on-select="addCountrySelection($item)"
+                           on-remove="removeCountrySelection($item)" ng-model="model.selectedCountries.selected"
+                           theme="select2" style="width:100%;">
+                    <ui-select-match placeholder="Type country name">
+                        <span ng-bind="$item.properties.name"></span>
+                    </ui-select-match>
+                    <ui-select-choices
+                            repeat="country in (model.countries | filter: $select.search) track by country.id">
+                        <span ng-bind-html="country.properties.name"></span>
+                    </ui-select-choices>
                 </ui-select>
-              </div>
+            </div>
 
-              <a class="list-group-item" ng-class="{active: model.locationKey == 'shape'}" href="" ng-click="model.locationKey = 'shape'">Shapefile...</a>
-              <div class="details-box" ng-show="model.locationKey == 'shape'">
-                <button ngf-select="uploadFile($file)" class="btn btn-info center-block" style="margin-bottom:12px;">Select Shapefile...</button>
+            <a class="list-group-item" ng-class="{active: model.locationKey == 'shape'}" href=""
+               ng-click="model.locationKey = 'shape'">Shapefile...</a>
+            <div class="details-box" ng-show="model.locationKey == 'shape'">
+                <button ngf-select="uploadFile($file)" class="btn btn-info center-block" style="margin-bottom:12px;">
+                    Select Shapefile...
+                </button>
                 <div class="float-label white">
                     <input type="text" ng-model="model.shapeGeoJson"/>
                     <label>GeoJSON equivalent</label>
                 </div>
-              </div>
+            </div>
 
-            <a class="list-group-item" ng-class="{active: model.locationKey == 'draw'}" href="" ng-click="model.locationKey = 'draw'">Manual Draw...</a>
+            <a class="list-group-item" ng-class="{active: model.locationKey == 'draw'}" href=""
+               ng-click="model.locationKey = 'draw'">Manual Draw...</a>
             <div class="details-box" ng-show="model.locationKey == 'draw'">
-              <a href="" class="btn btn-info btn-sm pull-right" ng-click="clearManualDraw()" style="margin-left:10px;">Clear Drawing</a>
-              <p class="small" style="margin-left:10px;">Use the custom extent drawing tools on the map.</p>
+                <a href="" class="btn btn-info btn-sm pull-right" ng-click="clearManualDraw()"
+                   style="margin-left:10px;">Clear Drawing</a>
+                <p class="small" style="margin-left:10px;">Use the custom extent drawing tools on the map.</p>
             </div>
         </div>
     </div>

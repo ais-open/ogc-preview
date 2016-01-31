@@ -20,7 +20,7 @@ angular.module('opApp.header')
                 scope.selected = {};
                 scope.index = 0;
 
-                scope.select = function(index) {
+                scope.select = function (index) {
                     scope.index = index;
                     if (scope.index < 0) {
                         scope.index = scope.messages.length - 1;

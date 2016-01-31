@@ -2,7 +2,7 @@
  * Created by bensonda on 7/21/2014.
  */
 
-angular.module('opApp.results').directive('opResults', function() {
+angular.module('opApp.results').directive('opResults', function () {
     'use strict';
 
     return {
@@ -19,14 +19,14 @@ angular.module('opApp.results').directive('opResults', function() {
                 csvUrl: '',
                 shpUrl: '',
                 rssUrl: '',
-                error:''
+                error: ''
             };
 
             /**
              * Make sure we have the tab for the layer we're looking at
              * @param name
              */
-            $scope.selectLayer = function (name){
+            $scope.selectLayer = function (name) {
                 // Keep clicking on active tab from re-querying
                 if ($scope.model.currentTab !== name) {
                     $scope.updateResults(name);
@@ -47,9 +47,9 @@ angular.module('opApp.results').directive('opResults', function() {
             /**
              * Broadcast receiver for when the filters are updated
              */
-            $scope.$on('updateFilters', function (e, val){
+            $scope.$on('updateFilters', function (e, val) {
                 $scope.model.layers = val;
-                if (!$scope.model.currentTab || !_.contains(val, $scope.model.currentTab) ){
+                if (!$scope.model.currentTab || !_.contains(val, $scope.model.currentTab)) {
                     $scope.selectLayer(val[0]);
                 }
             });
@@ -57,8 +57,8 @@ angular.module('opApp.results').directive('opResults', function() {
             /**
              * Broadcast receiver for when we get our data back from the OGC service
              */
-            $scope.$on('queryWfsResult', function (e, data){
-                if($scope.model.currentTab === data.layer) {
+            $scope.$on('queryWfsResult', function (e, data) {
+                if ($scope.model.currentTab === data.layer) {
                     $scope.model.loading = false;
                     $scope.model.kmlUrl = data.kmlUrl;
                     $scope.model.csvUrl = data.csvUrl;
@@ -72,22 +72,22 @@ angular.module('opApp.results').directive('opResults', function() {
             /**
              * Broadcast receiver for when our map bounds changed
              */
-            $scope.$on('mapBoundsChanged', function (){
+            $scope.$on('mapBoundsChanged', function () {
                 $scope.updateResults($scope.model.currentTab);
             });
 
             // communicate with parent
             $timeout(function () {
-                $interval(function (){
+                $interval(function () {
                     return $window.opener.resultsHeartbeat && $window.opener.resultsHeartbeat(window);
                 }, 2500);
                 return $window.opener.resultsInit && $window.opener.resultsInit(window);
             }, 2500);
 
-            $window.broadcast = function (){
+            $window.broadcast = function () {
                 $log.log(arguments);
                 var args = arguments;
-                $timeout( function (){
+                $timeout(function () {
                     $rootScope.$broadcast.apply($scope, args);
                 });
             };

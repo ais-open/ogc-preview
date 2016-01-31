@@ -1,11 +1,11 @@
 <div class="op-results">
-  <div class="data-table"></div>
-  <div ng-if="loading" class="text-center">
-    <br />
-    <br />
-    <em><img src="images/loading.gif" /> Loading...</em>
-  </div>
-  <em ng-if="!loading && error == 'nobbox'">Please draw a region on the map to see results.</em>
-  <em ng-if="!loading && error && error != 'nobbox'">{{error}}</em>
-  <em ng-if="!loading && !error && noData">No results found.</em>
+    <div class="data-table"></div>
+    <div ng-if="loading" class="text-center">
+        <br/>
+        <br/>
+        <em><img src="images/loading.gif"/> Loading...</em>
+    </div>
+    <em ng-if="!loading && error == 'nobbox'">Please draw a region on the map to see results.</em>
+    <em ng-if="!loading && error && error != 'nobbox'">{{error}}</em>
+    <em ng-if="!loading && !error && noData">No results found.</em>
 </div>

@@ -48,7 +48,7 @@ angular.module('opApp.map').controller('opMapController',
                     $timeout(function () {
                         $rootScope.$broadcast('country-bounds-from-route', countries);
                     }, 1000);
-                // if we have 'circle' in the bounds, we can parse out the lat, long, and radius to create a circle
+                    // if we have 'circle' in the bounds, we can parse out the lat, long, and radius to create a circle
                 } else if (boundsString.indexOf(circleIdent) > -1) {
                     // circle
                     var circleString = boundsString.substring(circleIdent.length, boundsString.length);
@@ -57,7 +57,7 @@ angular.module('opApp.map').controller('opMapController',
                     var long = circleData[1];
                     var radius = circleData[2];
                     drawCircle(lat, long, radius);
-                // by default we are using a 4-corner bounding box
+                    // by default we are using a 4-corner bounding box
                 } else {
                     var coords = boundsString.split(',');
                     if (coords.length === 4) {
@@ -66,7 +66,7 @@ angular.module('opApp.map').controller('opMapController',
                             // send broadcast to sidebar location filter to set our bounds to a 4-point box
                             $rootScope.$broadcast('box-bounds-from-route', coords);
                         }, 1000);
-                    // if we don't have at least 4 coordinates, tell the location filter to start with default
+                        // if we don't have at least 4 coordinates, tell the location filter to start with default
                     } else if (coords.length < 4) {
                         $timeout(function () {
                             // send broadcast to sidebar location filter to set our bounds to default
@@ -74,7 +74,7 @@ angular.module('opApp.map').controller('opMapController',
                         }, 1000);
                     }
                 }
-            // if bounds string doesn't exist, set location filter to default
+                // if bounds string doesn't exist, set location filter to default
             } else {
                 $timeout(function () {
                     $rootScope.$broadcast('default-from-route');

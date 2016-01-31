@@ -19,7 +19,7 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
             opens: 'right',
             format: 'MM/DD/YYYY HH:mm:ss',
             startDate: $scope.dateRange ? $scope.dateRange[0] : undefined,
-            endDate:   $scope.dateRange ? $scope.dateRange[1] : undefined
+            endDate: $scope.dateRange ? $scope.dateRange[1] : undefined
         };
 
         $scope.dateExpanded = false;
@@ -58,7 +58,7 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
                     $scope.dateRange[0].isValid() &&
                     $scope.dateRange[1].isValid() &&
                     (oldStart !== $scope.dateRange[0].format(parseFormat) ||
-                        oldEnd !== $scope.dateRange[1].format(parseFormat))) {
+                    oldEnd !== $scope.dateRange[1].format(parseFormat))) {
 
                     enforceDateRangeLimits($scope.dateRange, oldRange, opConfig.maxDaysBack);
 
@@ -100,7 +100,7 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
             }
 
             if ($scope.dateRange[0].isValid() && $scope.dateRange[1].isValid() && !$scope.initializing) {
-                opStateService.setTimeRange($scope.dateRange[0],$scope.dateRange[1]);
+                opStateService.setTimeRange($scope.dateRange[0], $scope.dateRange[1]);
             }
         };
 
@@ -164,7 +164,7 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
          * Set duration key (like 'h' for hour, 'm' for minute, etc)
          * @param newKey    new key to set as active
          */
-        $scope.setDurationKey = function(newKey) {
+        $scope.setDurationKey = function (newKey) {
             $scope.durationKey = newKey;
 
             $scope.setDuration();
@@ -209,12 +209,12 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
          * When user is trying to change the start date/time, lets verify it.
          */
         $scope.updateStart = function () {
-            if($scope.rangeTimeout){
+            if ($scope.rangeTimeout) {
                 $timeout.cancel($scope.rangeTimeout);
             }
-            $scope.rangeTimeout = $timeout(function(){
+            $scope.rangeTimeout = $timeout(function () {
                 if ($scope.dateKey === 'range' && oldStart !== $scope.startDate + $scope.startTime) {
-                    var date = moment.utc($scope.startDate +  $scope.startTime, parseFormat);
+                    var date = moment.utc($scope.startDate + $scope.startTime, parseFormat);
                     if (date.isValid()) {
                         oldStart = $scope.startDate + $scope.startTime;
                         $scope.dateRange = [date, $scope.dateRange[1]];
@@ -239,8 +239,8 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
          * @param previousDateRange     previous range that was being used
          * @param maxDaysBack           max time period in days
          */
-        var enforceDateRangeLimits = function(newDateRange, previousDateRange, maxDaysBack) {
-            var compareFormat =  'MM/DD/YYYYHH:mm:ss';
+        var enforceDateRangeLimits = function (newDateRange, previousDateRange, maxDaysBack) {
+            var compareFormat = 'MM/DD/YYYYHH:mm:ss';
 
             if (Math.abs(newDateRange[0].diff(newDateRange[1], 'days', true)) > maxDaysBack) {
                 var message;
@@ -269,34 +269,34 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
          * When user is trying to change the end date/time, lets verify it.
          */
         $scope.updateEnd = function () {
-            if($scope.rangeTimeout){
+            if ($scope.rangeTimeout) {
                 $timeout.cancel($scope.rangeTimeout);
             }
-            $scope.rangeTimeout = $timeout(function() {
-                    if ($scope.dateKey === 'range' && oldEnd !== $scope.endDate + $scope.endTime) {
-                        var date = moment.utc($scope.endDate + $scope.endTime, parseFormat);
-                        if (date.isValid() || ( !$scope.endDate && !$scope.endTime)) {
-                            oldEnd = $scope.endDate + $scope.endTime;
-                            $scope.dateRange = [$scope.dateRange[0], date];
-                            $scope.valid.endRange = true;
+            $scope.rangeTimeout = $timeout(function () {
+                if ($scope.dateKey === 'range' && oldEnd !== $scope.endDate + $scope.endTime) {
+                    var date = moment.utc($scope.endDate + $scope.endTime, parseFormat);
+                    if (date.isValid() || ( !$scope.endDate && !$scope.endTime)) {
+                        oldEnd = $scope.endDate + $scope.endTime;
+                        $scope.dateRange = [$scope.dateRange[0], date];
+                        $scope.valid.endRange = true;
 
-                            enforceDateRangeLimits($scope.dateRange, oldRange, opConfig.maxDaysBack);
+                        enforceDateRangeLimits($scope.dateRange, oldRange, opConfig.maxDaysBack);
 
-                            if (!$scope.initializing) {
-                                opStateService.setTimeRange($scope.dateRange[0], $scope.dateRange[1]);
-                            }
-                        }
-                        else {
-                            $scope.valid.endRange = false;
+                        if (!$scope.initializing) {
+                            opStateService.setTimeRange($scope.dateRange[0], $scope.dateRange[1]);
                         }
                     }
-                }, 1000);
+                    else {
+                        $scope.valid.endRange = false;
+                    }
+                }
+            }, 1000);
         };
 
         /**
          * Move the date range up by whatever selection we have (hour,  day, etc.) active
          */
-        $scope.advanceDateRange = function() {
+        $scope.advanceDateRange = function () {
             var startDate = moment($scope.dateRange[0]);
             var stopDate = moment($scope.dateRange[1]);
 
@@ -312,7 +312,7 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
         /**
          * Move the date range back by whatever selection we have (hour,  day, etc.) active
          */
-        $scope.retreatDateRange = function() {
+        $scope.retreatDateRange = function () {
             var startDate = moment($scope.dateRange[0]);
             var stopDate = moment($scope.dateRange[1]);
 
@@ -338,7 +338,7 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
         /**
          * Broadcast receiver for when filters are updated to update our temporal action
          */
-        $scope.$on('filters-updated', function() {
+        $scope.$on('filters-updated', function () {
             updateTemporalFilters();
         });
 
@@ -347,8 +347,8 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
          * for whatever the latest time for a layer is as the end time and then that time minus 24 hours as the
          * start time.
          */
-        $scope.$on('latest-data-button', function(event, times) {
-          $scope.setDateRange(times);
+        $scope.$on('latest-data-button', function (event, times) {
+            $scope.setDateRange(times);
         });
 
         /**

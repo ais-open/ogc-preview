@@ -2,7 +2,7 @@
  * Created by bensonda on 7/21/2014.
  */
 
-angular.module('opApp.results').directive('opResultsTable', function($timeout) {
+angular.module('opApp.results').directive('opResultsTable', function ($timeout) {
     'use strict';
 
     if (typeof window.ColumnsPlugins === 'undefined') {
@@ -10,15 +10,20 @@ angular.module('opApp.results').directive('opResultsTable', function($timeout) {
     }
 
     window.ColumnsPlugins.resizeable = {
-        init: function() {
-            this.columnData = {data : {},
-                set: function (key, val){ this.data[key] = val; },
-                get: function (key){return this.data[key]; }
+        init: function () {
+            this.columnData = {
+                data: {},
+                set: function (key, val) {
+                    this.data[key] = val;
+                },
+                get: function (key) {
+                    return this.data[key];
+                }
             };
         },
-        create: function() {
+        create: function () {
             var $this = this;
-            setTimeout(function (){
+            setTimeout(function () {
                 $($this.$el).find('table').resizableColumns({store: $this.columnData, syncHandlers: false});
             }, 0);
         }
@@ -27,7 +32,7 @@ angular.module('opApp.results').directive('opResultsTable', function($timeout) {
     return {
         restrict: 'EA',
         templateUrl: 'modules/results/opResultsTable.html',
-        scope:{
+        scope: {
             opModel: '=',
             loading: '=',
             error: '='
@@ -35,12 +40,12 @@ angular.module('opApp.results').directive('opResultsTable', function($timeout) {
         link: function (scope, element) {
             scope.noData = true;
             var viewTable = null;
-            element.on('click', '.clear', function (){
+            element.on('click', '.clear', function () {
                 angular.element('.ui-table-search').val('').keyup();
             });
 
-            scope.$watch('opModel', function (){
-                if (viewTable){
+            scope.$watch('opModel', function () {
+                if (viewTable) {
                     viewTable.destroy();
                 }
 
@@ -53,10 +58,10 @@ angular.module('opApp.results').directive('opResultsTable', function($timeout) {
                         template: '{{#search}}<div class="ui-columns-search"> <input class="ui-table-search" placeholder="Filter Results" type="text" name="query" data-columns-search="true" value="{{query}}" required /><div class="clear">&times;</div></div></div>{{/search}} {{#table}}<div class="ui-columns-table" data-columns-table="true"> <table class="display table table-striped table-bordered table-hover"> <thead> {{#headers}}   {{#sortable}} <th class="ui-table-sortable" data-columns-sortby="{{key}}"  data-resizable-column-id="{{header}}">{{header}}</th> {{/sortable}}  {{#notSortable}} <th data-resizable-column-id="{{header}}">{{header}}</th> {{/notSortable}}  {{#sortedUp}} <th class="ui-table-sort-up ui-table-sortable" data-columns-sortby="{{key}}" data-resizable-column-id="{{header}}">{{header}} <span class="ui-arrow">&#x25B2;</span></th> {{/sortedUp}}  {{#sortedDown}} <th class="ui-table-sort-down ui-table-sortable" data-columns-sortby="{{key}}" data-resizable-column-id="{{header}}">{{header}} <span class="ui-arrow">&#x25BC;</span></th> {{/sortedDown}}    {{/headers}} </thead> <tbody> {{#rows}} {{{.}}} {{/rows}} </tbody>  </table> </div>{{/table}}'
                     });
 
-                    $timeout(function (){
+                    $timeout(function () {
                         angular.element('.ui-table-search').placeholder();
                     });
-                }else{
+                } else {
                     scope.noData = true;
                 }
             });

@@ -1,6 +1,5 @@
-
 angular.module('opApp.sidebar').controller('opSidebarController',
-    function ($scope, opAnnouncementsService ) {
+    function ($scope, opAnnouncementsService) {
         'use strict';
 
         $scope.announcementsEnabled = opAnnouncementsService.updated;
