@@ -375,6 +375,12 @@ angular.module('opApp').controller('opLayerController',
             }
         };
 
+        /**
+         * Creates a query based on the current filters for a layer and sets the params for future OGC querying
+         * @param layer     layer we are operating on
+         * @param startTime start time object (moment object)
+         * @param stopTime  stop time object (moment)
+         */
         var applyLayerFilters = function (layer, startTime, stopTime) {
             var params = opFilterService.createWmsFilterRequestForLayer(layer, startTime, stopTime);
             // Only applies a new layer filter if the params are different from the previous ones
@@ -390,6 +396,15 @@ angular.module('opApp').controller('opLayerController',
             }
         };
 
+        /**
+         * Parent function to get an export URL for the requested data type and layer
+         * @param exportGenerator   function to do a specific type of generation
+         * @param layer             layer we are opearating on
+         * @param bounds            bounds
+         * @param spatialBounds     spatial bounds
+         * @param url               url to query on
+         * @returns {string}        complete url for OGC
+         */
         var exportData = function (exportGenerator, layer, bounds, spatialBounds, url) {
             //var bounds = opStateService.getTimeBoundsFromTemporalFilter();
             if (angular.isDefined(layer.active) && layer.active !== null && layer.active) {
@@ -399,7 +414,11 @@ angular.module('opApp').controller('opLayerController',
             }
         };
 
-        // watch for wfs query from popup window, this could be refactored somewhere else.
+        /**
+         * Broadcast receiver for whenever a WFS query needs to be sent to an OGC backend
+         * @param e     event (not used, just angular boilerplate)
+         * @param layer layer we are operating on
+         */
         $scope.$on('queryWfs', function (e, layer) {
             var timeBounds = opStateService.getTimeBoundsFromTemporalFilter();
             //var mapBounds = $scope.map.getFilterBounds();
@@ -448,6 +467,9 @@ angular.module('opApp').controller('opLayerController',
             }
         });
 
+        /**
+         * Broadcast receiver for when filters were changed and layers need to be updated
+         */
         $scope.$on('filters-updated', function () {
             var bounds = opStateService.getTimeBoundsFromTemporalFilter();
 
@@ -459,10 +481,19 @@ angular.module('opApp').controller('opLayerController',
             }
         });
 
+        /**
+         * Set our total known filter scope variable
+         * @param filter
+         */
         $scope.setFilter = function (filter) {
             $scope.filter = filter;
         };
 
+        /**
+         * Determine if a layer is on
+         * @param layerUid      valid UUID associated with a layer
+         * @returns {boolean}   true if layer is on (toggled), false otherwise
+         */
         $scope.isLayerVisible = function (layerUid) {
             var layer = getLayerByUid($scope.layers, layerUid);
             if ($scope.filter === 'active') {
@@ -472,10 +503,14 @@ angular.module('opApp').controller('opLayerController',
             return true;
         };
 
-        /*
+
+        /**
+         *
          Check to see if the layer we're going to display in the sidebar is the highest priority according to GeoServer
          index.  This will run through any layers that have the same workspace:layerName as the current layer and determine
          if the current layer is the highest priority, displaying only one (the highest priority) for a same-named layer.
+         * @param layerUid      valid UUID associated with a layer
+         * @returns {boolean}   true if layer's server is highest priority as defined in config, false otherwise
          */
         $scope.isHighestPriority = function (layerUid) {
             var layer = getLayerByUid($scope.layers, layerUid);
@@ -504,6 +539,11 @@ angular.module('opApp').controller('opLayerController',
             return true;
         };
 
+        /**
+         * Determine if a layer is exactly duplicated (as by title/layername) across servers
+         * @param layerUid      valid UUID associated with a layer
+         * @returns {boolean}   true if duped, false otherwise
+         */
         $scope.isLayerDuped = function (layerUid) {
             var layer = getLayerByUid($scope.layers, layerUid);
             for (var i = 0; i < $scope.layers.length; i++) {
@@ -515,6 +555,11 @@ angular.module('opApp').controller('opLayerController',
             return false;
         };
 
+        /**
+         * Determine if any layers in a group are toggled on or not
+         * @param groupTag      tag (group) to look up
+         * @returns {boolean}   true if any layers in tag are active, false otherwise
+         */
         $scope.isGroupVisible = function (groupTag) {
             if ($scope.filter === '') {
                 return true;
@@ -535,6 +580,10 @@ angular.module('opApp').controller('opLayerController',
             return false;
         };
 
+        /**
+         * If data has changed on a layer (toggled on or off), update its state
+         * @param layerUid      valid UUID of a layer
+         */
         $scope.datasetStateChanged = function (layerUid) {
             var layer = getLayerByUid($scope.layers, layerUid);
             // layer.active gets set by checkbox before this code executes
@@ -616,6 +665,10 @@ angular.module('opApp').controller('opLayerController',
                 });
         };
 
+        /**
+         * Callback for when a layer is loaded on leaflet
+         * @param layer     layer object
+         */
         var layerLoadCompleteHandler = function (layer) {
             if (layer.timeout) {
                 $timeout.cancel(layer.timeout);
@@ -626,6 +679,10 @@ angular.module('opApp').controller('opLayerController',
             }, 0, true);
         };
 
+        /**
+         * Callback for when a layer is loaded on leaflet
+         * @param layer     layer object
+         */
         var updateLayerLoadComplete = function (e) {
             for (var i = 0; i < $scope.layers.length; i++) {
                 var layer = $scope.layers[i];
@@ -636,6 +693,10 @@ angular.module('opApp').controller('opLayerController',
             }
         };
 
+        /**
+         * Callback for when a layer has started to load in leaflet
+         * @param layer     associated layer object
+         */
         var layerLoadStartHandler = function (layer) {
             if (layer.timeout) {
                 $timeout.cancel(layer.timeout);
@@ -646,6 +707,10 @@ angular.module('opApp').controller('opLayerController',
             }, 0, true);
         };
 
+        /**
+         * Callback for when a layer has started to load in leaflet
+         * @param layer     associated layer object
+         */
         var updateLayerLoadStart = function (e) {
             for (var i = 0; i < $scope.layers.length; i++) {
                 var layer = $scope.layers[i];
@@ -696,6 +761,9 @@ angular.module('opApp').controller('opLayerController',
                 }));
         };
 
+        /**
+         * Remove all layers from leaflet and set them all off/not active
+         */
         var clearLayers = function () {
             var leafletGroup = $scope.leafletGroup;
             if (leafletGroup !== null) {
@@ -710,6 +778,10 @@ angular.module('opApp').controller('opLayerController',
             }
         };
 
+        /**
+         * Remove all layers from leaflet for a specific server
+         * @param serverName    server name of layers we want to turn off
+         */
         var clearServerSpecificLayers = function (serverName) {
             for (var i = 0; i < $scope.layers.length; i++) {
                 var layer = $scope.layers[i];
@@ -719,6 +791,10 @@ angular.module('opApp').controller('opLayerController',
             }
         };
 
+        /**
+         * When layer state changes, we need to update our state for that layer
+         * @param serverName    server that is associated with layers to get data from
+         */
         var updateLayerSelections = function (serverName) {
             var datasets = opStateService.getDatasets();
 
@@ -748,6 +824,9 @@ angular.module('opApp').controller('opLayerController',
             }
         };
 
+        /**
+         * Broadcast receiver for when a server is force refreshed (via UI debug)
+         */
         $scope.$on('refresh-server', function (event, args) {
             var datasets = opStateService.getDatasets().slice(0);
             var serverData = args;
@@ -761,6 +840,10 @@ angular.module('opApp').controller('opLayerController',
             }
         });
 
+        /**
+         * Button on UI that will set temporal filters to last 24 hours of known data for a layer and do that query
+         * @param layer
+         */
         $scope.getLatestData = function (layer) {
             // var test = moment().toString();
             var stopTime = moment(layer.fields.time.stop.value);
@@ -771,14 +854,22 @@ angular.module('opApp').controller('opLayerController',
             $rootScope.$broadcast('latest-data-button-zoom', layer);
         };
 
-        // per https://github.com/angular-slider/angularjs-slider
-        // this forces the slider to render correctly on load.
+        /**
+         * per https://github.com/angular-slider/angularjs-slider
+         * this forces the slider to render correctly on load.
+         */
+
         $scope.refreshSlider = function () {
             $timeout(function () {
                 $scope.$broadcast('rzSliderForceRender');
             });
         };
 
+        /**
+         * Get new layer data from the server or cache
+         * @param force         boolean true or false to force new data from server as opposed to using cache
+         * @param serverName    server that is associated with layers to get data from
+         */
         $scope.updateLayers = function (force, serverName) {
             var server = opStateService.getServer(serverName);
             var previousActiveServerCount = opStateService.getPreviouslyActiveServer().length;
@@ -830,7 +921,10 @@ angular.module('opApp').controller('opLayerController',
             });
         };
 
-        // THIS GUY BASICALLY BOOTSTRAPS ALL LAYERS INTO THE APP
+        /**
+         * Bootstrap and start the app
+         * @param serverName    serverName from opConfig!
+         */
         $scope.initializeLayers = function (serverName) {
             opStateService.getLeafletMap()
                 .then(function (map) {
@@ -843,6 +937,9 @@ angular.module('opApp').controller('opLayerController',
                 );
         };
 
+        /**
+         * Delete all layer and tag/group data
+         */
         this.resetLayerData = function () {
             $scope.layerGroups = new LayerGroups();
             $scope.tags = [];
@@ -850,6 +947,9 @@ angular.module('opApp').controller('opLayerController',
             $scope.layers = [];
         };
 
+        /**
+         * Reset all the data and reload all layer data
+         */
         this.resetAndLoadLayers = function () {
             // this sets all the servers to default as on
             opStateService.setAllServersActive();
@@ -863,13 +963,23 @@ angular.module('opApp').controller('opLayerController',
             }
         };
 
+        /**
+         * Kick things off!
+         */
         this.resetAndLoadLayers();
 
+        /**
+         * Helper function to display a short layer info when sidebar layer is rolled up
+         * @returns {string}
+         */
         $scope.friendlyLayer = function () {
             var activeLayers = opStateService.getDatasets();
             return activeLayers.length + ' enabled';
         };
 
+        /**
+         * Broadcast receiver for when servers are toggled on and off
+         */
         $scope.$on('servers-updated', function (event, args) {
             var serversOn = args[0];
             var serversOff = args[1];
@@ -884,15 +994,26 @@ angular.module('opApp').controller('opLayerController',
             });
         });
 
+        /**
+         * Turn a server on
+         * @param server
+         */
         $scope.turnServerOn = function (server) {
             $scope.initializeLayers(server);
         };
 
+        /**
+         * Turn a server off
+         * @param server
+         */
         $scope.turnServerOff = function (server) {
             $scope.layerGroups.turnServerOff(server);
             clearServerSpecificLayers(server);
         };
 
+        /**
+         * Broadcast receiver for getting heartbeats from the popup window to keep sync
+         */
         opPopupWindow.on('resultsHeartbeat', function (win) {
             if (!opStateService.getResultsWindow()) {
                 opStateService.setResultsWindow(win);
@@ -902,6 +1023,10 @@ angular.module('opApp').controller('opLayerController',
                     }));
             }
         });
+
+        /**
+         * Broadcast receiver for getting our initial data into the popup
+         */
         opPopupWindow.on('resultsInit', function (win) {
             opStateService.setResultsWindow(win);
             opPopupWindow.broadcast(opStateService.getResultsWindow(), 'updateFilters',
