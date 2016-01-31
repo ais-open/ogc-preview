@@ -31,22 +31,30 @@ angular.module('opApp.header')
                     scope.selected = scope.messages[scope.index];
                 };
 
-                // Show the previous announcement
+                /**
+                 * Show the previous announcement
+                 */
                 scope.previous = function () {
                     scope.select(scope.index - 1);
                 };
 
-                // Show the next announcement
+                /**
+                 * Show the next announcement
+                 */
                 scope.next = function () {
                     scope.select(scope.index + 1);
                 };
 
-                // Hide the announcement banner
+                /**
+                 * Hide the announcement banner
+                 */
                 scope.close = function () {
                     opAnnouncementsService.save();
                 };
 
-                // Show all the messages in a single window
+                /**
+                 * Show all the messages in a single window
+                 */
                 scope.showAll = function () {
                     $modal.open({
                         scope: scope,
@@ -55,6 +63,9 @@ angular.module('opApp.header')
                     });
                 };
 
+                /**
+                 * Broadcast receiver for whenever the announcements have changed
+                 */
                 $rootScope.$on('announcementsChanged', function (e, messages, enabled) {
                     scope.messages = messages;
                     scope.enabled = enabled;
@@ -62,6 +73,9 @@ angular.module('opApp.header')
                     scope.index = 0;
                 });
 
+                /**
+                 * Broadcast receiver for when the show the announcements
+                 */
                 $rootScope.$on('showAnnouncements', function () {
                     scope.showAll();
                 });

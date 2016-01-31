@@ -22,19 +22,25 @@ angular.module('opApp.header').controller('opHeaderController',
         $scope.KmlServers = [];
         $scope.DEBUG = opStateService.isDebug();
 
-        $scope.isActive = function (viewLocation) {
-            return viewLocation === $location.path();
-        };
-
+        /**
+         * Show the security banner popup
+         */
         $scope.showSecurityBanner = function () {
             $modal.open({
                 templateUrl: 'modules/header/opSecurityBanner.html'
             });
         };
+
+        /**
+         * Open the results popup
+         */
         $scope.openResults = function (){
             opPopupWindow.showPopup('results.html');
         };
 
+        /**
+         * Get the bookmark URL and show it in a modal.
+         */
         $scope.showBookmark = function () {
             $scope.bamfLink = opStateService.getPermalink();
             $modal.open({
@@ -42,6 +48,9 @@ angular.module('opApp.header').controller('opHeaderController',
             });
         };
 
+        /**
+         * Show the KML link associated with each server
+         */
         $scope.showKmlLink = function () {
             $scope.kmlLinks = [];
             var servers = [];
@@ -75,24 +84,36 @@ angular.module('opApp.header').controller('opHeaderController',
             });
         };
 
+        /**
+         * Get all the layers associated with a server number
+         * @param serverNum     number as defined in the opConfig
+         * @returns {*}
+         */
         $scope.getLayersForServer = function(serverNum) {
             return $scope.KmlLayers[serverNum];
         };
 
+        /**
+         * Force a refresh of a server's data
+         * @param server    server to refresh
+         */
         $scope.refreshServer = function(server) {
             var serverData = $scope.servers[server];
             $rootScope.$broadcast('refresh-server', serverData);
         };
 
-        $scope.getActiveServers = function() {
-            var servers = opStateService.getActiveServer();
-            return servers;
-        };
-
+        /**
+         * Get the version number of the app
+         */
         opConfig.getVersion().then(function (data){
             $scope.version = data;
         });
 
+        /**
+         * Create the KML link for a server
+         * @param serverName    server name
+         * @returns {string}
+         */
         $scope.buildKmlLink = function(serverName) {
             var val = opStateService.getDatasets();
 
@@ -144,6 +165,9 @@ angular.module('opApp.header').controller('opHeaderController',
             return link;
         };
 
+        /**
+         * Show the about modal
+         */
         $scope.showAbout = function() {
             $modal.open({
                 templateUrl: 'modules/header/opAbout.html',
@@ -151,15 +175,24 @@ angular.module('opApp.header').controller('opHeaderController',
             });
         };
 
+        /**
+         * Show the announcement bar
+         */
         $scope.showAnnouncements = function () {
             $rootScope.$broadcast('showAnnouncements');
         };
 
+        /**
+         * Broadcast receiver for when announcements change
+         */
         $scope.$on('announcementsChanged', function (e, messages, enabled) {
             $scope.announcementCount = messages.length;
             $scope.announcementsEnabled = enabled;
         });
 
+        /**
+         * Broadcast receiver for when the filters are updated
+         */
         $scope.$on('filters-updated', function() {
             var val = opStateService.getDatasets();
             var serversActive = opStateService.getActiveServer();
@@ -176,8 +209,10 @@ angular.module('opApp.header').controller('opHeaderController',
             }
         });
 
-        // this is strictly here to toggle the CSS class when the servers are updated directly via
-        // the URL params (so that we can toggle the tabs active or not)
+        /**
+         * this is strictly here to toggle the CSS class when the servers are updated directly via
+         * the URL params (so that we can toggle the tabs active or not)
+         */
         $scope.$on('servers-updated', function(event, args) {
             var serversOn = args[0];
             var serversOff = args[1];
@@ -206,6 +241,9 @@ angular.module('opApp.header').controller('opHeaderController',
             });
         });
 
+        /**
+         * Get our server names from the config
+         */
         $scope.getServerNames = function() {
             $scope.servers = opConfig.servers;
             $scope.servers.forEach(function(server) {
@@ -214,16 +252,22 @@ angular.module('opApp.header').controller('opHeaderController',
             });
         };
 
+        /**
+         * Toggle a server on or off
+         * @param server
+         */
         $scope.toggleServer = function(server) {
             $scope.servers[server].active = !$scope.servers[server].active;
             $scope.updateStateService();
         };
 
+        /**
+         * Update the state service for when a server is on or off
+         */
         $scope.updateStateService = function() {
             opStateService.setActiveServerData($scope.servers);
             $log.log('server changed, new data: ' + JSON.stringify($scope.servers));
         };
 
         $scope.getServerNames();
-        //$scope.updateStateService();
     });

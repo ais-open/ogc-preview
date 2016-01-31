@@ -15,6 +15,11 @@ angular.module('opApp.header')
         var minTime = moment.utc();
         var maxTime = moment('1970-01-01');
 
+        /**
+         * store Min time
+         * @param val   time
+         * @returns {*}
+         */
         var storedMin = function(val) {
             if (val !== undefined) {
                 localStorageService.set('announcementMin', val);
@@ -26,6 +31,11 @@ angular.module('opApp.header')
             return minTime;
         };
 
+        /**
+         * Store max time
+         * @param val   time
+         * @returns {*}
+         */
         var storedMax = function(val) {
             if (val !== undefined) {
                 localStorageService.set('announcementMax', val);
@@ -40,6 +50,10 @@ angular.module('opApp.header')
         self.messages = [];
         self.updated = false;
 
+        /**
+         * Get the announcements
+         * @returns {*}
+         */
         self.getAnnouncements = function () {
             return $http({ method: 'GET', url: 'config/announcements.json?_=' + moment().valueOf(), timeout: 50000}).then(function (result) {
                 return result.data;

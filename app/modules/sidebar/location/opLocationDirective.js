@@ -230,7 +230,7 @@ angular.module('opApp')
 
                 /**
                  * Remove a specific country from the bounding region
-                 * @param country   country to remove
+                 * @param country   country object to remove
                  */
                 scope.removeCountrySelection = function (country) {
                     opStateService.removeAttributeBBoxCountry(country);

@@ -41,6 +41,13 @@ angular.module('opApp.query')
             return deferred.promise;
         };
 
+        /**
+         * Get leaflet map parameters for OGC querying
+         * @param serverName    servername for getting layers from
+         * @param name          layer name
+         * @param workspace     layer's workspace name
+         * @param params        params we already known
+         */
         this.getLeafletWmsParams = function (serverName, name, workspace, params) {
             var server = opStateService.getServer(serverName);
             var workspacedLayer = workspace + ':' + name;
@@ -54,6 +61,11 @@ angular.module('opApp.query')
                 }, params);
         };
 
+        /**
+         * Get the leaflet basemap parameters for OGC querying
+         * @param layerName     layername
+         * @param params        parameters we already know
+         */
         this.getLeafletWmsBasemapParams = function (layerName, params) {
             return angular.extend(
                 {
@@ -62,6 +74,13 @@ angular.module('opApp.query')
                 }, params);
         };
 
+        /**
+         * Get the legend graphic's URL from the OGC service for the layer
+         * @param serverName    server name to interact with
+         * @param layerName     layer we are interested in
+         * @param legendOptions legend options for font, etc.
+         * @returns {string}    the URL
+         */
         this.getLegendGraphicUrl = function (serverName, layerName, legendOptions) {
             var server = opStateService.getServer(serverName);
             var options = angular.extend({

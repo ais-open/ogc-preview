@@ -36,8 +36,7 @@ angular.module('opApp.map').controller('opMapController',
          * appropriately.
          */
         var checkForBBoxBoundsState = function () {
-            // var bboxBounds = opStateService.getAttributeBounds();
-            var boundsString = opStateService.newGetAttributeBounds();
+            var boundsString = opStateService.getAttributeBounds();
 
             var countryIdent = 'country:';
             var circleIdent = 'circle:';

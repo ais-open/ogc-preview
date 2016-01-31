@@ -30,38 +30,65 @@ angular.module('opApp')
         var activeServer = [];
         var previousActiveServer = [];
 
-        this.getDatasetsId = function() {
+        /**
+         * Get the dataset id (key) for URL use
+         * @returns {string}
+         */
+        this.getDatasetsId = function () {
             return datasetId;
         };
 
+        /**
+         * Get the results window handle
+         * @returns {string}
+         */
         this.getResultsWindow = function () {
-          return resultsWindow;
+            return resultsWindow;
         };
 
+        /**
+         * Set the results window handle
+         */
         this.setResultsWindow = function (value) {
-          resultsWindow = value;
+            resultsWindow = value;
         };
 
-        this.setLeafletMapCRS = function(CRS) {
+        /**
+         * Set the leaflet map CRS (spatial projection)
+         * @param CRS
+         */
+        this.setLeafletMapCRS = function (CRS) {
             leafletMapCRS = CRS;
         };
 
-        this.getLeafletMapCRS = function() {
+        /**
+         * Get the leaflet map CRS (spatial projection)
+         * @returns {*}
+         */
+        this.getLeafletMapCRS = function () {
             return leafletMapCRS;
         };
 
-        this.setLeafletMap = function(map) {
+        /**
+         * Set the leaflet map object we're using
+         * @param map
+         */
+        this.setLeafletMap = function (map) {
             leafletMap = map;
         };
 
+        /**
+         * Get the leaflet map object we're using
+         * @returns {*}
+         */
         this.getLeafletMap = function () {
             var deferred = $q.defer();
             var self = this;
 
             if (!angular.isDefined(leafletMap)) {
-                $timeout(function() {
+                $timeout(function () {
                     deferred.resolve(self.getLeafletMap());
-                },500);
+                }, 500);
             }
             else {
                 deferred.resolve(leafletMap);
@@ -70,18 +97,26 @@ angular.module('opApp')
             return deferred.promise;
         };
 
-        this.setLayerControl = function(control) {
+        /**
+         * Set the leaflet layer control (L.control object)
+         * @param control
+         */
+        this.setLayerControl = function (control) {
             leafletLayerControl = control;
         };
 
+        /**
+         * Get the leaflet layer control object (L.control)
+         * @returns {*}
+         */
         this.getLayerControl = function () {
             var deferred = $q.defer();
             var self = this;
 
             if (!angular.isDefined(leafletLayerControl)) {
-                $timeout(function() {
+                $timeout(function () {
                     deferred.resolve(self.getLayerControl());
-                },500);
+                }, 500);
             }
             else {
                 deferred.resolve(leafletLayerControl);
@@ -90,19 +125,34 @@ angular.module('opApp')
             return deferred.promise;
         };
 
+        /**
+         * Serialize the state
+         */
         var serializeState = function () {
             $location.search(state);
         };
 
+        /**
+         * Deserialize the state
+         */
         var deserializeState = function () {
             state = $location.search();
         };
 
+        /**
+         * get the current value state for the id we are interested in
+         * @param stateId   id for the dataset, etc.
+         * @returns {*}     the value for the specified key
+         */
         this.getState = function (stateId) {
             deserializeState();
             return state[stateId];
         };
 
+        /**
+         * are we in debug mode based on the URL?
+         * @returns {*}
+         */
         this.isDebug = function () {
             var debug = this.getState('debug');
 
@@ -116,6 +166,11 @@ angular.module('opApp')
             return debug;
         };
 
+        /**
+         * Set the value for the key specified
+         * @param stateId   the key
+         * @param value     the value
+         */
         this.setState = function (stateId, value) {
             state[stateId] = value;
             serializeState();
@@ -144,7 +199,7 @@ angular.module('opApp')
          * Expects to find coordinate bounds in the following comma delimited format: west,north,east,south
          * @returns {*}
          */
-        this.getBounds = function() {
+        this.getBounds = function () {
             var bounds = this.getState(boundsId);
 
             // Setting last checker on initialization only
@@ -160,111 +215,127 @@ angular.module('opApp')
          * Expects to find coordinate bounds in the following comma delimited format: west,north,east,south
          * @returns {*}
          */
-        this.getAttributeBounds = function() {
-            var bounds = this.getState(bboxId);
-
-            // Setting last checker on initialization only
-            // without this toggling a layer or changing time recreates bbox at location in querystring
-            if (lastBBoxBounds === null) {
-                lastBBoxBounds = bounds;
-            }
-
-            return parseBBoxIntoBounds(bounds);
-        };
-
-        this.newGetAttributeBounds = function() {
+        this.getAttributeBounds = function () {
             var bounds = this.getState(bboxId);
             return bounds;
         };
 
-        this.setBounds = function(bounds) {
+        /**
+         * Set the bounds value for the bounds key
+         * @param bounds    bounds as coordinates
+         */
+        this.setBounds = function (bounds) {
             mapState[boundsId] = bounds.toBBoxString();
         };
 
-        this.setAttributeBBox = function(bounds) {
+        /**
+         * Set the bounding box
+         * @param bounds    bounds as coordinates
+         */
+        this.setAttributeBBox = function (bounds) {
             if (bounds) {
                 mapState[bboxId] = bounds.toBBoxString();
             }
             else {
                 delete mapState[bboxId];
                 // If bbox is on the query string remove it when cancels happen
-                if (state[bboxId]){
+                if (state[bboxId]) {
                     delete state[bboxId];
                     serializeState();
                 }
             }
         };
 
-        this.setAttributeBBoxText = function(bounds) {
+        /**
+         * Set the bounding box
+         * @param bounds    bounds as a string
+         */
+        this.setAttributeBBoxText = function (bounds) {
             if (bounds) {
                 mapState[bboxId] = bounds;
                 debounceBroadcast('bounds-text-updated', bounds);
             }
             else {
-                debounceBroadcast('bounds-text-updated','');
+                debounceBroadcast('bounds-text-updated', '');
                 delete mapState[bboxId];
                 // If bbox is on the query string remove it when cancels happen
-                if (state[bboxId]){
+                if (state[bboxId]) {
                     delete state[bboxId];
                     serializeState();
                 }
             }
         };
 
-        this.setAttributeBBoxCurrentBounds = function() {
+        /**
+         * Set the bounding box as the current map view
+         */
+        this.setAttributeBBoxCurrentBounds = function () {
             debounceBroadcast('bounds-current-bounds');
         };
 
-        this.setAttributeBBoxCountry = function(geoJsonBounds, countryBboxList) {
-            if(countryBboxList) {
-              mapState[bboxId] = countryBboxList;
+        /**
+         * Set the bounding box as a country
+         * @param geoJsonBounds     geoJSON bounds for a country
+         * @param countryBboxList   string of countries for URL (eg: "country:USA,Canada")
+         */
+        this.setAttributeBBoxCountry = function (geoJsonBounds, countryBboxList) {
+            if (countryBboxList) {
+                mapState[bboxId] = countryBboxList;
             }
             // dont use debounce broadcast here
             $rootScope.$broadcast('bounds-country-bounds', geoJsonBounds);
         };
 
-        this.setAttributeBBoxFile = function(geoJsonBounds) {
-          $rootScope.$broadcast('bounds-file-bounds', geoJsonBounds);
+        /**
+         * Set the bounding region as a shapefile (that we converted to geoJSON for user)
+         * @param geoJsonBounds     geoJSON representation of whatever shapefile was uploaded
+         */
+        this.setAttributeBBoxFile = function (geoJsonBounds) {
+            $rootScope.$broadcast('bounds-file-bounds', geoJsonBounds);
         };
 
-        this.removeAttributeBBoxCountry = function(bounds) {
-          var countryList = mapState[bboxId];
-          var country = bounds.id;
+        /**
+         * Remove a country from the bounding region
+         * @param bounds    country's geoJSON bounds to be removed
+         */
+        this.removeAttributeBBoxCountry = function (bounds) {
+            var countryList = mapState[bboxId];
+            var country = bounds.id;
 
-          if(countryList.indexOf(country) > -1) {
-            // exists
-            var countryIdent = 'country:';
-            var countryString = countryList.substring(countryIdent.length,countryList.length);
-            var countries = countryString.split(',');
-            countries.splice(countryString.indexOf(country), 1);
-            var newString = countryIdent + countries.join(',');
-            // if we end up deleting the last country, remove bbox from our state
-            if(newString === countryIdent) {
-              delete mapState[bboxId];
-              if (state[bboxId]){
-                delete state[bboxId];
-                serializeState();
-              }
-            } else {
-              mapState[bboxId] = newString;
+            if (countryList.indexOf(country) > -1) {
+                // exists
+                var countryIdent = 'country:';
+                var countryString = countryList.substring(countryIdent.length, countryList.length);
+                var countries = countryString.split(',');
+                countries.splice(countryString.indexOf(country), 1);
+                var newString = countryIdent + countries.join(',');
+                // if we end up deleting the last country, remove bbox from our state
+                if (newString === countryIdent) {
+                    delete mapState[bboxId];
+                    if (state[bboxId]) {
+                        delete state[bboxId];
+                        serializeState();
+                    }
+                } else {
+                    mapState[bboxId] = newString;
+                }
             }
-          }
             debounceBroadcast('remove-country-bounds', bounds);
         };
 
-        this.setAttributeBboxPolyCircle = function(circleString) {
-          if(circleString) {
-            mapState[bboxId] = circleString;
-          }
+        this.setAttributeBboxPolyCircle = function (circleString) {
+            if (circleString) {
+                mapState[bboxId] = circleString;
+            }
         };
 
-        this.getPermalink = function() {
+        this.getPermalink = function () {
             var self = this;
 
             // Save state
             var initialState = state;
 
-            angular.forEach(mapState, function(value, key) {
+            angular.forEach(mapState, function (value, key) {
                 self.setState(key, value);
             });
 
@@ -276,7 +347,7 @@ angular.module('opApp')
             return location;
         };
 
-        this.getTemporalFilter = function() {
+        this.getTemporalFilter = function () {
             var filter = this.getState(dateId);
             if (filter === undefined) {
                 // default to default days back configured in opConfig
@@ -296,8 +367,7 @@ angular.module('opApp')
                 var interval = filter.substring(filter.length - 1).toLowerCase();
                 var value = parseInt(filter.substring(1, filter.length - 1));
 
-                if (['d','h','w'].indexOf(interval) === -1)
-                {
+                if (['d', 'h', 'w'].indexOf(interval) === -1) {
                     $log.log('Unable to identify a valid interval type in duration from temporal filter \'' +
                         filter + '\'. Setting to default');
                     filter = fallbackFilter;
@@ -347,7 +417,7 @@ angular.module('opApp')
                 datasets = [];
             }
             else if (typeof datasets === 'string') {
-                datasets = [ datasets ];
+                datasets = [datasets];
             }
 
             return datasets;
@@ -360,7 +430,7 @@ angular.module('opApp')
 
         };
 
-        this.addDataset = function(name) {
+        this.addDataset = function (name) {
             var datasets = this.getDatasets();
 
             if (datasets.indexOf(name) === -1) {
@@ -369,7 +439,7 @@ angular.module('opApp')
             this.setDatasets(datasets);
         };
 
-        this.removeDataset = function(name) {
+        this.removeDataset = function (name) {
             var datasets = this.getDatasets();
 
             if (~datasets.indexOf(name)) {
@@ -378,7 +448,7 @@ angular.module('opApp')
             this.setDatasets(datasets);
         };
 
-        this.getTimeBoundsFromTemporalFilter = function() {
+        this.getTimeBoundsFromTemporalFilter = function () {
             var filter = this.getTemporalFilter();
 
             var startTime, stopTime;
@@ -397,7 +467,7 @@ angular.module('opApp')
             return [startTime, stopTime];
         };
 
-        this.setDuration = function(interval, value) {
+        this.setDuration = function (interval, value) {
             var originalValue = this.getState(dateId);
             var filter = 'D' + value.toString() + interval;
 
@@ -408,7 +478,7 @@ angular.module('opApp')
             }
         };
 
-        this.setTimeRange = function(startTime, stopTime) {
+        this.setTimeRange = function (startTime, stopTime) {
             var originalValue = this.getState(dateId);
             var filter =
                 'R' + startTime.format('YYYY-MM-DDTHH:mm:ss\\Z') + ',' +
@@ -422,23 +492,23 @@ angular.module('opApp')
         };
 
         var debounceBroadcast = function (message, args) {
-            if(debounceTimer[message]){
+            if (debounceTimer[message]) {
                 $timeout.cancel(debounceTimer[message]);
             }
-            debounceTimer[message] = $timeout(function(){
+            debounceTimer[message] = $timeout(function () {
                 $rootScope.$broadcast(message, args);
             }, 500);
         };
 
 
-        this.getCustomFilter = function() {
+        this.getCustomFilter = function () {
             var filters = this.getState(customFilterId);
             var result = {};
             if (angular.isDefined(filters)) {
                 filters = filters.split(';');
-                for (var i=0; i < filters.length; i++) {
+                for (var i = 0; i < filters.length; i++) {
                     var firstIndex = filters[i].indexOf('=');
-                    var filter = [filters[i].slice(0,firstIndex), filters[i].slice(firstIndex + 1)];
+                    var filter = [filters[i].slice(0, firstIndex), filters[i].slice(firstIndex + 1)];
                     if (filter.length === 2) {
                         result[filter[0]] = filter[1];
                     }
@@ -448,7 +518,7 @@ angular.module('opApp')
             return result;
         };
 
-        this.getCustomFilterByLayer = function(namespacedName) {
+        this.getCustomFilterByLayer = function (namespacedName) {
             var result = this.getCustomFilter();
 
             if (namespacedName in result) {
@@ -460,15 +530,15 @@ angular.module('opApp')
 
         // sometimes we need to figure out what servers are configured to be allowed to be turned on/off
         // this returns a JSON object of the server by the server's configured name
-        this.getServerByConfig = function(serverName) {
-            for(var i = 0; i < opConfig.servers.length; i++) {
-                if(opConfig.servers[i].name === serverName) {
+        this.getServerByConfig = function (serverName) {
+            for (var i = 0; i < opConfig.servers.length; i++) {
+                if (opConfig.servers[i].name === serverName) {
                     return opConfig.servers[i];
                 }
             }
         };
 
-        $rootScope.$on('$routeUpdate', function() {
+        $rootScope.$on('$routeUpdate', function () {
             // If changes are detected in map state params push out broadcast
             // We only broadcast if there is a new filter
             var boundsValue = self.getState(boundsId);
@@ -488,7 +558,7 @@ angular.module('opApp')
                 // loop through the datasets that are in the url, and turn on the servers that
                 // the user wants us to use
                 var serversOn = previousActiveServer;
-                if(datasetsValue.constructor === Array) {
+                if (datasetsValue.constructor === Array) {
                     angular.forEach(datasetsValue, function (dataset) {
                         // serverName:workspace:layerName
                         var serverName = dataset.split(':')[0];
@@ -513,59 +583,59 @@ angular.module('opApp')
             debounceBroadcast('filters-updated', null);
         });
 
-        this.setAllServersActive = function() {
+        this.setAllServersActive = function () {
             activeServer = opConfig.servers;
             previousActiveServer = activeServer;
         };
 
         // this is from HeaderController to set active servers based on header tabs
-        this.setActiveServer = function(serverName) {
+        this.setActiveServer = function (serverName) {
             for (var i = 0; i < opConfig.servers.length; i++) {
-              if (serverName === opConfig.servers[i].name) {
-                  activeServer = new Array(opConfig.servers[i]);
-                  return;
-              }
+                if (serverName === opConfig.servers[i].name) {
+                    activeServer = new Array(opConfig.servers[i]);
+                    return;
+                }
             }
 
-            if(previousActiveServer.length === 0) {
+            if (previousActiveServer.length === 0) {
                 previousActiveServer = activeServer;
             }
         };
 
         // returns the active server (array) info
-        this.getActiveServer = function() {
-          return activeServer;
+        this.getActiveServer = function () {
+            return activeServer;
         };
 
         // returns the previously activer server (array) info
-        this.getPreviouslyActiveServer = function() {
+        this.getPreviouslyActiveServer = function () {
             return previousActiveServer;
         };
 
         // returns the configured index of the server based on the server's name
         // used primarily for layer UID generation (to differentiate between same-named layers, but on diff. servers)
-        this.getServerNumByName = function(serverName) {
-            for(var i = 0; i < opConfig.servers.length; i++) {
-                if(opConfig.servers[i].name === serverName) {
+        this.getServerNumByName = function (serverName) {
+            for (var i = 0; i < opConfig.servers.length; i++) {
+                if (opConfig.servers[i].name === serverName) {
                     return i;
                 }
             }
         };
 
         // get the server JSON object based on the server name (from ACTIVE servers, not config'd servers)
-        this.getServer = function(serverName) {
-            for(var i = 0; i < activeServer.length; i++) {
-                if(activeServer[i].name === serverName) {
+        this.getServer = function (serverName) {
+            for (var i = 0; i < activeServer.length; i++) {
+                if (activeServer[i].name === serverName) {
                     return activeServer[i];
                 }
             }
         };
 
         // set the active server info (based on the header controller tab toggles)
-        this.setActiveServerData = function(serverData) {
+        this.setActiveServerData = function (serverData) {
             var activeServers = [];
-            serverData.forEach(function(server) {
-                if(server.active) {
+            serverData.forEach(function (server) {
+                if (server.active) {
                     activeServers.push(server);
                 }
             });
@@ -576,7 +646,7 @@ angular.module('opApp')
 
         // essentially do a diff between activeServer and previouslyActiveServer to figure out
         // which servers we need to "turn off" and "turn on"
-        this.compareServers = function() {
+        this.compareServers = function () {
             // servers to turn off are those that ARE in previousActiveServer but ARE NOT in activeServer
             var serversToTurnOff = [];
 
@@ -607,14 +677,14 @@ angular.module('opApp')
                     }
                 });
 
-                activeServer.forEach(function(newServer) {
+                activeServer.forEach(function (newServer) {
                     var found = false;
                     previousActiveServer.forEach(function (oldServer) {
-                        if(oldServer.name === newServer.name) {
+                        if (oldServer.name === newServer.name) {
                             found = true;
                         }
                     });
-                    if(!found) {
+                    if (!found) {
                         serversToTurnOn.push(newServer);
                     }
                 });
@@ -624,7 +694,7 @@ angular.module('opApp')
             $log.log('Turning off: ' + JSON.stringify(serversToTurnOff));
 
             // LayerController actually handles the "turn off" and "turn on" controls.
-            $timeout(function(){
+            $timeout(function () {
                 $rootScope.$broadcast('servers-updated', [serversToTurnOn, serversToTurnOff]);
             }, 500);
 

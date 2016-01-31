@@ -22,6 +22,10 @@ angular.module('opApp.results').directive('opResults', function() {
                 error:''
             };
 
+            /**
+             * Make sure we have the tab for the layer we're looking at
+             * @param name
+             */
             $scope.selectLayer = function (name){
                 // Keep clicking on active tab from re-querying
                 if ($scope.model.currentTab !== name) {
@@ -29,6 +33,10 @@ angular.module('opApp.results').directive('opResults', function() {
                 }
             };
 
+            /**
+             * Update the results table with new data
+             * @param name
+             */
             $scope.updateResults = function (name) {
                 $scope.model.currentTab = name;
                 $scope.model.currentData = [];
@@ -36,6 +44,9 @@ angular.module('opApp.results').directive('opResults', function() {
                 $window.opener.broadcast('queryWfs', name);
             };
 
+            /**
+             * Broadcast receiver for when the filters are updated
+             */
             $scope.$on('updateFilters', function (e, val){
                 $scope.model.layers = val;
                 if (!$scope.model.currentTab || !_.contains(val, $scope.model.currentTab) ){
@@ -43,6 +54,9 @@ angular.module('opApp.results').directive('opResults', function() {
                 }
             });
 
+            /**
+             * Broadcast receiver for when we get our data back from the OGC service
+             */
             $scope.$on('queryWfsResult', function (e, data){
                 if($scope.model.currentTab === data.layer) {
                     $scope.model.loading = false;
@@ -55,6 +69,9 @@ angular.module('opApp.results').directive('opResults', function() {
                 }
             });
 
+            /**
+             * Broadcast receiver for when our map bounds changed
+             */
             $scope.$on('mapBoundsChanged', function (){
                 $scope.updateResults($scope.model.currentTab);
             });

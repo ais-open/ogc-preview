@@ -50,6 +50,11 @@ angular.module('opApp.query')
             return geomField;
         };
 
+        /**
+         * Cache data fields associated with a layer
+         * @param layer     layer we're using
+         * @param fields    field data for the layer
+         */
         this.setFieldCache = function(layer, fields) {
             var cacheLayer = {
                 name: layer.name,
@@ -76,11 +81,18 @@ angular.module('opApp.query')
             localStorageService.set(this.localStorageLayerFieldsKey, timeCache);
         };
 
+        /**
+         * Clear all the layer and field cache data
+         */
         this.clearCache = function() {
             localStorageService.set(this.localStorageLayersKey, null);
             localStorageService.set(this.localStorageLayerFieldsKey, null);
         };
 
+        /**
+         * Clear all the data associated with a server
+         * @param serverNum
+         */
         this.clearCacheForServer = function(serverNum) {
             localStorageService.set(this.localStorageLayersKey+serverNum, null);
             localStorageService.set(this.localStorageLayerFieldsKey, null);
