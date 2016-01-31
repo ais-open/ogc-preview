@@ -83,6 +83,10 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
             }
         });
 
+        /**
+         * Set/update date range with val
+         * @param val   new date range
+         */
         $scope.setDateRange = function (val) {
             $scope.dateKey = 'range';
 
@@ -100,10 +104,18 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
             }
         };
 
+        /**
+         * Determine if a value is an integer
+         * @param value     value to test
+         * @returns {boolean}   true if int, false otherwise
+         */
         var isInt = function (value) {
             return !isNaN(value) && parseInt(Number(value)) == value; // jshint ignore:line
         };
 
+        /**
+         * Set the model to duration time type
+         */
         $scope.setDuration = function () {
             $scope.dateKey = 'duration';
 
@@ -148,12 +160,20 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
             }
         };
 
+        /**
+         * Set duration key (like 'h' for hour, 'm' for minute, etc)
+         * @param newKey    new key to set as active
+         */
         $scope.setDurationKey = function(newKey) {
             $scope.durationKey = newKey;
 
             $scope.setDuration();
         };
 
+        /**
+         * Helper function to create friendly string to be displayed when the temporal filter is rolled up
+         * @returns {string}
+         */
         $scope.friendlyDate = function () {
             if ($scope.dateKey === 'duration') {
                 var names = {h: ' Hour', d: ' Day', w: ' Week'};
@@ -170,6 +190,10 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
             }
         };
 
+        /**
+         * Set whether the temporal key is duration or range
+         * @param key
+         */
         $scope.setDateKey = function (key) {
             switch (key) {
                 case 'duration':
@@ -181,6 +205,9 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
             }
         };
 
+        /**
+         * When user is trying to change the start date/time, lets verify it.
+         */
         $scope.updateStart = function () {
             if($scope.rangeTimeout){
                 $timeout.cancel($scope.rangeTimeout);
@@ -206,6 +233,12 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
             }, 1000);
         };
 
+        /**
+         * Check whether the date range is valid as well as within our app's ability based on our max capabilities
+         * @param newDateRange          requested new range
+         * @param previousDateRange     previous range that was being used
+         * @param maxDaysBack           max time period in days
+         */
         var enforceDateRangeLimits = function(newDateRange, previousDateRange, maxDaysBack) {
             var compareFormat =  'MM/DD/YYYYHH:mm:ss';
 
@@ -232,8 +265,9 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
             }
         };
 
-
-
+        /**
+         * When user is trying to change the end date/time, lets verify it.
+         */
         $scope.updateEnd = function () {
             if($scope.rangeTimeout){
                 $timeout.cancel($scope.rangeTimeout);
@@ -259,6 +293,9 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
                 }, 1000);
         };
 
+        /**
+         * Move the date range up by whatever selection we have (hour,  day, etc.) active
+         */
         $scope.advanceDateRange = function() {
             var startDate = moment($scope.dateRange[0]);
             var stopDate = moment($scope.dateRange[1]);
@@ -272,6 +309,9 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
             }
         };
 
+        /**
+         * Move the date range back by whatever selection we have (hour,  day, etc.) active
+         */
         $scope.retreatDateRange = function() {
             var startDate = moment($scope.dateRange[0]);
             var stopDate = moment($scope.dateRange[1]);
@@ -285,19 +325,35 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
             }
         };
 
+        /**
+         * Update the date range picker widget
+         * @param start     start date/time
+         * @param end       end date/time
+         */
         var updateDatePicker = function (start, end) {
             $scope.dateRange = [start, end];
             $scope.$apply();
         };
 
+        /**
+         * Broadcast receiver for when filters are updated to update our temporal action
+         */
         $scope.$on('filters-updated', function() {
             updateTemporalFilters();
         });
 
+        /**
+         * Broadcast receiver for when the latest data button is pressed to be able to set the time filters
+         * for whatever the latest time for a layer is as the end time and then that time minus 24 hours as the
+         * start time.
+         */
         $scope.$on('latest-data-button', function(event, times) {
           $scope.setDateRange(times);
         });
 
+        /**
+         * Get the latest temporal filtering from the state service and set up our filters to be in line visually
+         */
         var updateTemporalFilters = function () {
             /*
              use initializing variable to keep filters from being pushed back out to location causing an endless
@@ -321,6 +377,9 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
             $scope.initializing = false;
         };
 
+        /**
+         * Start this thing!
+         */
         var initialize = function () {
             $log.log('Starting up opDateTimeController...');
             updateTemporalFilters();
@@ -332,6 +391,8 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
                 dateRangeCreated = true;
             }, 1000);
         };
+
+        // kick start this thang!
         initialize();
     }
 );

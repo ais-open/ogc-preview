@@ -56,7 +56,6 @@ module.exports = function(config) {
       //'app/modules/query/opFilterService.js',
       //'app/modules/query/opExportService.js',
       //'app/modules/ui/opPopupWindow.js',
-      //'app/modules/ui/opPopup.js',
       //'app/modules/opStateService.js',
       //'app/modules/opConfig.js',
       //'test/spec/*.js',
