@@ -76,9 +76,9 @@ pipes.copyAppScriptsProd = function() {
 
 pipes.builtAppScriptsProd = function () {
     return pipes.validatedAppScripts()
-        .pipe(plugins.ngAnnotate())
         .pipe(plugins.sourcemaps.init())
         .pipe(plugins.concat('app.min.js'))
+        .pipe(plugins.ngAnnotate())
         .pipe(plugins.uglify({mangle:false}))
         .pipe(plugins.sourcemaps.write())
         .pipe(gulp.dest(paths.distProdScripts));
@@ -90,7 +90,7 @@ pipes.builtVendorScriptsProd = function () {
         .pipe(pipes.orderedVendorScripts())
         .pipe(pipes.minifiedFileName())
         .pipe(plugins.concat('vendor.min.js'))
-        //.pipe(plugins.uglify())
+        .pipe(plugins.uglify({mangle:false}))
         .pipe(gulp.dest(paths.distProdScripts));
 };
 
@@ -150,7 +150,9 @@ pipes.builtIndexProd = function () {
 
     //var partialScript = pipes.builtPartialsScriptProd();
     var vendorScripts = pipes.builtVendorScriptsProd();
-    var otherScripts = series(pipes.copyPartialsProd(),pipes.copyAppScriptsProd());
+    //var realAppScripts = pipes.builtAppScriptsProd();
+    var otherScripts2 = series(pipes.copyPartialsProd(),pipes.copyAppScriptsProd());
+    var otherScripts = series(pipes.copyPartialsProd(), pipes.builtAppScriptsProd());
     var appStyles = series(pipes.builtStylesProd());
     var scripts = series(vendorScripts, otherScripts);
 

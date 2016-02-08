@@ -1,8 +1,4 @@
-/**
- * Created by Jonathan.Meyer on 6/29/2014.
- */
-
-angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
+angular.module('opApp').controller('opDateTimeController', ['$scope', '$timeout', 'toaster', 'opConfig', 'opStateService', '$log',
     function ($scope, $timeout, toaster, opConfig, opStateService, $log) {
         'use strict';
 
@@ -49,6 +45,64 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
         var oldRange;
         var dateFormat = 'MM/DD/YY';
         var parseFormat = 'MM/DD/YYYYHH:mm:ss';
+
+        /**
+         * Check whether the date range is valid as well as within our app's ability based on our max capabilities
+         * @param newDateRange          requested new range
+         * @param previousDateRange     previous range that was being used
+         * @param maxDaysBack           max time period in days
+         */
+        var enforceDateRangeLimits = function (newDateRange, previousDateRange, maxDaysBack) {
+            var compareFormat = 'MM/DD/YYYYHH:mm:ss';
+
+            if (Math.abs(newDateRange[0].diff(newDateRange[1], 'days', true)) > maxDaysBack) {
+                var message;
+                if (angular.isDefined(previousDateRange)) {
+                    if (previousDateRange[0].format(compareFormat) !== newDateRange[0].format(compareFormat) &&
+                        previousDateRange[1].format(compareFormat) === newDateRange[1].format(compareFormat)) {
+                        newDateRange[1] = moment(newDateRange[0]).add('days', maxDaysBack);
+                        message = 'Start date is more than ' + maxDaysBack + ' days before ' +
+                            'End Date.  End Date has been adjusted to not exceed this period.';
+                        $log.log(message);
+                        toaster.pop('note', message);
+                    }
+                    else if (previousDateRange[0].format(compareFormat) === newDateRange[0].format(compareFormat) &&
+                        previousDateRange[1].format(compareFormat) !== newDateRange[1].format(compareFormat)) {
+                        newDateRange[0] = moment(newDateRange[1]).subtract('days', maxDaysBack);
+                        message = 'End date is more than ' + opConfig.maxDaysBack + ' days after ' +
+                            'Start Date.  Start Date has been adjusted to not exceed this period.';
+                        $log.log(message);
+                        toaster.pop('note', message);
+                    }
+                }
+            }
+        };
+
+        /**
+         * Get the latest temporal filtering from the state service and set up our filters to be in line visually
+         */
+        var updateTemporalFilters = function () {
+            /*
+             use initializing variable to keep filters from being pushed back out to location causing an endless
+             update loop
+             */
+            $scope.initializing = true;
+            var filter = opStateService.getTemporalFilter();
+
+            if (filter.type === 'range') {
+                $scope.setDateRange([filter.start, filter.stop]);
+
+                drpOptions.startDate = $scope.dateRange[0];
+                drpOptions.endDate = $scope.dateRange[1];
+                oldRange = $scope.dateRange;
+            }
+            else if (filter.type === 'duration') {
+                $scope.durationKey = filter.interval;
+                $scope.duration = filter.value;
+                $scope.setDuration();
+            }
+            $scope.initializing = false;
+        };
 
         $scope.$watch('dateRange', function () {
             if (_.isArray($scope.dateRange)) {
@@ -234,38 +288,6 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
         };
 
         /**
-         * Check whether the date range is valid as well as within our app's ability based on our max capabilities
-         * @param newDateRange          requested new range
-         * @param previousDateRange     previous range that was being used
-         * @param maxDaysBack           max time period in days
-         */
-        var enforceDateRangeLimits = function (newDateRange, previousDateRange, maxDaysBack) {
-            var compareFormat = 'MM/DD/YYYYHH:mm:ss';
-
-            if (Math.abs(newDateRange[0].diff(newDateRange[1], 'days', true)) > maxDaysBack) {
-                var message;
-                if (angular.isDefined(previousDateRange)) {
-                    if (previousDateRange[0].format(compareFormat) !== newDateRange[0].format(compareFormat) &&
-                        previousDateRange[1].format(compareFormat) === newDateRange[1].format(compareFormat)) {
-                        newDateRange[1] = moment(newDateRange[0]).add('days', maxDaysBack);
-                        message = 'Start date is more than ' + maxDaysBack + ' days before ' +
-                            'End Date.  End Date has been adjusted to not exceed this period.';
-                        $log.log(message);
-                        toaster.pop('note', message);
-                    }
-                    else if (previousDateRange[0].format(compareFormat) === newDateRange[0].format(compareFormat) &&
-                        previousDateRange[1].format(compareFormat) !== newDateRange[1].format(compareFormat)) {
-                        newDateRange[0] = moment(newDateRange[1]).subtract('days', maxDaysBack);
-                        message = 'End date is more than ' + opConfig.maxDaysBack + ' days after ' +
-                            'Start Date.  Start Date has been adjusted to not exceed this period.';
-                        $log.log(message);
-                        toaster.pop('note', message);
-                    }
-                }
-            }
-        };
-
-        /**
          * When user is trying to change the end date/time, lets verify it.
          */
         $scope.updateEnd = function () {
@@ -352,32 +374,6 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
         });
 
         /**
-         * Get the latest temporal filtering from the state service and set up our filters to be in line visually
-         */
-        var updateTemporalFilters = function () {
-            /*
-             use initializing variable to keep filters from being pushed back out to location causing an endless
-             update loop
-             */
-            $scope.initializing = true;
-            var filter = opStateService.getTemporalFilter();
-
-            if (filter.type === 'range') {
-                $scope.setDateRange([filter.start, filter.stop]);
-
-                drpOptions.startDate = $scope.dateRange[0];
-                drpOptions.endDate = $scope.dateRange[1];
-                oldRange = $scope.dateRange;
-            }
-            else if (filter.type === 'duration') {
-                $scope.durationKey = filter.interval;
-                $scope.duration = filter.value;
-                $scope.setDuration();
-            }
-            $scope.initializing = false;
-        };
-
-        /**
          * Start this thing!
          */
         var initialize = function () {
@@ -394,5 +390,4 @@ angular.module('opApp.sidebar.temporal').controller('opDateTimeController',
 
         // kick start this thang!
         initialize();
-    }
-);
+    }]);

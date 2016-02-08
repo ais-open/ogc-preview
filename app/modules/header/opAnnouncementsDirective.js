@@ -1,15 +1,5 @@
-/**
- * Announcements Directive
- *
- * @author David Benson
- * @company Applied Information Sciences
- * @created 1/23/2014
- *
- * Adds announcements based on the announcements.json script
- */
-
-angular.module('opApp.header')
-    .directive('opAnnouncements', function ($modal, $templateCache, $rootScope, opAnnouncementsService) {
+angular.module('opApp').directive('opAnnouncements', ['$modal', '$templateCache', '$rootScope', 'opAnnouncementsService',
+    function ($modal, $templateCache, $rootScope, opAnnouncementsService) {
         'use strict';
         return {
             templateUrl: 'modules/header/opAnnouncements.html',
@@ -82,4 +72,4 @@ angular.module('opApp.header')
 
             }
         };
-    });
+    }]);

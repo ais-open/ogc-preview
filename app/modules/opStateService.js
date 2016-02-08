@@ -1,11 +1,5 @@
-/* --------------------------------
- Developed by Jonathan Meyer
- Applied Information Sciences
- 7/8/2014
- ---------------------------------*/
-
-angular.module('opApp')
-    .service('opStateService', function State($q, $rootScope, $location, $route, $timeout, L, moment, opConfig, $log) {
+angular.module('opApp').service('opStateService', ['$q', '$rootScope', '$location', '$timeout', 'L', 'moment', 'opConfig', '$log',
+    function State($q, $rootScope, $location, $timeout, L, moment, opConfig, $log) {
             'use strict';
             var self = this;
             var state = {};
@@ -29,6 +23,15 @@ angular.module('opApp')
 
             var activeServer = [];
             var previousActiveServer = [];
+
+            var debounceBroadcast = function (message, args) {
+                if (debounceTimer[message]) {
+                    $timeout.cancel(debounceTimer[message]);
+                }
+                debounceTimer[message] = $timeout(function () {
+                    $rootScope.$broadcast(message, args);
+                }, 500);
+            };
 
             /**
              * Get the dataset id (key) for URL use
@@ -491,16 +494,6 @@ angular.module('opApp')
                 }
             };
 
-            var debounceBroadcast = function (message, args) {
-                if (debounceTimer[message]) {
-                    $timeout.cancel(debounceTimer[message]);
-                }
-                debounceTimer[message] = $timeout(function () {
-                    $rootScope.$broadcast(message, args);
-                }, 500);
-            };
-
-
             this.getCustomFilter = function () {
                 var filters = this.getState(customFilterId);
                 var result = {};
@@ -702,5 +695,5 @@ angular.module('opApp')
                 previousActiveServer = activeServer;
 
             };
-        }
+        }]
     );

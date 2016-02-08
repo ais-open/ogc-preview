@@ -4,9 +4,8 @@
  7/8/2014
  ---------------------------------*/
 
-angular.module('opApp.query')
-    .service('opWebFeatureService',
-        function ($q, $http, opConfig, opStateService, $log, toaster, opPopupWindow) {
+angular.module('opApp').service('opWebFeatureService', ['$q','$http','opConfig','opStateService','$log','opPopupWindow',
+        function ($q, $http, opConfig, opStateService, $log, opPopupWindow) {
             'use strict';
 
             // Using WFS 1.1.0 for the very specific reason, that 2.0.0 always runs full table scan to get feature counts.
@@ -358,4 +357,4 @@ angular.module('opApp.query')
 
                 return deferred.promise;
             };
-        });
+        }]);

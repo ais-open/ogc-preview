@@ -1,8 +1,4 @@
-/**
- * Created by Jonathan.Meyer on 6/23/2014.
- */
-
-angular.module('opApp.sidebar.temporal').directive('opDateTime', function () {
+angular.module('opApp').directive('opDateTime', function () {
     'use strict';
     return {
         scope: {},

@@ -13,76 +13,6 @@
   <link rel="stylesheet" href="styles/lib.css">
   <link rel="stylesheet" href="styles/app.css">
   <!-- endinject -->
-
-  <!-- inject:js -->
-  <script src="bower_components/jquery/jquery.js"></script>
-  <script src="bower_components/angular/angular.js"></script>
-  <script src="bower_components/sass-bootstrap/dist/js/bootstrap.js"></script>
-  <script src="bower_components/angular-resource/angular-resource.js"></script>
-  <script src="bower_components/angular-cookies/angular-cookies.js"></script>
-  <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
-  <script src="bower_components/angular-route/angular-route.js"></script>
-  <script src="bower_components/angular-animate/angular-animate.js"></script>
-  <script src="bower_components/angularjs-slider/dist/rzslider.js"></script>
-  <script src="bower_components/momentjs/moment.js"></script>
-  <script src="bower_components/lodash/dist/lodash.compat.js"></script>
-  <script src="bower_components/restangular/dist/restangular.js"></script>
-  <script src="bower_components/angular-local-storage/dist/angular-local-storage.js"></script>
-  <script src="bower_components/leaflet-dist/leaflet.js"></script>
-  <script src="bower_components/AngularJS-Toaster/toaster.js"></script>
-  <script src="bower_components/Wicket/wicket.js"></script>
-  <script src="bower_components/Wicket/wicket-leaflet.js"></script>
-  <script src="bower_components/ui-select/dist/select.js"></script>
-  <script src="bower_components/ng-file-upload/ng-file-upload-shim.min.js"></script>
-  <script src="bower_components/ng-file-upload/ng-file-upload.js"></script>
-  <!-- endinject -->
-
-  <script src="lib/jquery.dataTables.js"></script>
-  <script src="lib/leaflet-mouseposition.js"></script>
-  <script src="lib/leaflet-legend.js"></script>
-  <script src="lib/leaflet.draw-src.js"></script>
-  <script src="lib/daterangepicker-AISFIX.js"></script>
-  <script src="lib/usng.js"></script>
-  <script src="lib/ui-bootstrap-tpls-0.14.3.js"></script>
-
-  <script src="modules/app.js"></script>
-  <script src="modules/filters/filters.module.js"></script>
-  <script src="modules/header/header.module.js"></script>
-  <script src="modules/home/home.module.js"></script>
-  <script src="modules/map/map.module.js"></script>
-  <script src="modules/query/query.module.js"></script>
-  <script src="modules/results/results.module.js"></script>
-  <script src="modules/sidebar/sidebar.module.js"></script>
-  <script src="modules/sidebar/layer/sidebar.layer.module.js"></script>
-  <script src="modules/sidebar/temporal/sidebar.temporal.module.js"></script>
-  <script src="modules/sidebar/location/sidebar.location.module.js"></script>
-  <script src="modules/ui/ui.module.js"></script>
-  <script src="modules/header/opAnnouncementsDirective.js"></script>
-  <script src="modules/filters/opPlaintTextToHtml.js"></script>
-  <script src="modules/filters/opTagFilter.js"></script>
-  <script src="modules/header/opHeaderController.js"></script>
-  <script src="modules/header/opHeaderDirective.js"></script>
-  <script src="modules/header/opAnnouncementsService.js"></script>
-  <script src="modules/home/opHomeController.js"></script>
-  <script src="modules/map/opMapController.js"></script>
-  <script src="modules/map/opMapDirective.js"></script>
-  <script src="modules/results/opResults.js"></script>
-  <script src="modules/query/opLayerService.js"></script>
-  <script src="modules/query/opWebFeatureService.js"></script>
-  <script src="modules/query/opWebMapService.js"></script>
-  <script src="modules/sidebar/opSidebarController.js"></script>
-  <script src="modules/sidebar/opSidebarDirective.js"></script>
-  <script src="modules/sidebar/layer/opLayerController.js"></script>
-  <script src="modules/sidebar/layer/opLayerDirective.js"></script>
-  <script src="modules/sidebar/temporal/opDateTimeDirective.js"></script>
-  <script src="modules/sidebar/temporal/opDateTimeController.js"></script>
-  <script src="modules/sidebar/location/opCoordinateConversionService.js"></script>
-  <script src="modules/sidebar/location/opLocationDirective.js"></script>
-  <script src="modules/query/opFilterService.js"></script>
-  <script src="modules/query/opExportService.js"></script>
-  <script src="modules/ui/opPopupWindow.js"></script>
-  <script src="modules/opStateService.js"></script>
-  <script src="config/opConfig.js"></script>
 </head>
 
 <body>
@@ -111,5 +41,63 @@
   <ng-view></ng-view>
 
 </div>
+<!-- inject:js -->
+<script src="bower_components/jquery/jquery.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/sass-bootstrap/dist/js/bootstrap.js"></script>
+<script src="bower_components/angular-resource/angular-resource.js"></script>
+<script src="bower_components/angular-cookies/angular-cookies.js"></script>
+<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script src="bower_components/angular-route/angular-route.js"></script>
+<script src="bower_components/angular-animate/angular-animate.js"></script>
+<script src="bower_components/angularjs-slider/dist/rzslider.js"></script>
+<script src="bower_components/momentjs/moment.js"></script>
+<script src="bower_components/lodash/dist/lodash.compat.js"></script>
+<script src="bower_components/restangular/dist/restangular.js"></script>
+<script src="bower_components/angular-local-storage/dist/angular-local-storage.js"></script>
+<script src="bower_components/leaflet-dist/leaflet.js"></script>
+<script src="bower_components/AngularJS-Toaster/toaster.js"></script>
+<script src="bower_components/Wicket/wicket.js"></script>
+<script src="bower_components/Wicket/wicket-leaflet.js"></script>
+<script src="bower_components/ui-select/dist/select.js"></script>
+<script src="bower_components/ng-file-upload/ng-file-upload-shim.min.js"></script>
+<script src="bower_components/ng-file-upload/ng-file-upload.js"></script>
+
+<script src="lib/jquery.dataTables.js"></script>
+<script src="lib/leaflet-mouseposition.js"></script>
+<script src="lib/leaflet-legend.js"></script>
+<script src="lib/leaflet.draw-src.js"></script>
+<script src="lib/daterangepicker-AISFIX.js"></script>
+<script src="lib/usng.js"></script>
+<script src="lib/ui-bootstrap-tpls-0.14.3.js"></script>
+<!-- endinject -->
+
+<script src="modules/app.js"></script>
+<script src="modules/home/opHomeController.js"></script>
+<script src="modules/header/opAnnouncementsDirective.js"></script>
+<script src="modules/filters/opPlaintTextToHtml.js"></script>
+<script src="modules/filters/opTagFilter.js"></script>
+<script src="modules/header/opHeaderController.js"></script>
+<script src="modules/header/opHeaderDirective.js"></script>
+<script src="modules/header/opAnnouncementsService.js"></script>
+<script src="modules/map/opMapController.js"></script>
+<script src="modules/map/opMapDirective.js"></script>
+<script src="modules/results/opResults.js"></script>
+<script src="modules/query/opLayerService.js"></script>
+<script src="modules/query/opWebFeatureService.js"></script>
+<script src="modules/query/opWebMapService.js"></script>
+<script src="modules/sidebar/opSidebarController.js"></script>
+<script src="modules/sidebar/opSidebarDirective.js"></script>
+<script src="modules/sidebar/layer/opLayerController.js"></script>
+<script src="modules/sidebar/layer/opLayerDirective.js"></script>
+<script src="modules/sidebar/temporal/opDateTimeDirective.js"></script>
+<script src="modules/sidebar/temporal/opDateTimeController.js"></script>
+<script src="modules/sidebar/location/opCoordinateConversionService.js"></script>
+<script src="modules/sidebar/location/opLocationDirective.js"></script>
+<script src="modules/query/opFilterService.js"></script>
+<script src="modules/query/opExportService.js"></script>
+<script src="modules/ui/opPopupWindow.js"></script>
+<script src="modules/opStateService.js"></script>
+<script src="config/opConfig.js"></script>
 </body>
 </html>

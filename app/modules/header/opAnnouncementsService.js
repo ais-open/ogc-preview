@@ -1,14 +1,5 @@
-/**
- * Announcements Service
- *
- * @author David Benson
- * @company Applied Information Sciences
- * @created 10/11/2013
- *
- * Handles managing announcement messages
- */
-angular.module('opApp.header')
-    .service('opAnnouncementsService', function ($log, $http, $timeout, $rootScope, moment, localStorageService) {
+angular.module('opApp').service('opAnnouncementsService', ['$log','$http','$timeout','$rootScope','moment','localStorageService',
+    function ($log, $http, $timeout, $rootScope, moment, localStorageService) {
         'use strict';
         var self = this;
 
@@ -151,4 +142,4 @@ angular.module('opApp.header')
         $timeout(function () {
             self.load();
         }, 100); // Delaying IE to load scripts and give a chance to attach listeners
-    });
+    }]);

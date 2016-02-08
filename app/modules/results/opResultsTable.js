@@ -1,8 +1,5 @@
-/**
- * Created by bensonda on 7/21/2014.
- */
-
-angular.module('opApp.results').directive('opResultsTable', function ($timeout) {
+angular.module('opApp').directive('opResultsTable', ['$timeout',
+    function ($timeout) {
     'use strict';
 
     if (typeof window.ColumnsPlugins === 'undefined') {
@@ -68,6 +65,4 @@ angular.module('opApp.results').directive('opResultsTable', function ($timeout) 
 
         }
     };
-});
-
-
+}]);

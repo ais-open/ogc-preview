@@ -1,11 +1,4 @@
-/* --------------------------------
- Developed by Jonathan Meyer
- Applied Information Sciences
- 7/8/2014
- ---------------------------------*/
-
-angular.module('opApp.query')
-    .service('opWebMapService',
+angular.module('opApp').service('opWebMapService', ['$q','$http','opConfig','opStateService', '$log',
         function ($q, $http, opConfig, opStateService, $log) {
             'use strict';
 
@@ -111,4 +104,4 @@ angular.module('opApp.query')
                 var url = server.ajaxUrl + '/wms';
                 return url + '?' + $.param(params);
             };
-        });
+        }]);

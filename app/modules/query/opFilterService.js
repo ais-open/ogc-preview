@@ -1,12 +1,4 @@
-/* --------------------------------
- Developed by
- Jonathan Meyer, David Benson, Michael Bowman, Tony Baron
- Applied Information Sciences
- 7/8/2014
- ---------------------------------*/
-
-angular.module('opApp.query')
-    .service('opFilterService',
+angular.module('opApp').service('opFilterService', ['opStateService',
         function (opStateService) {
             'use strict';
 
@@ -346,5 +338,4 @@ angular.module('opApp.query')
 
                 return response;
             };
-        }
-    );
+        }]);

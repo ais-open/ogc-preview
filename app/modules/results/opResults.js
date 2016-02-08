@@ -1,8 +1,4 @@
-/**
- * Created by bensonda on 7/21/2014.
- */
-
-angular.module('opApp.results').directive('opResults', function () {
+angular.module('opApp').directive('opResults', function () {
     'use strict';
 
     return {
@@ -94,5 +90,3 @@ angular.module('opApp.results').directive('opResults', function () {
         }
     };
 });
-
-

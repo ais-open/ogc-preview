@@ -1,10 +1,5 @@
-/* --------------------------------
- Developed by Jonathan Meyer
- Applied Information Sciences
- 7/8/2014
- ---------------------------------*/
-
-angular.module('opApp.header').controller('opHeaderController',
+angular.module('opApp').controller('opHeaderController', ['$scope','$rootScope','$location','$modal','$timeout',
+    'opConfig','opPopupWindow','opStateService','$log',
     function ($scope, $rootScope, $location, $modal, $timeout, opConfig, opPopupWindow, opStateService, $log) {
         'use strict';
 
@@ -270,4 +265,4 @@ angular.module('opApp.header').controller('opHeaderController',
         };
 
         $scope.getServerNames();
-    });
+    }]);

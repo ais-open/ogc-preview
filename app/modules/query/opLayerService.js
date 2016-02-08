@@ -1,12 +1,6 @@
-/* --------------------------------
- Developed by Jonathan Meyer
- Applied Information Sciences
- 7/8/2014
- ---------------------------------*/
-
-angular.module('opApp.query')
-    .service('opLayerService',
-        function ($q, $http, localStorageService, opConfig, opWebMapService, opWebFeatureService, opFilterService, opStateService, $log) {
+angular.module('opApp').service('opLayerService', ['$q', 'localStorageService', 'opConfig', 'opWebMapService',
+    'opWebFeatureService','opFilterService','opStateService','$log',
+        function ($q, localStorageService, opConfig, opWebMapService, opWebFeatureService, opFilterService, opStateService, $log) {
             'use strict';
 
             this.localStorageLayersKey = 'opApp.layersCache';
@@ -411,4 +405,4 @@ angular.module('opApp.query')
 
                 return deferred.promise;
             };
-        });
+        }]);

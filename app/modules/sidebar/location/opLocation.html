@@ -126,7 +126,7 @@
             <a class="list-group-item" ng-class="{active: model.locationKey == 'country'}" href=""
                ng-click="model.locationKey = 'country'">Country...</a>
             <div class="details-box" ng-show="model.locationKey == 'country'">
-                <ui-select multiple append-to-body=true ng-disabled="false" on-select="addCountrySelection($item)"
+                <ui-select multiple append-to-body="true" ng-disabled="false" on-select="addCountrySelection($item)"
                            on-remove="removeCountrySelection($item)" ng-model="model.selectedCountries.selected"
                            theme="select2" style="width:100%;">
                     <ui-select-match placeholder="Type country name">

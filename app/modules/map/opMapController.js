@@ -1,10 +1,5 @@
-/* --------------------------------
- Developed by Jonathan Meyer
- Applied Information Sciences
- 7/8/2014
- ---------------------------------*/
-
-angular.module('opApp.map').controller('opMapController',
+angular.module('opApp').controller('opMapController', ['$scope','$rootScope','$timeout','L','opConfig','opStateService',
+    'opWebMapService','opPopupWindow', '$log',
     function ($scope, $rootScope, $timeout, L, opConfig, opStateService, opWebMapService, opPopupWindow, $log) {
         'use strict';
 
@@ -29,6 +24,137 @@ angular.module('opApp.map').controller('opMapController',
             if (bounds) {
                 map.fitBounds(bounds);
             }
+        };
+
+        // do a lot of math that I don't want to confirm
+        // mostly from:
+        // http://stackoverflow.com/questions/24145205/writing-a-function-to-convert-a-circle-to-a-polygon-using-leaflet-js
+        // referencing:
+        // http://trac.osgeo.org/openlayers/browser/trunk/openlayers/lib/OpenLayers/Util.js
+        /**
+         *
+         * @param lonlat Long/Lat as a L.latLng object in degrees
+         * @param brng  bearing angle in degrees
+         * @param dist  ground distance in meters
+         * @returns returns destination point
+         */
+        var destinationVincenty = function (lonlat, brng, dist) {
+
+            var u = L.Util;
+            var ct = u.VincentyConstants;
+            var a = ct.a, b = ct.b, f = ct.f;
+            var lon1 = lonlat.lng;
+            var lat1 = lonlat.lat;
+            var s = dist;
+            var pi = Math.PI;
+            var alpha1 = brng * pi / 180; //converts brng degrees to radius
+            var sinAlpha1 = Math.sin(alpha1);
+            var cosAlpha1 = Math.cos(alpha1);
+            var tanU1 = (1 - f) * Math.tan(lat1 * pi / 180 /* converts lat1 degrees to radius */);
+            var cosU1 = 1 / Math.sqrt((1 + tanU1 * tanU1)), sinU1 = tanU1 * cosU1;
+            var sigma1 = Math.atan2(tanU1, cosAlpha1);
+            var sinAlpha = cosU1 * sinAlpha1;
+            var cosSqAlpha = 1 - sinAlpha * sinAlpha;
+            var uSq = cosSqAlpha * (a * a - b * b) / (b * b);
+            var A = 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq)));
+            var B = uSq / 1024 * (256 + uSq * (-128 + uSq * (74 - 47 * uSq)));
+            var sigma = s / (b * A), sigmaP = 2 * Math.PI;
+            var cos2SigmaM;
+            var sinSigma;
+            var cosSigma;
+            while (Math.abs(sigma - sigmaP) > 1e-12) {
+                cos2SigmaM = Math.cos(2 * sigma1 + sigma);
+                sinSigma = Math.sin(sigma);
+                cosSigma = Math.cos(sigma);
+                var deltaSigma = B * sinSigma * (cos2SigmaM + B / 4 * (cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM) -
+                    B / 6 * cos2SigmaM * (-3 + 4 * sinSigma * sinSigma) * (-3 + 4 * cos2SigmaM * cos2SigmaM)));
+                sigmaP = sigma;
+                sigma = s / (b * A) + deltaSigma;
+            }
+            var tmp = sinU1 * sinSigma - cosU1 * cosSigma * cosAlpha1;
+            var lat2 = Math.atan2(sinU1 * cosSigma + cosU1 * sinSigma * cosAlpha1,
+                (1 - f) * Math.sqrt(sinAlpha * sinAlpha + tmp * tmp));
+            var lambda = Math.atan2(sinSigma * sinAlpha1, cosU1 * cosSigma - sinU1 * sinSigma * cosAlpha1);
+            var C = f / 16 * cosSqAlpha * (4 + f * (4 - 3 * cosSqAlpha));
+            var lam = lambda - (1 - C) * f * sinAlpha *
+                (sigma + C * sinSigma * (cos2SigmaM + C * cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM)));
+            // var revAz = Math.atan2(sinAlpha, -tmp);  // final bearing
+            var lamFunc = lon1 + (lam * 180 / pi); //converts lam radius to degrees
+            var lat2a = lat2 * 180 / pi; //converts lat2a radius to degrees
+
+            return L.latLng(lamFunc, lat2a);
+        };
+
+        /*
+         Convert a mid point and radius (circle) to a polygon of x sides
+         @param  origin  Leaflet lat/long object
+         @param  radius  radius from leaflet layer
+         @param  sides   number of sides of generated polygon (higher is more precise, but slower)
+
+         mostly from:
+         http://stackoverflow.com/questions/24145205/writing-a-function-to-convert-a-circle-to-a-polygon-using-leaflet-js
+         referencing:
+         http://trac.osgeo.org/openlayers/browser/trunk/openlayers/lib/OpenLayers/Util.js
+         @returns    array of points
+         */
+        var createGeodesicPolygon = function (origin, radius, sides) {
+
+            var latLon = origin;
+            var angle;
+            var newLonLat;
+            var geomPoint;
+            var points = [];
+
+            for (var i = 0; i < sides; i++) {
+                angle = (i * 360 / sides);
+                newLonLat = destinationVincenty(latLon, angle, radius);
+                geomPoint = L.latLng(newLonLat.lng, newLonLat.lat);
+
+                points.push(geomPoint);
+            }
+
+            return points;
+        };
+
+        /**
+         * Creates a polygon coordinates for a circle based on latitude, long, and radius
+         * @param lat       latitude in degrees
+         * @param long      longitude in degrees
+         * @param radius    radius in meters
+         * @returns Leaflet L.polygon representation of the circle
+         */
+        var createCirclePoly = function (lat, long, radius) {
+            var vertices = 120;
+            var origin = L.latLng(lat, long);
+            var polys = createGeodesicPolygon(origin, radius, vertices);
+            var polygon = [];
+
+            for (var i = 0; i < polys.length; i++) {
+                var geometry = [polys[i].lat, polys[i].lng];
+                polygon.push(geometry);
+            }
+            return L.polygon(polygon);
+        };
+
+        /**
+         * Creates a WKT (Well Known Text) version of a circle from lat, long, and radius and sets the WKT parameter
+         * of the bound box layer as the circle to be later used for OGC queries.  Also draws circle to Leaflet.
+         * @param lat       midpoint of circle latitude in degrees
+         * @param long      midpoint of circle longitude in degrees
+         * @param radius    radius of circle in meters
+         */
+        var drawCircle = function (lat, long, radius) {
+            var wkt = new Wkt.Wkt(); // jshint ignore:line
+            var polyCircle = createCirclePoly(lat, long, radius);
+            wkt.fromObject(polyCircle);
+            var origin = L.latLng(lat, long);
+            var circleLayer = new L.circle(origin, radius, {
+                color: '#ffd800', weight: 2, opacity: 1, fill: false
+            });
+
+            bboxLayer.clearLayers();
+            bboxLayer.addLayer(circleLayer);
+            bboxLayer.wkt = wkt.write();
         };
 
         /**
@@ -83,27 +209,6 @@ angular.module('opApp.map').controller('opMapController',
             // sync result popup if the window is open to our bounding region changes
             opPopupWindow.broadcast(opStateService.getResultsWindow(), 'mapBoundsChanged');
             $rootScope.$broadcast('mapBoundsChanged');
-        };
-
-        /**
-         * Creates a WKT (Well Known Text) version of a circle from lat, long, and radius and sets the WKT parameter
-         * of the bound box layer as the circle to be later used for OGC queries.  Also draws circle to Leaflet.
-         * @param lat       midpoint of circle latitude in degrees
-         * @param long      midpoint of circle longitude in degrees
-         * @param radius    radius of circle in meters
-         */
-        var drawCircle = function (lat, long, radius) {
-            var wkt = new Wkt.Wkt(); // jshint ignore:line
-            var polyCircle = createCirclePoly(lat, long, radius);
-            wkt.fromObject(polyCircle);
-            var origin = L.latLng(lat, long);
-            var circleLayer = new L.circle(origin, radius, {
-                color: '#ffd800', weight: 2, opacity: 1, fill: false
-            });
-
-            bboxLayer.clearLayers();
-            bboxLayer.addLayer(circleLayer);
-            bboxLayer.wkt = wkt.write();
         };
 
         /**
@@ -248,6 +353,16 @@ angular.module('opApp.map').controller('opMapController',
                 $rootScope.$broadcast('mapBoundsChanged');
             }
         };
+
+        /**
+         * Event handler for map moveend.  Send bounds change to the State Service for query string persistence.
+         *
+         * @param e
+         */
+        var setBounds = function (e) {
+            opStateService.setBounds(e.target.getBounds());
+        };
+
 
         /**
          * Initial function call -- set up all of mapping variables, define the basemaps from config, and check the
@@ -404,35 +519,6 @@ angular.module('opApp.map').controller('opMapController',
         };
 
         /**
-         * Creates a polygon coordinates for a circle based on latitude, long, and radius
-         * @param lat       latitude in degrees
-         * @param long      longitude in degrees
-         * @param radius    radius in meters
-         * @returns Leaflet L.polygon representation of the circle
-         */
-        var createCirclePoly = function (lat, long, radius) {
-            var vertices = 120;
-            var origin = L.latLng(lat, long);
-            var polys = createGeodesicPolygon(origin, radius, vertices);
-            var polygon = [];
-
-            for (var i = 0; i < polys.length; i++) {
-                var geometry = [polys[i].lat, polys[i].lng];
-                polygon.push(geometry);
-            }
-            return L.polygon(polygon);
-        };
-
-        /**
-         * Event handler for map moveend.  Send bounds change to the State Service for query string persistence.
-         *
-         * @param e
-         */
-        var setBounds = function (e) {
-            opStateService.setBounds(e.target.getBounds());
-        };
-
-        /**
          * Broadcast receiver -- when map state is updated, updates map view and bounding region
          */
         $rootScope.$on('map-state-updated', function () {
@@ -516,37 +602,6 @@ angular.module('opApp.map').controller('opMapController',
             map.fitBounds(bounds, {maxZoom: 5});
         });
 
-        /*
-         Convert a mid point and radius (circle) to a polygon of x sides
-         @param  origin  Leaflet lat/long object
-         @param  radius  radius from leaflet layer
-         @param  sides   number of sides of generated polygon (higher is more precise, but slower)
-
-         mostly from:
-         http://stackoverflow.com/questions/24145205/writing-a-function-to-convert-a-circle-to-a-polygon-using-leaflet-js
-         referencing:
-         http://trac.osgeo.org/openlayers/browser/trunk/openlayers/lib/OpenLayers/Util.js
-         @returns    array of points
-         */
-        var createGeodesicPolygon = function (origin, radius, sides) {
-
-            var latLon = origin;
-            var angle;
-            var newLonLat;
-            var geomPoint;
-            var points = [];
-
-            for (var i = 0; i < sides; i++) {
-                angle = (i * 360 / sides);
-                newLonLat = destinationVincenty(latLon, angle, radius);
-                geomPoint = L.latLng(newLonLat.lng, newLonLat.lat);
-
-                points.push(geomPoint);
-            }
-
-            return points;
-        };
-
         // Extend Leaflet Utils to contain some constants for converting a circle
         // mostly from:
         // http://stackoverflow.com/questions/24145205/writing-a-function-to-convert-a-circle-to-a-polygon-using-leaflet-js
@@ -558,65 +613,7 @@ angular.module('opApp.map').controller('opMapController',
             f: 1 / 298.257223563
         };
 
-        // do a lot of math that I don't want to confirm
-        // mostly from:
-        // http://stackoverflow.com/questions/24145205/writing-a-function-to-convert-a-circle-to-a-polygon-using-leaflet-js
-        // referencing:
-        // http://trac.osgeo.org/openlayers/browser/trunk/openlayers/lib/OpenLayers/Util.js
-        /**
-         *
-         * @param lonlat Long/Lat as a L.latLng object in degrees
-         * @param brng  bearing angle in degrees
-         * @param dist  ground distance in meters
-         * @returns returns destination point
-         */
-        var destinationVincenty = function (lonlat, brng, dist) {
-
-            var u = L.Util;
-            var ct = u.VincentyConstants;
-            var a = ct.a, b = ct.b, f = ct.f;
-            var lon1 = lonlat.lng;
-            var lat1 = lonlat.lat;
-            var s = dist;
-            var pi = Math.PI;
-            var alpha1 = brng * pi / 180; //converts brng degrees to radius
-            var sinAlpha1 = Math.sin(alpha1);
-            var cosAlpha1 = Math.cos(alpha1);
-            var tanU1 = (1 - f) * Math.tan(lat1 * pi / 180 /* converts lat1 degrees to radius */);
-            var cosU1 = 1 / Math.sqrt((1 + tanU1 * tanU1)), sinU1 = tanU1 * cosU1;
-            var sigma1 = Math.atan2(tanU1, cosAlpha1);
-            var sinAlpha = cosU1 * sinAlpha1;
-            var cosSqAlpha = 1 - sinAlpha * sinAlpha;
-            var uSq = cosSqAlpha * (a * a - b * b) / (b * b);
-            var A = 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq)));
-            var B = uSq / 1024 * (256 + uSq * (-128 + uSq * (74 - 47 * uSq)));
-            var sigma = s / (b * A), sigmaP = 2 * Math.PI;
-            var cos2SigmaM;
-            var sinSigma;
-            var cosSigma;
-            while (Math.abs(sigma - sigmaP) > 1e-12) {
-                cos2SigmaM = Math.cos(2 * sigma1 + sigma);
-                sinSigma = Math.sin(sigma);
-                cosSigma = Math.cos(sigma);
-                var deltaSigma = B * sinSigma * (cos2SigmaM + B / 4 * (cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM) -
-                    B / 6 * cos2SigmaM * (-3 + 4 * sinSigma * sinSigma) * (-3 + 4 * cos2SigmaM * cos2SigmaM)));
-                sigmaP = sigma;
-                sigma = s / (b * A) + deltaSigma;
-            }
-            var tmp = sinU1 * sinSigma - cosU1 * cosSigma * cosAlpha1;
-            var lat2 = Math.atan2(sinU1 * cosSigma + cosU1 * sinSigma * cosAlpha1,
-                (1 - f) * Math.sqrt(sinAlpha * sinAlpha + tmp * tmp));
-            var lambda = Math.atan2(sinSigma * sinAlpha1, cosU1 * cosSigma - sinU1 * sinSigma * cosAlpha1);
-            var C = f / 16 * cosSqAlpha * (4 + f * (4 - 3 * cosSqAlpha));
-            var lam = lambda - (1 - C) * f * sinAlpha *
-                (sigma + C * sinSigma * (cos2SigmaM + C * cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM)));
-            // var revAz = Math.atan2(sinAlpha, -tmp);  // final bearing
-            var lamFunc = lon1 + (lam * 180 / pi); //converts lam radius to degrees
-            var lat2a = lat2 * 180 / pi; //converts lat2a radius to degrees
-
-            return L.latLng(lamFunc, lat2a);
-        };
 
         // load this controller!
         initializeMap();
-    });
+    }]);

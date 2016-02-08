@@ -1,10 +1,5 @@
-/* --------------------------------
- Developed by Jonathan Meyer
- Applied Information Sciences
- 7/8/2014
- ---------------------------------*/
-
-angular.module('opApp.home').controller('opHomeController',
+angular.module('opApp').controller('opHomeController', ['$scope', '$rootScope', 'opStateService', 'opPopupWindow',
+    '$window', '$log',
     function ($scope, $rootScope, opStateService, opPopupWindow, $window, $log) {
         'use strict';
 
@@ -17,5 +12,4 @@ angular.module('opApp.home').controller('opHomeController',
             var args = arguments;
             $rootScope.$broadcast.apply($scope, args);
         };
-    }
-);
+    }]);

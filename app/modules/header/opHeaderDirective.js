@@ -1,10 +1,4 @@
-/* --------------------------------
- Developed by Jonathan Meyer
- Applied Information Sciences
- 7/8/2014
- ---------------------------------*/
-
-angular.module('opApp.header').directive('opHeader', function () {
+angular.module('opApp').directive('opHeader', function () {
     'use strict';
 
     return {

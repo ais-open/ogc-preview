@@ -1,4 +1,4 @@
-angular.module('opApp.sidebar').directive('opSidebar', function () {
+angular.module('opApp').directive('opSidebar', function () {
     'use strict';
 
     return {

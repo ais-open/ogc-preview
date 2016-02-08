@@ -1,5 +1,4 @@
-angular.module('opApp.filters')
-    .filter('tagFilter', function () {
+angular.module('opApp').filter('tagFilter', function () {
         'use strict';
         return function (groups) {
             // compare tags and sort alphabetically

@@ -1,8 +1,6 @@
-/**
- * Created by Jonathan.Meyer on 5/29/2014.
- */
-
-angular.module('opApp').controller('opLayerController',
+angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope', '$location', '$timeout', '$window',
+    'moment', 'toaster', 'L', 'opConfig', 'opLayerService', 'opWebMapService', 'opWebFeatureService', 'opStateService',
+    'opFilterService', 'opExportService', 'opPopupWindow', '$log',
     function ($rootScope, $scope, $location, $timeout, $window, moment, toaster, L, opConfig, opLayerService, opWebMapService,
               opWebFeatureService, opStateService, opFilterService, opExportService, opPopupWindow, $log) {
         'use strict';
@@ -47,94 +45,81 @@ angular.module('opApp').controller('opLayerController',
         };
 
         /**
-         * Keep track of Groups of  layers based on TAGS/KEYWORDS to be displayed under one heading
-         * @returns Object containing all groups and layers in groups
-         * @constructor
+         * Callback for when a layer is loaded on leaflet
+         * @param layer     layer object
          */
-        var LayerGroups = function () {
-            var self = {};
-            var _groups = [];
+        var layerLoadCompleteHandler = function (layer) {
+            if (layer.timeout) {
+                $timeout.cancel(layer.timeout);
+            }
+            layer.timeout = $timeout(function () {
+                layer.loading = false;
+                $log.log('Tiles loaded for layer ' + layer.name);
+            }, 0, true);
+        };
 
-            /**
-             * When a server gets turned off, we need to go find all the layers inside a group that is associated
-             * with that layer and "turn them off" (remove them from the group).  If we remove all layers from a group
-             * by doing this, we remove the group.
-             * @param serverName
-             */
-            self.turnServerOff = function (serverName) {
-                var i = _groups.length;
-                while (i--) {
-                    _groups[i].turnServerOff(serverName);
-                    // we need to remove our group if we end up turning off all the layers in that group
-                    if (_groups[i].getLayers().length === 0) {
-                        _groups.splice(i, 1);
-                    }
+        /**
+         * Callback for when a layer has started to load in leaflet
+         * @param layer     associated layer object
+         */
+        var layerLoadStartHandler = function (layer) {
+            if (layer.timeout) {
+                $timeout.cancel(layer.timeout);
+            }
+            layer.timeout = $timeout(function () {
+                layer.loading = true;
+                $log.log('Loading tiles for layer ' + layer.name);
+            }, 0, true);
+        };
+
+
+        /**
+         * Callback for when a layer is loaded on leaflet
+         * @param layer     layer object
+         */
+        var updateLayerLoadComplete = function (e) {
+            for (var i = 0; i < $scope.layers.length; i++) {
+                var layer = $scope.layers[i];
+                if (layer.mapHandle === e.target) {
+                    layerLoadCompleteHandler(layer);
+                    break;
                 }
-            };
+            }
+        };
 
-            /**
-             * Add a layer to a group
-             * @param layer layer object to add
-             * @param tag   tag name for the layer to be associated with
-             */
-            self.addLayer = function (layer, tag) {
-                var group = self.getGroupByTag(tag);
-                // If not found, create new group matching tag and add to groups
-                if (!group) {
-                    group = new LayerGroup(tag);
-                    _groups.push(group);
+        /**
+         * Callback for when a layer has started to load in leaflet
+         * @param layer     associated layer object
+         */
+        var updateLayerLoadStart = function (e) {
+            for (var i = 0; i < $scope.layers.length; i++) {
+                var layer = $scope.layers[i];
+                if (layer.mapHandle === e.target) {
+                    layerLoadStartHandler(layer);
+                    break;
                 }
+            }
+        };
 
-                group.addLayer(layer);
-            };
 
-            /**
-             * Getter of all groups
-             * @returns Array of groups
-             */
-            self.getGroups = function () {
-                return _groups;
-            };
+        /**
+         * Handle all layer removal from leaflet and state changes required
+         * @param layer
+         */
+        var removeLayer = function (layer) {
+            layer.params = null;
+            layer.mapHandle.off('loading', updateLayerLoadStart);
+            layer.mapHandle.off('load', updateLayerLoadComplete);
+            $scope.map.removeLayer(layer.mapHandle);
 
-            /**
-             * Getter of all the tags in use
-             * @returns {Array} tags
-             */
-            self.getGroupTags = function () {
-                var tags = [];
-                for (var i = 0; i < _groups.length; i++) {
-                    tags.push(_groups[i].getTag());
-                }
+            layer.mapHandle = null;
 
-                return tags;
-            };
+            opStateService.removeDataset(layer.server + ':' + layer.workspace + ':' + layer.name);
 
-            /**
-             * Getter of a group associated by its tag
-             * @param tag   tag to look up group by
-             * @returns {*} group
-             */
-            self.getGroupByTag = function (tag) {
-                var group;
-
-                for (var i = 0; i < _groups.length; i++) {
-                    if (_groups[i].getTag() === tag) {
-                        group = _groups[i];
-                    }
-                }
-
-                return group;
-            };
-
-            /**
-             * Get number of groups created
-             * @returns {Number}    total number of groups
-             */
-            self.getCount = function () {
-                return _groups.length;
-            };
-
-            return self;
+            opPopupWindow.broadcast(opStateService.getResultsWindow(), 'updateFilters',
+                _.filter($scope.layers, function (l) {
+                    return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
+                }));
         };
 
         /**
@@ -254,6 +239,97 @@ angular.module('opApp').controller('opLayerController',
             //self.removeLayer = function(layer) {
             //    _layers.slice(layer, 1);
             //};
+
+            return self;
+        };
+
+        /**
+         * Keep track of Groups of  layers based on TAGS/KEYWORDS to be displayed under one heading
+         * @returns Object containing all groups and layers in groups
+         * @constructor
+         */
+        var LayerGroups = function () {
+            var self = {};
+            var _groups = [];
+
+            /**
+             * When a server gets turned off, we need to go find all the layers inside a group that is associated
+             * with that layer and "turn them off" (remove them from the group).  If we remove all layers from a group
+             * by doing this, we remove the group.
+             * @param serverName
+             */
+            self.turnServerOff = function (serverName) {
+                var i = _groups.length;
+                while (i--) {
+                    _groups[i].turnServerOff(serverName);
+                    // we need to remove our group if we end up turning off all the layers in that group
+                    if (_groups[i].getLayers().length === 0) {
+                        _groups.splice(i, 1);
+                    }
+                }
+            };
+
+            /**
+             * Add a layer to a group
+             * @param layer layer object to add
+             * @param tag   tag name for the layer to be associated with
+             */
+            self.addLayer = function (layer, tag) {
+                var group = self.getGroupByTag(tag);
+                // If not found, create new group matching tag and add to groups
+                if (!group) {
+                    group = new LayerGroup(tag);
+                    _groups.push(group);
+                }
+
+                group.addLayer(layer);
+            };
+
+            /**
+             * Getter of all groups
+             * @returns Array of groups
+             */
+            self.getGroups = function () {
+                return _groups;
+            };
+
+            /**
+             * Getter of all the tags in use
+             * @returns {Array} tags
+             */
+            self.getGroupTags = function () {
+                var tags = [];
+                for (var i = 0; i < _groups.length; i++) {
+                    tags.push(_groups[i].getTag());
+                }
+
+                return tags;
+            };
+
+            /**
+             * Getter of a group associated by its tag
+             * @param tag   tag to look up group by
+             * @returns {*} group
+             */
+            self.getGroupByTag = function (tag) {
+                var group;
+
+                for (var i = 0; i < _groups.length; i++) {
+                    if (_groups[i].getTag() === tag) {
+                        group = _groups[i];
+                    }
+                }
+
+                return group;
+            };
+
+            /**
+             * Get number of groups created
+             * @returns {Number}    total number of groups
+             */
+            self.getCount = function () {
+                return _groups.length;
+            };
 
             return self;
         };
@@ -581,6 +657,26 @@ angular.module('opApp').controller('opLayerController',
         };
 
         /**
+         * Handle all layer addition to leaflet and state changes required
+         * @param layer
+         */
+        var addLayer = function (layer) {
+            if (!$scope.map.hasLayer(layer.mapHandle)) {
+                layer.mapHandle.on('loading', updateLayerLoadStart);
+                layer.mapHandle.on('load', updateLayerLoadComplete);
+
+                $scope.map.addLayer(layer.mapHandle);
+
+                opStateService.addDataset(layer.server + ':' + layer.workspace + ':' + layer.name);
+
+                opPopupWindow.broadcast(opStateService.getResultsWindow(), 'updateFilters',
+                    _.filter($scope.layers, function (l) {
+                        return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
+                    }));
+            }
+        };
+
+        /**
          * If data has changed on a layer (toggled on or off), update its state
          * @param layerUid      valid UUID of a layer
          */
@@ -663,102 +759,6 @@ angular.module('opApp').controller('opLayerController',
                     addLayer(layer);
                     $rootScope.$broadcast('filters-updated');
                 });
-        };
-
-        /**
-         * Callback for when a layer is loaded on leaflet
-         * @param layer     layer object
-         */
-        var layerLoadCompleteHandler = function (layer) {
-            if (layer.timeout) {
-                $timeout.cancel(layer.timeout);
-            }
-            layer.timeout = $timeout(function () {
-                layer.loading = false;
-                $log.log('Tiles loaded for layer ' + layer.name);
-            }, 0, true);
-        };
-
-        /**
-         * Callback for when a layer is loaded on leaflet
-         * @param layer     layer object
-         */
-        var updateLayerLoadComplete = function (e) {
-            for (var i = 0; i < $scope.layers.length; i++) {
-                var layer = $scope.layers[i];
-                if (layer.mapHandle === e.target) {
-                    layerLoadCompleteHandler(layer);
-                    break;
-                }
-            }
-        };
-
-        /**
-         * Callback for when a layer has started to load in leaflet
-         * @param layer     associated layer object
-         */
-        var layerLoadStartHandler = function (layer) {
-            if (layer.timeout) {
-                $timeout.cancel(layer.timeout);
-            }
-            layer.timeout = $timeout(function () {
-                layer.loading = true;
-                $log.log('Loading tiles for layer ' + layer.name);
-            }, 0, true);
-        };
-
-        /**
-         * Callback for when a layer has started to load in leaflet
-         * @param layer     associated layer object
-         */
-        var updateLayerLoadStart = function (e) {
-            for (var i = 0; i < $scope.layers.length; i++) {
-                var layer = $scope.layers[i];
-                if (layer.mapHandle === e.target) {
-                    layerLoadStartHandler(layer);
-                    break;
-                }
-            }
-        };
-
-        /**
-         * Handle all layer addition to leaflet and state changes required
-         * @param layer
-         */
-        var addLayer = function (layer) {
-            if (!$scope.map.hasLayer(layer.mapHandle)) {
-                layer.mapHandle.on('loading', updateLayerLoadStart);
-                layer.mapHandle.on('load', updateLayerLoadComplete);
-
-                $scope.map.addLayer(layer.mapHandle);
-
-                opStateService.addDataset(layer.server + ':' + layer.workspace + ':' + layer.name);
-
-                opPopupWindow.broadcast(opStateService.getResultsWindow(), 'updateFilters',
-                    _.filter($scope.layers, function (l) {
-                        return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
-                    }));
-            }
-        };
-
-        /**
-         * Handle all layer removal from leaflet and state changes required
-         * @param layer
-         */
-        var removeLayer = function (layer) {
-            layer.params = null;
-            layer.mapHandle.off('loading', updateLayerLoadStart);
-            layer.mapHandle.off('load', updateLayerLoadComplete);
-            $scope.map.removeLayer(layer.mapHandle);
-
-            layer.mapHandle = null;
-
-            opStateService.removeDataset(layer.server + ':' + layer.workspace + ':' + layer.name);
-
-            opPopupWindow.broadcast(opStateService.getResultsWindow(), 'updateFilters',
-                _.filter($scope.layers, function (l) {
-                    return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
-                }));
         };
 
         /**
@@ -1034,4 +1034,4 @@ angular.module('opApp').controller('opLayerController',
                     return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
                 }));
         });
-    });
+    }]);

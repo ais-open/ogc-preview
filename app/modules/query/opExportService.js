@@ -1,11 +1,4 @@
-/* --------------------------------
- Developed by Jonathan Meyer
- Applied Information Sciences
- 7/17/2014
- ---------------------------------*/
-
-angular.module('opApp.query')
-    .service('opExportService',
+angular.module('opApp').service('opExportService', ['opConfig', 'opFilterService', 'opStateService',
         function (opConfig, opFilterService, opStateService) {
             'use strict';
 
@@ -84,5 +77,4 @@ angular.module('opApp.query')
             this.createGeoRSSExportRequest = function (layer, startTime, stopTime, spatialBounds) {
                 return createWfsExportRequest('GeoRSS', layer, startTime, stopTime, spatialBounds);
             };
-        }
-    );
+    }]);

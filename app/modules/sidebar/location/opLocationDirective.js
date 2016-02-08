@@ -1,5 +1,6 @@
-angular.module('opApp')
-    .directive('opLocation', function ($q, $http, $filter, $log, $rootScope, $timeout, opCoordinateConversionService, opStateService, opConfig, Upload) {
+angular.module('opApp').directive('opLocation', ['$q', '$http', '$filter', '$log', '$rootScope', '$timeout',
+    'opCoordinateConversionService', 'opStateService', 'opConfig', 'Upload',
+    function ($q, $http, $filter, $log, $rootScope, $timeout, opCoordinateConversionService, opStateService, opConfig, Upload) {
         'use strict';
         return {
             templateUrl: 'modules/sidebar/location/opLocation.html',
@@ -509,4 +510,4 @@ angular.module('opApp')
                 );
             }
         };
-    });
+    }]);

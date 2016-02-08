@@ -1,4 +1,4 @@
-angular.module('opApp.sidebar').controller('opSidebarController',
+angular.module('opApp').controller('opSidebarController', ['$scope', 'opAnnouncementsService',
     function ($scope, opAnnouncementsService) {
         'use strict';
 
@@ -7,4 +7,4 @@ angular.module('opApp.sidebar').controller('opSidebarController',
         $scope.$on('announcementsChanged', function (e, messages, enabled) {
             $scope.announcementsEnabled = enabled;
         });
-    });
+    }]);

@@ -1,8 +1,4 @@
-/**
- * Created by Jonathan.Meyer on 5/29/2014.
- */
-
-angular.module('opApp.sidebar.layer').directive('opLayer', function () {
+angular.module('opApp').directive('opLayer', function () {
     'use strict';
 
     return {

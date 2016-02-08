@@ -1,6 +1,5 @@
-
-angular.module('opApp')
-  .service('opConfig', function($http, L, moment) {
+angular.module('opApp').service('opConfig', ['$http', 'L', 'moment',
+    function($http, L, moment) {
     'use strict';
 
     return {
@@ -98,7 +97,7 @@ angular.module('opApp')
 
         // time filtering configuration
         maxDaysBack: 14,
-        defaultDaysBack : 1,
+        defaultDaysBack: 1,
 
         /* Ranges used to prime the pre-selection of ranges */
         dateList: [
@@ -120,4 +119,4 @@ angular.module('opApp')
           });
         }
     };
-});
+}]);

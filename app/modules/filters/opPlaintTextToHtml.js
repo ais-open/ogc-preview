@@ -1,10 +1,5 @@
-/**
- * Created by meyerjd on 7/21/2014.
- */
-
-
-angular.module('opApp.filters')
-    .filter('plainTextToHtml', function ($sce) {
+angular.module('opApp').filter('plainTextToHtml', ['$sce',
+    function ($sce) {
         'use strict';
 
         return function (plainText) {
@@ -37,4 +32,4 @@ angular.module('opApp.filters')
 
             return $sce.trustAsHtml(output);
         };
-    });
+    }]);

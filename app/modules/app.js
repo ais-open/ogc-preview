@@ -1,15 +1,4 @@
-var app = angular.module('opApp', [
-    'opApp.query',
-    'opApp.sidebar',
-    'opApp.sidebar.layer',
-    'opApp.sidebar.temporal',
-    'opApp.sidebar.location',
-    'opApp.ui',
-    'opApp.results',
-    'opApp.map',
-    'opApp.home',
-    'opApp.header',
-    'opApp.filters',
+angular.module('opApp', [
     'ngCookies',
     'ngResource',
     'ngSanitize',
@@ -25,7 +14,7 @@ var app = angular.module('opApp', [
 ]);
 
 
-app.config(function ($routeProvider) {
+angular.module('opApp').config(['$routeProvider', function ($routeProvider) {
         'use strict';
         $routeProvider
             .when('/', {
@@ -36,6 +25,6 @@ app.config(function ($routeProvider) {
             .otherwise({
                 redirectTo: '/'
             });
-    })
+    }])
     .value('moment', window.moment)
     .value('L', window.L);
