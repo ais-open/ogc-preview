@@ -71,7 +71,7 @@ Applied Information Sciences
     margin-left:15px;
   }
 
-  label.checkbox {
+  div.checkbox {
     height: 23px;
     cursor: pointer;
     position: relative;
@@ -89,6 +89,10 @@ Applied Information Sciences
 
     input:checked ~ span {
       color: @theme;
+    }
+    div > label {
+    	display: block;
+    	width: 100%;
     }
     .icons{
       position: absolute;
