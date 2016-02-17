@@ -63,7 +63,7 @@
     margin-left:15px;
   }
 
-  label.checkbox {
+  div.checkbox {
     height: 23px;
     cursor: pointer;
     position: relative;
@@ -81,6 +81,10 @@
 
     input:checked ~ span {
       color: @theme;
+    }
+    div > label {
+    	display: block;
+    	width: 100%;
     }
     .icons{
       position: absolute;

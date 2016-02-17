@@ -176,27 +176,32 @@ angular.module('opApp').controller('opDateTimeController', ['$scope', '$timeout'
             if (isInt($scope.duration) && $scope.durationKey.length === 1) {
                 var initialValue = $scope.duration;
                 var max;
+                var unit;
                 switch ($scope.durationKey) {
                     case 'h':
                         if (initialValue > opConfig.maxDaysBack * 24) {
                             max = opConfig.maxDaysBack * 24;
+                            unit = "hours";
                         }
                         break;
                     case 'd':
                         if (initialValue > opConfig.maxDaysBack) {
                             max = opConfig.maxDaysBack;
+                            unit = "days";
                         }
                         break;
                     case 'w':
                         if (initialValue > opConfig.maxDaysBack / 7) {
                             max = Math.floor(opConfig.maxDaysBack / 7);
+                            unit = "weeks";
                         }
                         break;
                 }
                 if (max) {
-                    $scope.validationError = 'Please reduce duration value to be less than or equal to ' + max + '.';
+                    $scope.validationError = 'Please reduce duration value to be less than or equal to ' + max + ' ' + unit + '.';
                     $scope.valid.duration = false;
                     $log.log($scope.validationError);
+                    toaster.pop('error', $scope.validationError);
                     return;
                 }
 
