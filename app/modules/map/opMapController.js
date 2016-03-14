@@ -1,6 +1,6 @@
 angular.module('opApp').controller('opMapController', ['$scope','$rootScope','$timeout','L','opConfig','opStateService',
-    'opWebMapService','opPopupWindow', '$log',
-    function ($scope, $rootScope, $timeout, L, opConfig, opStateService, opWebMapService, opPopupWindow, $log) {
+    'opWebMapService','opPopupWindow', '$log', 'opCoordinateConversionService',
+    function ($scope, $rootScope, $timeout, L, opConfig, opStateService, opWebMapService, opPopupWindow, $log, opCoordinateConversionService) {
         'use strict';
 
         L.drawLocal.draw.toolbar.buttons.polygon = 'Draw a polygon filter.';
@@ -422,9 +422,11 @@ angular.module('opApp').controller('opMapController', ['$scope','$rootScope','$t
             L.control.mousePosition({
                 position: 'bottomright',
                 emptyString: '&nbsp;',
+
                 valFormatter: function (pos) {
-                    var ns = pos.lat > 0 ? ' N' : ' S';
-                    var ew = pos.lng > 0 ? ' E' : ' W';
+                    var latLng = opCoordinateConversionService.prepForDDBroadcast(pos.lat, pos.lng);
+                    var ns = latLng.dd[0] > 0 ? ' N' : ' S';
+                    var ew = latLng.dd[1] > 0 ? ' E' : ' W';
                     return (('    ' + pos.lat.toFixed(3)).slice(-7) + ns + ', ' + ('    ' + pos.lng.toFixed(3)).slice(-8) + ew).replace(/ /g, '&nbsp;');
                 }
 

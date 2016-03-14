@@ -1,6 +1,6 @@
-angular.module('opApp').controller('opHeaderController', ['$scope','$rootScope','$location','$modal','$timeout',
+angular.module('opApp').controller('opHeaderController', ['$scope','$rootScope','$location','$uibModal','$timeout',
     'opConfig','opPopupWindow','opStateService','$log',
-    function ($scope, $rootScope, $location, $modal, $timeout, opConfig, opPopupWindow, opStateService, $log) {
+    function ($scope, $rootScope, $location, $uibModal, $timeout, opConfig, opPopupWindow, opStateService, $log) {
         'use strict';
 
         $scope.classification = opConfig.classification;
@@ -21,7 +21,7 @@ angular.module('opApp').controller('opHeaderController', ['$scope','$rootScope',
          * Show the security banner popup
          */
         $scope.showSecurityBanner = function () {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'modules/header/opSecurityBanner.html'
             });
         };
@@ -38,7 +38,7 @@ angular.module('opApp').controller('opHeaderController', ['$scope','$rootScope',
          */
         $scope.showBookmark = function () {
             $scope.bamfLink = opStateService.getPermalink();
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'modules/header/opBookmark.html'
             });
         };
@@ -74,7 +74,7 @@ angular.module('opApp').controller('opHeaderController', ['$scope','$rootScope',
             for (var j = 0; j < serverCount; j++) {
                 $scope.kmlLinks[j] = $scope.buildKmlLink($scope.KmlServers[j]);
             }
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'modules/header/opKmlSelector.html'
             });
         };
@@ -164,7 +164,7 @@ angular.module('opApp').controller('opHeaderController', ['$scope','$rootScope',
          * Show the about modal
          */
         $scope.showAbout = function () {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'modules/header/opAbout.html',
                 windowClass: 'small-modal'
             });

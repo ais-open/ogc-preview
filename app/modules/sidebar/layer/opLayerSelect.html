@@ -39,8 +39,8 @@
                              <div class="spinner-image"></div>
                          </div>
 
-                           <button ng-click="refreshSlider();" uib-popover-template="'popover.html'" popover-title=""
-                                   popover-placement="right" popover-append-to-body="true" popover-is-open="isOpen"
+                           <button ng-click="refreshSlider(); isOpen = !isOpen" uib-popover-template="'popover.html'" popover-trigger="outsideClick" popover-title=""
+                                   popover-placement="auto bottom-right" popover-append-to-body="true" popover-is-open="isOpen"
                                    type="button" class="btn icon-help" href=""></button>
                            <script id="popover.html" type="text/ng-template">
                                <div>

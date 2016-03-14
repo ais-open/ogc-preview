@@ -1,5 +1,5 @@
-angular.module('opApp').directive('opAnnouncements', ['$modal', '$templateCache', '$rootScope', 'opAnnouncementsService',
-    function ($modal, $templateCache, $rootScope, opAnnouncementsService) {
+angular.module('opApp').directive('opAnnouncements', ['$uibModal', '$templateCache', '$rootScope', 'opAnnouncementsService',
+    function ($uibModal, $templateCache, $rootScope, opAnnouncementsService) {
         'use strict';
         return {
             templateUrl: 'modules/header/opAnnouncements.html',
