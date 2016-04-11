@@ -63,6 +63,11 @@ angular.module('opApp').directive('opResults', function () {
                     $scope.model.error = data.error;
                     $scope.model.currentData = _.map(data.features, 'properties');
                 }
+                else
+                {
+                    $scope.model.loading = false;
+                    $scope.model.error = data.error;
+                }
             });
 
             /**
