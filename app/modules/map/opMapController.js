@@ -425,9 +425,16 @@ angular.module('opApp').controller('opMapController', ['$scope','$rootScope','$t
 
                 valFormatter: function (pos) {
                     var latLng = opCoordinateConversionService.prepForDDBroadcast(pos.lat, pos.lng);
-                    var ns = latLng.dd[0] > 0 ? ' N' : ' S';
-                    var ew = latLng.dd[1] > 0 ? ' E' : ' W';
-                    return (('    ' + pos.lat.toFixed(3)).slice(-7) + ns + ', ' + ('    ' + pos.lng.toFixed(3)).slice(-8) + ew).replace(/ /g, '&nbsp;');
+                    if(latLng)
+                    {
+                        var ns = latLng.dd[0] > 0 ? ' N' : ' S';
+                        var ew = latLng.dd[1] > 0 ? ' E' : ' W';
+                        return (('    ' + pos.lat.toFixed(3)).slice(-7) + ns + ', ' + ('    ' + pos.lng.toFixed(3)).slice(-8) + ew).replace(/ /g, '&nbsp;');
+                    }
+                    else
+                    {
+                        return '&nbsp;'
+                    }
                 }
 
             }).addTo(map);

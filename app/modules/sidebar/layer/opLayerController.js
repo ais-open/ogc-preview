@@ -202,8 +202,8 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
 
                 for (var i = 0; i < _layers.length; i++) {
                     if (_layers[i].active !== setCheckedState) {
-                        $scope.datasetStateChanged(_layers[i].uid);
                         _layers[i].active = setCheckedState;
+                        $scope.datasetStateChanged(_layers[i].uid);
                     }
                 }
             };
