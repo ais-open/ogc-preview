@@ -851,6 +851,10 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
             var startTime = moment(stopTime).subtract(1, 'd');
             var times = [startTime, stopTime];
             $rootScope.$broadcast('latest-data-button', times);
+
+            //ensure layer is active
+            layer.active = true;
+            $scope.datasetStateChanged(layer.uid);
             $rootScope.$broadcast('latest-data-button-zoom', layer);
         };
 
@@ -859,7 +863,38 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
          * this forces the slider to render correctly on load.
          */
 
-        $scope.refreshSlider = function () {
+        $scope.refreshSlider = function (layerUid) {
+            var layer = getLayerByUid($scope.layers, layerUid);
+
+            // Is this layer time enabled?  Set relevant time values if so.
+            opLayerService.getFields(layer).then(
+                function (result) {
+                    layer.fields = result;
+
+                    // Verify time was set for this layer.. result will be undefined if not
+                    if (result.time) {
+                        $log.log('Time fields identified. ' +
+                            'Start: \'' + result.time.start.field + '\', ' +
+                            'Stop: \'' + result.time.stop.field + '\'');
+                        if (result.time.start.value && result.time.stop.value) {
+                            $log.log('Time values identified. ' +
+                                'Start: \'' + result.time.start.value + '\', ' +
+                                'Stop: \'' + result.time.stop.value + '\'');
+                            layer.timeEnabled = true;
+                        }
+                        else {
+                            $log.log('Time values were not identified as layer is not configured for WMS time');
+                            layer.timeEnabled = false;
+                        }
+                    }
+                },
+                function (reason) {
+                    $log.log('Couldn\'t identify time values for this layer... how embarrassing: ' + reason);
+                    toaster.pop('note', 'Date/Time', 'Unable to detect time fields for layer \'' + layer.title + '\'.  Date/Time filtering will not be applied to this layer.');
+                    layer.timeEnabled = false;
+                }
+            );
+
             $timeout(function () {
                 $scope.$broadcast('rzSliderForceRender');
             });
