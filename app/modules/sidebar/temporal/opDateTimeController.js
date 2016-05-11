@@ -181,19 +181,19 @@ angular.module('opApp').controller('opDateTimeController', ['$scope', '$timeout'
                     case 'h':
                         if (initialValue > opConfig.maxDaysBack * 24) {
                             max = opConfig.maxDaysBack * 24;
-                            unit = "hours";
+                            unit = 'hours';
                         }
                         break;
                     case 'd':
                         if (initialValue > opConfig.maxDaysBack) {
                             max = opConfig.maxDaysBack;
-                            unit = "days";
+                            unit = 'days';
                         }
                         break;
                     case 'w':
                         if (initialValue > opConfig.maxDaysBack / 7) {
                             max = Math.floor(opConfig.maxDaysBack / 7);
-                            unit = "weeks";
+                            unit = 'weeks';
                         }
                         break;
                 }
