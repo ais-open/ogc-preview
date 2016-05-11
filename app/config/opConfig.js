@@ -60,21 +60,21 @@ angular.module('opApp').service('opConfig', ['$http', 'L', 'moment',
         // Identification of the server(s) providing data layers
         servers: [
             {
-                url: 'http://demo.boundlessgeo.com/geoserver',
-                ajaxUrl: 'http://demo.boundlessgeo.com/geoserver',
-                name: 'prod',
+                url: '/geoserver',
+                ajaxUrl: '/geoserver',
+                name: 'GeoServer',
                 wmsVersion: '1.3.0',
                 wfsVersion: '1.0.0',
                 wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
-            },
-            {
-                url: 'http://demo.boundlessgeo.com/geoserver',
-                ajaxUrl: 'http://demo.boundlessgeo.com/geoserver',
-                name: 'dev',
-                wmsVersion: '1.3.0',
-                wfsVersion: '1.0.0',
-                wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
-            },
+            }//,
+            //{
+            //    url: 'http://demo.boundlessgeo.com/geoserver',
+            //    ajaxUrl: 'http://demo.boundlessgeo.com/geoserver',
+            //    name: 'dev',
+            //    wmsVersion: '1.3.0',
+            //    wfsVersion: '1.0.0',
+            //    wfsOutputFormat: 'text/xml; subtype=gml/3.1.1'
+            //},
         ],
 
         // Used to make intelligent guesses as to what time fields are available
