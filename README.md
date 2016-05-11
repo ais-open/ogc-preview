@@ -13,10 +13,10 @@ OGC Preview depends on Gulp as the test runner and build system. The following c
 
 #### Development Server:
 
-    $ gulp watch-dev
+    $ gulp
 
 #### Build artifacts:
 
-    $ gulp
+    $ gulp build
 
 ## Developed by Applied Information Sciences

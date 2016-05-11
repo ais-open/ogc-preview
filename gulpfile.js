@@ -269,7 +269,7 @@ gulp.task('clean-build-app-prod', ['clean-prod'], pipes.builtAppProd);
 gulp.task('prod-artifacts', ['clean-build-app-prod'], pipes.buildArtifacts);
 
 // clean, build, and watch live changes to the dev environment
-gulp.task('watch-dev', ['build-styles-dev', 'validate-app-scripts', 'bump'], function () {
+gulp.task('watch-dev', ['build-styles-dev', 'validate-app-scripts'], function () {
     var proxy = proxyMiddleware('/geoserver', {target: 'http://demo.boundlessgeo.com'});
     var proxy2 = proxyMiddleware('/shapes/', {target: 'http://10.3.2.136:8000/'});
     var proxy3 = proxyMiddleware('/geoserver2', {target: 'http://172.17.0.3'});
@@ -287,7 +287,7 @@ gulp.task('watch-dev', ['build-styles-dev', 'validate-app-scripts', 'bump'], fun
 });
 
 // clean, build, and watch live changes to the prod environment
-gulp.task('watch-prod', ['clean-build-app-prod', 'bump'], function () {
+gulp.task('watch-prod', ['clean-build-app-prod'], function () {
     var proxy = proxyMiddleware('/geoserver', {target: 'http://demo.boundlessgeo.com'});
 
     browserSync.init({
@@ -326,8 +326,10 @@ gulp.task('watch-prod', ['clean-build-app-prod', 'bump'], function () {
 
 });
 
-// default task builds for prod
-gulp.task('default', ['prod-artifacts', 'bump']);
+// default task launches build
+gulp.task('default', ['watch-dev']);
+
+gulp.task('build', ['prod-artifacts']);
 
 // placeholder for unit test integration
 gulp.task('test', function() {});
