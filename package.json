@@ -1,7 +1,8 @@
 {
   "name": "ogc-preview",
   "description": "OGC Preview",
-  "version": "0.10.70",
+  "repository": "AppliedIS/ogc-preview",
+  "version": "0.10.74",
   "author": {
     "name": "Jonathan Meyer",
     "company": "Applied Information Sciences"

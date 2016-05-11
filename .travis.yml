@@ -7,7 +7,7 @@ install:
 - npm install
 - bower install
 before_script:
-- gulp
+- gulp build
 deploy:
   provider: releases
   api_key:

@@ -96,9 +96,7 @@ angular.module('opApp').service('opWebMapService', ['$q','$http','opConfig','opS
                     format: 'image/png',
                     transparent: true,
                     layer: layerName,
-                    /* jshint ignore:start */
-                    legend_options: optionsArray.join(';')
-                    /* jshint ignore:end */
+                    legend_options: optionsArray.join(';') // jshint ignore:line
                 };
 
                 var url = server.ajaxUrl + '/wms';

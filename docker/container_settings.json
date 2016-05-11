@@ -1,6 +1,0 @@
-{
-  "_comment" : "FOR DETAILED FORMAT LOOK AT https://docs.docker.com/reference/api/docker_remote_api_v1.16/#create-a-container",
-  "HostConfig": {
-    "PortBindings":{ "80/tcp": [{ "HostIp": "0.0.0.0", "HostPort": "10080" }] }
-  }
-}

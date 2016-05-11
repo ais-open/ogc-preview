@@ -46,7 +46,7 @@ angular.module('opApp').directive('opAnnouncements', ['$uibModal', '$templateCac
                  * Show all the messages in a single window
                  */
                 scope.showAll = function () {
-                    $modal.open({
+                    $uibModal.open({
                         scope: scope,
                         templateUrl: 'modules/header/opNews.html',
                         windowClass: 'news-modal'
