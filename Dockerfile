@@ -3,7 +3,7 @@ FROM httpd:2.4
 ADD . /tmp/code/
 
 RUN apt-get update \
-    && apt-get install -y npm nodejs-legacy\
+    && apt-get install -y npm nodejs-legacy git \
     && cd /tmp/code \
     && npm install gulp bower \
     && npm install \
@@ -18,7 +18,7 @@ RUN apt-get update \
     && echo "LoadModule proxy_module modules/mod_proxy.so" >> /usr/local/apache2/conf/httpd.conf \
     && echo "LoadModule proxy_http_module modules/mod_proxy_http.so" >> /usr/local/apache2/conf/httpd.conf \
     && rm -fr /tmp/code \
-    && apt-get purge -y npm nodejs-legacy \
+    && apt-get purge -y npm nodejs-legacy git \
     && apt-get autoremove \
     && apt-get clean \
     && rm -fr /tmp/npm* \
