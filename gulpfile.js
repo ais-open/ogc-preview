@@ -20,6 +20,8 @@ var paths = {
     vendor: './app/bower_components',
     //, '!./app/bower_components/Wicket/wicket-gmap3*', '!./app/bower_components/Wicket/wicket-arcgis*']
     scripts: ['./app/**/*.js', '!./app/bower_components/**', '!./app/config/**'],
+    versionSource: './app/config/version.json',
+    versionTargets: ['./app/config/version.json', './package.json', 'bower.json'],
     config: ['./app/config/*'],
     styles: ['./app/**/lib.less', './app/**/app.less'],
     stylesAll: ['./app/**/*.less', './app/**/*.css'],
@@ -34,7 +36,7 @@ var paths = {
 var pipes = {};
 
 var getVersionJson = function() {
-    return JSON.parse(fs.readFileSync('./app/config/version.json','utf8'));
+    return JSON.parse(fs.readFileSync(paths.versionSource,'utf8'));
 };
 
 pipes.orderedVendorScripts = function () {
@@ -188,29 +190,33 @@ pipes.buildArtifacts = function () {
 // == TASKS ========
 
 gulp.task('bump', function() {
-    var pkg = getVersionJson();
-
-    var newVer = pkg.version.split('-')[0];
-
-    gulp.src('./package.json')
-    .pipe(bump({version: newVer}))
+    gulp.src(paths.versionTargets, {base: './'})
+    .pipe(bump())
     .pipe(gulp.dest('./'));
-
-    gulp.src('./bower.json')
-    .pipe(bump({version: newVer}))
-    .pipe(gulp.dest('./'));
-
-    var newVerBuild = '';
-    if(process.env.BUILD_NUMBER)
-    {
-      newVerBuild = newVer + '-' + process.env.BUILD_NUMBER;
-    }
-
-    gulp.src('./app/config/version.json')
-    .pipe(bump({version: newVerBuild}))
-    .pipe(gulp.dest('./app/config'));
 });
 
+gulp.task('tag-build', function() {
+    // Removed logic expecting version.json to contain build number
+    // Only add build number and add to packaged artifacts, never commmit back to repo
+    var build_num = null;
+    if (process.env.TRAVIS_BUILD_NUMBER) {
+        build_num = process.env.TRAVIS_BUILD_NUMBER;
+    }
+
+    if (process.env.BUILD_NUMBER) {
+        build_num = process.env.BUILD_NUMBER;
+    }
+
+    if (build_num != null) {
+      var pkg = getVersionJson();
+      var newVer = pkg.version;
+      var newVerBuild = newVer + '-' + build_num;
+
+      gulp.src(paths.versionSource, {base: './'})
+      .pipe(bump({version: newVerBuild}))
+      .pipe(gulp.dest('./'));
+    }
+});
 
 // removes all compiled dev files
 gulp.task('clean-dev', function () {
@@ -266,7 +272,7 @@ gulp.task('build-app-prod', pipes.builtAppProd);
 // cleans and builds a complete prod environment
 gulp.task('clean-build-app-prod', ['clean-prod'], pipes.builtAppProd);
 
-gulp.task('prod-artifacts', ['clean-build-app-prod'], pipes.buildArtifacts);
+gulp.task('prod-artifacts', ['tag-build', 'clean-build-app-prod'], pipes.buildArtifacts);
 
 // clean, build, and watch live changes to the dev environment
 gulp.task('watch-dev', ['build-styles-dev', 'validate-app-scripts'], function () {
