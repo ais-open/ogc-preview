@@ -38,4 +38,4 @@ ENV GEOSERVER_PORT 8080
 
 EXPOSE 80
 ENTRYPOINT ["/usr/local/bin/update-backend.sh"]
-CMD["httpd-foreground"]
+CMD ["httpd-foreground"]
