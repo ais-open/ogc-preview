@@ -148,13 +148,13 @@ pipes.builtIndexProd = function () {
     pipes.builtImages(paths.distProd);
     pipes.builtConfig(paths.distProd + '/config');
 
-    //var partialScript = pipes.builtPartialsScriptProd();
-    var vendorScripts = pipes.builtVendorScriptsProd();
-    //var realAppScripts = pipes.builtAppScriptsProd();
-    var otherScripts2 = series(pipes.copyPartialsProd(),pipes.copyAppScriptsProd());
-    var otherScripts = series(pipes.copyPartialsProd(), pipes.builtAppScriptsProd());
-    var appStyles = series(pipes.builtStylesProd());
-    var scripts = series(vendorScripts, otherScripts);
+    var vendorScripts = pipes.builtVendorScriptsProd().pipe(debug({title:'vendorScripts:'}));
+
+    var otherScripts = series(pipes.copyPartialsProd(),pipes.copyAppScriptsProd()).pipe(debug({title:'otherScripts2:'}));
+    // TODO: Come back and get minification working
+    // var otherScripts = series(pipes.copyPartialsProd(), pipes.builtAppScriptsProd()).pipe(debug({title:'otherScripts:'}));
+    var appStyles = series(pipes.builtStylesProd()).pipe(debug({title:'appStyles:'}));
+    var scripts = series(vendorScripts, otherScripts).pipe(debug({title:'scripts:'}));
 
     return pipes.validatedIndex()
         .pipe(gulp.dest(paths.distProd)) // write first to get relative path for inject
