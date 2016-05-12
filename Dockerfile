@@ -5,13 +5,13 @@ ADD . /tmp/code/
 RUN apt-get update \
     # Install build dependencies
     && apt-get install -y npm nodejs-legacy git \
-    && cd /tmp/code \
     # Install npm and bower packages required by build
-    && npm install gulp bower \
+    && npm install -g gulp bower \
+    && cd /tmp/code \
     && npm install \
-    && node node_modules/bower/bin/bower install --allow-root \
+    && bower install --allow-root \
     # Build and deploy artificats into Apache webroot
-    && node node_modules/gulp/bin/gulp.js build \
+    && gulp build \
     && cd /usr/local/apache2/htdocs \
     && tar xvf /tmp/code/artifacts/ogcpreview.tar.gz \
     && cp /tmp/code/docker/update-backend.sh /usr/local/bin/ \
@@ -27,7 +27,8 @@ RUN apt-get update \
     && apt-get -y autoremove \
     && apt-get -y clean \
     # Get rid of npm and bower cache directories
-    && rm -fr /tmp/npm* \
+    && rm -fr /tmp/* \
+    && rm -fr /usr/local/lib/node_modules \
     && rm -fr /root/.npm \
     && rm -fr /root/.cache \
     && cd
@@ -37,3 +38,4 @@ ENV GEOSERVER_PORT 8080
 
 EXPOSE 80
 ENTRYPOINT ["/usr/local/bin/update-backend.sh"]
+CMD["httpd-foreground"]
