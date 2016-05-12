@@ -1,7 +1,7 @@
 {
   "name": "ogc-preview",
   "description": "OGC Preview",
-  "version": "0.10.75",
+  "version": "0.10.76",
   "dependencies": {
     "angular": "1.4.6",
     "angular-animate": "1.4.6",
