@@ -484,8 +484,8 @@ angular.module('opApp').service('opStateService', ['$q', '$rootScope', '$locatio
             this.setTimeRange = function (startTime, stopTime) {
                 var originalValue = this.getState(dateId);
                 var filter =
-                    'R' + startTime.format('YYYY-MM-DDTHH:mm:ss\\Z') + ',' +
-                    stopTime.format('YYYY-MM-DDTHH:mm:ss\\Z');
+                    'R' + startTime.utc().format('YYYY-MM-DDTHH:mm:ss\\Z') + ',' +
+                    stopTime.utc().format('YYYY-MM-DDTHH:mm:ss\\Z');
 
                 if (originalValue !== filter) {
                     this.setState(dateId, filter);
