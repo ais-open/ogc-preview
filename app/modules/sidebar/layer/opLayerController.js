@@ -853,8 +853,10 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
             $rootScope.$broadcast('latest-data-button', times);
 
             //ensure layer is active
-            layer.active = true;
-            $scope.datasetStateChanged(layer.uid);
+            if(!layer.active){
+                layer.active = true;
+                $scope.datasetStateChanged(layer.uid);
+            }
             $rootScope.$broadcast('latest-data-button-zoom', layer);
         };
 
