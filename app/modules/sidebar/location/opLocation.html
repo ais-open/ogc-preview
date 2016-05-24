@@ -139,9 +139,9 @@
                 </ui-select>
             </div>
 
-            <a class="list-group-item" ng-class="{active: model.locationKey == 'shape'}" href=""
+            <a class="list-group-item" ng-if="model.shapeToGeoUrl" ng-class="{active: model.locationKey == 'shape'}" href=""
                ng-click="model.locationKey = 'shape'">Shapefile...</a>
-            <div class="details-box" ng-show="model.locationKey == 'shape'">
+            <div class="details-box" ng-if="model.shapeToGeoUrl" ng-show="model.locationKey == 'shape'">
                 <button ngf-select="uploadFile($file)" class="btn btn-info center-block" style="margin-bottom:12px;">
                     Select Shapefile...
                 </button>
