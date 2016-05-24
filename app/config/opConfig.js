@@ -54,8 +54,9 @@ angular.module('opApp').service('opConfig', ['$http', 'L', 'moment',
 
         // Endpoint for retreiving list of country boundaries in GeoJSON format
         countryDataUrl: '/config/countries.geo.json',
-        // Endpoint for converting shape files to geoJSON
-        shapeToGeoUrl: 'http://10.3.2.100:8000/shapes/',
+        // Set endpoint to non-null value to enable control for converting shape files to geoJSON
+        shapeToGeoUrl: null,
+        //shapeToGeoUrl: 'http://10.3.2.100:8000/shapes/',
 
         // Identification of the server(s) providing data layers
         servers: [
