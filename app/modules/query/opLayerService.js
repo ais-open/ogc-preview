@@ -201,16 +201,13 @@ angular.module('opApp').service('opLayerService', ['$q', 'localStorageService', 
                         deferred.resolve(layer.fields);
                     },
                     function (reason) {
-                        // Disabling the forced override that happens for geometry and time fields.
                         // This is to allow time-enabled raster mosaics to function.
-                        //layer.fields = { time: null, geometry: null };
                         self.setFieldCache(layer, layer.fields);
                         layer.raster = true;
 
                         $log.log('Unable to determine field types: ' + reason);
-                        deferred.resolve(reason);
+                        deferred.resolve(layer.fields);
                         $log.log('Assuming raster layer.');
-                        // deferred.resolve(layer.fields);
                     });
 
                 return deferred.promise;
