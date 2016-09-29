@@ -1049,6 +1049,13 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
         };
 
         /**
+         * Broadcast receiver for getting selected attributes from the popup window
+         */
+        opPopupWindow.on('attributesSelected', function(layer, rows) {
+            alert(layer);
+        });
+
+        /**
          * Broadcast receiver for getting heartbeats from the popup window to keep sync
          */
         opPopupWindow.on('resultsHeartbeat', function (win) {
@@ -1070,5 +1077,18 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
                 _.filter($scope.layers, function (l) {
                     return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
                 }));
+        });
+
+                /**
+         * Broadcast receiver for getting our initial data into the popup
+         */
+        opPopupWindow.on('resultsSelected', function (rowData) {
+            //add layer from wms with selected ids
+            var dataArr = [];
+            $.each($(rowData),function(key,value){
+                dataArr.push(value["type"]); //"name" being the value of your first column.
+                alert(dataArr);
+            });
+            
         });
     }]);

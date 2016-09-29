@@ -11,6 +11,7 @@ angular.module('opApp').directive('opResults', function () {
                 loading: true,
                 currentData: [],
                 layers: [],
+                activeLayer: '',
                 kmlUrl: '',
                 csvUrl: '',
                 shpUrl: '',
@@ -23,6 +24,8 @@ angular.module('opApp').directive('opResults', function () {
              * @param name
              */
             $scope.selectLayer = function (name) {
+                
+                $('#table').empty();
                 // Keep clicking on active tab from re-querying
                 if ($scope.model.currentTab !== name) {
                     $scope.updateResults(name);
@@ -37,6 +40,7 @@ angular.module('opApp').directive('opResults', function () {
                 $scope.model.currentTab = name;
                 $scope.model.currentData = [];
                 $scope.model.loading = true;
+                $scope.model.activeLayer = name;
                 $window.opener.broadcast('queryWfs', name);
             };
 

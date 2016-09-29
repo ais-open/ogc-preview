@@ -5,3 +5,35 @@
 .ui-select-multiple input.ui-select-search {
     width: 100% !important;
 }
+
+table.dataTable.hover tbody tr:hover, table.dataTable.display tbody tr:hover {
+  cursor: pointer;
+  background-color: lighten(@theme, 30%); //#eee;
+}
+table.dataTable.hover tbody tr:hover.selected, table.dataTable.display tbody tr:hover.selected {
+  cursor: pointer;
+  background-color: lighten(@theme, 30%); //#eee;
+}
+
+table.dataTable.compact thead th,
+table.dataTable.compact thead td {
+  padding: 2px 4px 2px 2px;
+}
+table.dataTable.compact tfoot th,
+table.dataTable.compact tfoot td {
+  padding: 2px;
+}
+table.dataTable.compact tbody th,
+table.dataTable.compact tbody td {
+  padding: 2px;
+}
+
+table.dataTable thead th {
+  border: 1px solid #ddd;
+}
+
+.dataTables_wrapper .dataTables_filter {
+  float: left;
+  text-align: right;
+}
+
