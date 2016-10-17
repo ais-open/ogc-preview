@@ -391,6 +391,7 @@ angular.module('opApp').controller('opMapController', ['$scope','$rootScope','$t
                 }
                 if (!initialBaseLayer) {
                     initialBaseLayer = baseLayers[layer.prettyName];
+                    opStateService.setLeafletMaskLayer(layer);
                 }
             }
 
@@ -399,6 +400,17 @@ angular.module('opApp').controller('opMapController', ['$scope','$rootScope','$t
             initialBaseLayer.addTo(map);
             layerControl = L.control.layers(baseLayers).addTo(map);
 
+            map.on('baselayerchange', function(baseLayer){
+                for (var i = 0; i < opConfig.leafletLayers.length; i++) {
+                    var layer = opConfig.leafletLayers[i];
+                    if(layer.prettyName === baseLayer.name)
+                    {
+                        opStateService.setLeafletMaskLayer(layer);
+                        $rootScope.$broadcast('baseLayerChanged');
+                    }
+                 }
+            });
+            
             opStateService.setLeafletMapCRS(opConfig.leafletOptions.crs.code);
             opStateService.setLeafletMap(map);
             opStateService.setLayerControl(layerControl);

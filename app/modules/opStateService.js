@@ -20,6 +20,7 @@ angular.module('opApp').service('opStateService', ['$q', '$rootScope', '$locatio
             var leafletMap;
             var leafletMapCRS;
             var leafletLayerControl;
+            var leafletMaskLayer;
 
             var activeServer = [];
             var previousActiveServer = [];
@@ -95,6 +96,34 @@ angular.module('opApp').service('opStateService', ['$q', '$rootScope', '$locatio
                 }
                 else {
                     deferred.resolve(leafletMap);
+                }
+
+                return deferred.promise;
+            };
+
+            /**
+             * Set the leaflet mask layer object we're using
+             * @param layer
+             */
+            this.setLeafletMaskLayer = function (layer) {
+                leafletMaskLayer = layer;
+            };
+
+            /**
+             * Get the leaflet mask layer object we're using
+             * @returns {*}
+             */
+            this.getLeafletMaskLayer = function () {
+                var deferred = $q.defer();
+                var self = this;
+
+                if (!angular.isDefined(leafletMaskLayer)) {
+                    $timeout(function () {
+                        deferred.resolve(self.getLeafletMaskLayer());
+                    }, 500);
+                }
+                else {
+                    deferred.resolve(leafletMaskLayer);
                 }
 
                 return deferred.promise;

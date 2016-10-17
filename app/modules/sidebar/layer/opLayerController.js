@@ -354,6 +354,9 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
         $scope.leafletGroup = null;
         $scope.layerControl = null;
 
+        $scope.maskLayer = null;
+        $scope.selectedLayer = null;
+
         var zIndex = 50;
         var maxZIndex = 100;
 
@@ -1048,11 +1051,28 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
             clearServerSpecificLayers(server);
         };
 
-        /**
-         * Broadcast receiver for getting selected attributes from the popup window
-         */
-        opPopupWindow.on('attributesSelected', function(layer, rows) {
-            alert(layer);
+        $scope.$on('baseLayerChanged', function () {
+            if($scope.maskLayer) {
+                $scope.map.removeLayer($scope.maskLayer);
+                $scope.maskLayer = null;
+            }
+
+            opStateService.getLeafletMaskLayer()
+            .then(function(layer){
+                // We have to manually set zIndex as the layer control screws up basemaps with
+                // overlays when switching between them
+                layer.params['zIndex'] = maxZIndex + 1;
+                layer.params['opacity'] = 0.8;
+
+                if (layer.params['type'] && layer.params['type'].toLowerCase() === 'wmts') {
+                    $scope.maskLayer = L.tileLayer(layer.url, {z: '0'});
+                }
+                else {
+                    $scope.maskLayer = L.tileLayer.wms(layer.url,
+		      opWebMapService.getLeafletWmsBasemapParams(layer.name, layer.params));
+                }
+                $scope.maskLayer.addTo($scope.map);
+            });
         });
 
         /**
@@ -1079,16 +1099,105 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
                 }));
         });
 
-                /**
-         * Broadcast receiver for getting our initial data into the popup
+         /**
+          * Broadcast receiver for removing maskLayer and selectedLayer when the popup closes
+          */
+         opPopupWindow.on('resultsClosed', function () {
+             if($scope.maskLayer) {
+                 $scope.map.removeLayer($scope.maskLayer);
+                 $scope.maskLayer = null;
+             }
+             if($scope.selectedLayer) {
+                 $scope.map.removeLayer($scope.selectedLayer);
+                 $scope.selectedLayer = null;
+             }
+         });
+
+        /**
+         * Broadcast receiver for adding maskLayer and selectedLayer to map when attributes are selected
          */
-        opPopupWindow.on('resultsSelected', function (rowData) {
-            //add layer from wms with selected ids
+        opPopupWindow.on('resultsSelected', function (layer, rowData) {
             var dataArr = [];
-            $.each($(rowData),function(key,value){
-                dataArr.push(value["type"]); //"name" being the value of your first column.
-                alert(dataArr);
-            });
+            if(rowData)
+            {
+                //add layer from wms with selected ids    
+                $.each($(rowData),function(key,value){
+                    dataArr.push(value[value.length-1]);
+                });
+            }
             
+            if(layer && dataArr.length > 0)
+            {
+                var server = opStateService.getServer(layer.server);
+                //make wms call to build layer
+                if($scope.selectedLayer)
+                {
+                    $scope.map.removeLayer($scope.selectedLayer);
+                    $scope.selectedLayer = null;
+                }
+                
+                if(!$scope.maskLayer){
+                    opStateService.getLeafletMaskLayer()
+                    .then(function(layer){
+                        // We have to manually set zIndex as the layer control screws up basemaps with
+                        // overlays when switching between them
+                        layer.params['zIndex'] = maxZIndex + 1;
+                        layer.params['opacity'] = 0.8;
+
+                        if (layer.params['type'] && layer.params['type'].toLowerCase() === 'wmts') {
+                            $scope.maskLayer = L.tileLayer(layer.url, {z: '0'});
+                        }
+                        else {
+                            $scope.maskLayer = L.tileLayer.wms(layer.url,
+			        opWebMapService.getLeafletWmsBasemapParams(layer.name, layer.params));
+                        }
+                        $scope.maskLayer.addTo($scope.map);
+                    });
+                }
+                
+                if(layer.timeEnabled){
+                    
+                    $scope.selectedLayer = L.tileLayer.wms(server.url + '/wms', 
+                        opWebMapService.getLeafletWmsParams(layer.server, layer.name, 
+                        layer.workspace, {
+                            tileSize: 512,
+                            zIndex: maxZIndex + 2,
+                            featureId: dataArr,
+                            time: layer.params.time,
+                            transparent: true,
+                            //opacity: 0.80,
+                            //bgcolor: '0x000000'
+                    })).addTo($scope.map);
+                    $scope.selectedLayer.on('tileerror', function(error, tile) {
+                        alert('Erro Loading Tile');
+                    });
+                }
+                else
+                {
+                    
+                    $scope.selectedLayer = L.tileLayer.wms(server.url + '/wms', 
+                        opWebMapService.getLeafletWmsParams(layer.server, layer.name, 
+                        layer.workspace, {
+                            tileSize: 512,
+                            zIndex: maxZIndex + 2,
+                            featureId: dataArr,
+                            transparent: true,
+                            //opacity: 0.80,
+                            //bgcolor: '0x000000'
+                    })).addTo($scope.map);
+                    $scope.selectedLayer.on('tileerror', function(error, tile) {
+                        alert('Erro Loading Tile');
+                    });
+                }
+            }
+            else
+            {
+                if($scope.maskLayer)
+                    $scope.map.removeLayer($scope.maskLayer);
+                if($scope.selectedLayer)
+                    $scope.map.removeLayer($scope.selectedLayer);
+                $scope.maskLayer = null;
+                $scope.seletedLayer = null;
+            }
         });
     }]);
