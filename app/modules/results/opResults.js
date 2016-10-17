@@ -42,6 +42,7 @@ angular.module('opApp').directive('opResults', function () {
                 $scope.model.loading = true;
                 $scope.model.activeLayer = name;
                 $window.opener.broadcast('queryWfs', name);
+                $window.opener.resultsSelected(null, null, null);
             };
 
             /**
@@ -65,7 +66,7 @@ angular.module('opApp').directive('opResults', function () {
                     $scope.model.shpUrl = data.shpUrl;
                     $scope.model.rssUrl = data.rssUrl;
                     $scope.model.error = data.error;
-                    $scope.model.currentData = _.map(data.features, 'properties');
+                    $scope.model.currentData = data.features;
                 }
                 else
                 {
