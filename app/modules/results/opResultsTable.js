@@ -76,7 +76,7 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window',
                             {
                                 //arrow down
                                 case 40:
-                                    var currentRow = $(".selected").get(0);
+                                    var currentRow = $(".selected:last").get(0);
                                     
                                     if(!currentRow)
                                     {
@@ -87,10 +87,12 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window',
                                     }
                                     if(currentRow.nextSibling)
                                     {
-                                        table.api().rows('.selected').deselect();
+                                        if(!event.shiftKey)
+                                            table.api().rows('.selected').deselect();
                                         $(window).scrollTop(currentRow.offsetTop);
-                                        $(currentRow).next().addClass("selected");
-                                        table.api().row('.selected').select();
+                                        //$(currentRow).next().addClass("selected");
+                                        var nextIndex = currentRow._DT_RowIndex+1;
+                                        table.api().row(':eq('+nextIndex+')').select();
                                         
                                         var rowData = table.api().rows( {selected:true} ).data();
                                         $window.opener.resultsSelected(scope.layer, rowData);
@@ -99,7 +101,7 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window',
                                     break;
                                 //arrow up
                                 case 38:
-                                    var currentRow = $(".selected").get(0);
+                                    var currentRow = $(".selected:first").get(0);
                                     if(!currentRow)
                                     {
                                         table.api().row(':last').select();
@@ -109,10 +111,12 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window',
                                     }
                                     if(currentRow.previousSibling)
                                     {
-                                        table.api().rows('.selected').deselect();
+                                        if(!event.shiftKey)
+                                            table.api().rows('.selected').deselect();
                                         $(window).scrollTop(currentRow.offsetTop);
-                                        $(currentRow).prev().addClass("selected");
-                                        table.api().row('.selected').select();
+                                        //$(currentRow).prev().addClass("selected");
+                                        var previousIndex = currentRow._DT_RowIndex-1;
+                                        table.api().row(':eq('+previousIndex+')').select();
                                         var rowData = table.api().rows( {selected:true} ).data();
                                         $window.opener.resultsSelected(scope.layer, rowData);
                                         
