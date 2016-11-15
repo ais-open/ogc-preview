@@ -16,7 +16,9 @@ angular.module('opApp').directive('opResults', function () {
                 csvUrl: '',
                 shpUrl: '',
                 rssUrl: '',
-                error: ''
+                error: '',
+                headerError: '',
+                selectDisabled: false
             };
 
             /**
@@ -82,6 +84,14 @@ angular.module('opApp').directive('opResults', function () {
                 $scope.updateResults($scope.model.currentTab);
             });
 
+            $scope.$on('selectedRowsError', function (e, data) {
+                $scope.model.headerError = data.error;
+            });
+
+            $scope.$on('selectDisabled', function (disabled) {
+                $scope.model.selectDisabled = disabled;
+            });
+            
             // communicate with parent
             $timeout(function () {
                 $interval(function () {

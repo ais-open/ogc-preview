@@ -1169,7 +1169,7 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
                             //bgcolor: '0x000000'
                     })).addTo($scope.map);
                     $scope.selectedLayer.on('tileerror', function(error, tile) {
-                        alert('Erro Loading Tile');
+                        opPupupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: "Could not highlight selected features. Reduce number of selected rows."});
                     });
                 }
                 else
@@ -1186,7 +1186,7 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
                             //bgcolor: '0x000000'
                     })).addTo($scope.map);
                     $scope.selectedLayer.on('tileerror', function(error, tile) {
-                        alert('Erro Loading Tile');
+                        opPupupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: "Could not highlight selected features. Reduce number of selected rows."});
                     });
                 }
             }
