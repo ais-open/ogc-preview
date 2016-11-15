@@ -1,5 +1,5 @@
-angular.module('opApp').directive('opResultsTable', ['$timeout', '$window',
-    function ($timeout, $window) {
+angular.module('opApp').directive('opResultsTable', ['$timeout', '$window', '$rootScope',
+    function ($timeout, $window, $rootScope) {
     'use strict';
 
        
@@ -35,6 +35,11 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window',
                     {
                         columns.push({"sTitle": "fid"});
                         selectStyle = {style: 'os'};
+                        $rootScope.selectDisabled = false;
+                    }
+                    else
+                    {
+                        $rootScope.selectDisabled = true;
                     }
 
                     if(table != null){
@@ -71,18 +76,18 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window',
                     if(selectStyle)
                     {
                         $(document).keydown(function (event) {
-                            event.preventDefault();
                             switch(event.keyCode)
                             {
                                 //arrow down
                                 case 40:
+                                    event.preventDefault();
                                     var currentRow = $(".selected:last").get(0);
                                     
                                     if(!currentRow)
                                     {
                                         table.api().row(':first').select();
                                         $(window).scrollTop(0);
-                                        var rowData = table.api().rows( {selected:true} ).data();
+                                        var rowData = table.api().rows( {selected:true, filter: 'applied'} ).data();
                                         $window.opener.resultsSelected(scope.layer, rowData);
                                     }
                                     if(currentRow.nextSibling)
@@ -90,23 +95,24 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window',
                                         if(!event.shiftKey)
                                             table.api().rows('.selected').deselect();
                                         $(window).scrollTop(currentRow.offsetTop);
-                                        //$(currentRow).next().addClass("selected");
-                                        var nextIndex = currentRow._DT_RowIndex+1;
-                                        table.api().row(':eq('+nextIndex+')').select();
                                         
-                                        var rowData = table.api().rows( {selected:true} ).data();
+                                        table.api().row(currentRow.nextSibling).select();
+                                        
+                                        var rowData = table.api().rows( {selected:true, filter: 'applied'} ).data();
                                         $window.opener.resultsSelected(scope.layer, rowData);
                                         
                                     }
                                     break;
                                 //arrow up
                                 case 38:
+                                    event.preventDefault();
                                     var currentRow = $(".selected:first").get(0);
+
                                     if(!currentRow)
                                     {
                                         table.api().row(':last').select();
                                         $(window).scrollTop($(document).height());
-                                        var rowData = table.api().rows( {selected:true} ).data();
+                                        var rowData = table.api().rows( {selected:true, filter: 'applied'} ).data();
                                         $window.opener.resultsSelected(scope.layer, rowData);
                                     }
                                     if(currentRow.previousSibling)
@@ -114,10 +120,9 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window',
                                         if(!event.shiftKey)
                                             table.api().rows('.selected').deselect();
                                         $(window).scrollTop(currentRow.offsetTop);
-                                        //$(currentRow).prev().addClass("selected");
-                                        var previousIndex = currentRow._DT_RowIndex-1;
-                                        table.api().row(':eq('+previousIndex+')').select();
-                                        var rowData = table.api().rows( {selected:true} ).data();
+                    
+                                        table.api().row(currentRow.previousSibling).select();
+                                        var rowData = table.api().rows( {selected:true, filter: 'applied'} ).data();
                                         $window.opener.resultsSelected(scope.layer, rowData);
                                         
                                     }
@@ -125,8 +130,13 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window',
                             }
                         });
 
+                        table.api().on( 'search.dt', function () {
+                            var rowData = table.api().rows( {selected:true, filter: 'applied'} ).data();
+                            $window.opener.resultsSelected(scope.layer, rowData);
+                        });
+
                         $('#table tbody').on( 'click', 'tr', function () {
-                            var rowData = table.api().rows( {selected:true} ).data();
+                            var rowData = table.api().rows( {selected:true, filter: 'applied'} ).data();
                             $window.opener.resultsSelected(scope.layer, rowData);
                         }); 
                     }

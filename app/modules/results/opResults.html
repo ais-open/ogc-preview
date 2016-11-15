@@ -22,6 +22,10 @@
     <li ng-if="model.currentData.length < 1000" class="pull-right"><p class="navbar-text">
         <em>{{model.currentData.length}} results within selected region</em>
     </p></li>
+    <li ng-if="model.headerError || model.selectDisabled"><p class="navbar-text">
+        <em>{{model.headerError}}</em>
+        <em ng-if="model.selectDisabled">Row selection is disabled for this layer</em>
+    </p></li>
 </ul>
 
 <op-results-table op-model="model.currentData" loading="model.loading" error="model.error" layer="model.activeLayer"></op-results-table>
