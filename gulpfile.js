@@ -132,7 +132,7 @@ pipes.builtStylesProd = function () {
     return gulp.src(paths.styles)
         .pipe(plugins.sourcemaps.init())
         .pipe(plugins.less())
-        .pipe(plugins.minifyCss())
+        .pipe(plugins.cleanCss())
         .pipe(plugins.sourcemaps.write())
         .pipe(pipes.minifiedFileName())
         .pipe(gulp.dest(paths.distProd))
