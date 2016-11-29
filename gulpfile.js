@@ -19,14 +19,17 @@ var gfilter = require('gulp-filter');
 var paths = {
     vendor: './app/bower_components',
     //, '!./app/bower_components/Wicket/wicket-gmap3*', '!./app/bower_components/Wicket/wicket-arcgis*']
-    scripts: ['./app/**/*.js', '!./app/bower_components/**', '!./app/config/**'],
+    scripts: ['./app/**/*.js', '!./app/bower_components/**', '!./app/config/**', '!./app/modules/results/**', '!./app/lib/**'],
     versionSource: './app/config/version.json',
     versionTargets: ['./app/config/version.json', './package.json', 'bower.json'],
+    resultsScripts: ['./app/modules/results/**/*.js'],
+    libs: './app/lib/**/*.js',
     config: ['./app/config/*'],
     styles: ['./app/**/lib.less', './app/**/app.less'],
     stylesAll: ['./app/**/*.less', './app/**/*.css'],
     images: ['./app/**/*.+(png|gif|eot|svg|ttf|woff)', './app/favicon.ico', '!./app/styles/**', '!./app/bower_components/**'],
-    index: ['./app/index.html', './app/results.html'],
+    index: ['./app/index.html'],
+    resultsIndex: ['./app/results.html'],
     partials: ['./app/**/*.html', '!./app/*.html', '!./app/styles/**', '!./app/bower_components/**'],
     distDev: './.tmp',
     distProd: './dist',
@@ -39,9 +42,29 @@ var getVersionJson = function() {
     return JSON.parse(fs.readFileSync(paths.versionSource,'utf8'));
 };
 
+// ----- Ordering -----
+
 pipes.orderedVendorScripts = function () {
-    return plugins.order(['**/jquery.js', '**/angular.js', '**/leaflet-dist/leaflet.js', '**/wicket.js', '**/wicket-leaflet.js']);
+    //return plugins.order(['**/jquery.js', '**/angular.js', '**/leaflet-dist/leaflet.js', '**/wicket.js', '**/wicket-leaflet.js']);
+    return plugins.order([
+        '**/jquery.js',
+        '**/angular.js',
+        '**/bootstrap.js',
+        '**/ui-bootstrap-tpls.js',
+        '**/leaflet.js',
+        '**/wicket.js',
+        '**/wicket-leaflet.js'
+    ]);
     //return plugins.order(['**/jquery.js', '**/angular.js']);
+};
+
+pipes.orderedLibScripts = function() {
+    return gulp.src(paths.libs)
+      .pipe(gfilter(['**/*.js', '!**/dataTables.scroller.js', '!**/dataTables.select.min.js', '!**/jquery.dataTables.min.js']))
+      .pipe(plugins.order([
+          "**/jquery.dataTables.js",
+          "**/dataTables.select.js"
+        ]));
 };
 
 pipes.orderedAppScripts = function () {
@@ -54,47 +77,7 @@ pipes.minifiedFileName = function () {
     });
 };
 
-pipes.validatedAppScripts = function () {
-    return gulp.src(paths.scripts)
-        .pipe(plugins.jshint())
-        .pipe(plugins.jshint.reporter('jshint-stylish'));
-};
-
-pipes.copyPartialsProd = function() {
-    return pipes.validatedPartials()
-        .pipe(gulp.dest(paths.distProd))
-};
-
-pipes.builtPartialsScriptProd = function() {
-    return pipes.scriptedPartials()
-        .pipe(plugins.concat('partials.min.js'))
-        .pipe(gulp.dest(paths.distProdScripts))
-};
-
-pipes.copyAppScriptsProd = function() {
-    return pipes.validatedAppScripts()
-        .pipe(gulp.dest(paths.distProd))
-};
-
-pipes.builtAppScriptsProd = function () {
-    return pipes.validatedAppScripts()
-        .pipe(plugins.sourcemaps.init())
-        .pipe(plugins.concat('app.min.js'))
-        .pipe(plugins.ngAnnotate())
-        .pipe(plugins.uglify({mangle:false}))
-        .pipe(plugins.sourcemaps.write())
-        .pipe(gulp.dest(paths.distProdScripts));
-};
-
-pipes.builtVendorScriptsProd = function () {
-    return gulp.src(bowerFiles(), {base: paths.vendor})
-        .pipe(gfilter(['**/*.js', '!**/wicket-arcgis.js', '!**/wicket-gmap3.js']))
-        .pipe(pipes.orderedVendorScripts())
-        .pipe(pipes.minifiedFileName())
-        .pipe(plugins.concat('vendor.min.js'))
-        .pipe(plugins.uglify({mangle:false}))
-        .pipe(gulp.dest(paths.distProdScripts));
-};
+// ----- Validation -----
 
 pipes.validatedPartials = function () {
     return gulp.src(paths.partials)
@@ -102,14 +85,100 @@ pipes.validatedPartials = function () {
         .pipe(plugins.htmlhint.reporter());
 };
 
-pipes.scriptedPartials = function () {
-    return pipes.validatedPartials()
-        .pipe(plugins.htmlhint.failReporter())
-        .pipe(plugins.htmlmin({collapseWhitespace: true, removeComments: true}))
-        .pipe(plugins.ngHtml2js({
-            moduleName: "opApp"
-        }));
+pipes.validatedAppScripts = function () {
+    return gulp.src(paths.scripts)
+        .pipe(gfilter(['**/*.js', '!**/dataTables.scroller.js', '!**/dataTables.select.min.js', '!**/jquery.dataTables.min.js', '!**/opResultsApp.js', '!**/opResultsTable.js']))
+        .pipe(plugins.order([
+          "**/jquery.dataTables.js",
+          "**/dataTables.select.js",
+          "app/lib/**/*.js",
+          "app/modules/**/*.js"
+        ]))
+        .pipe(plugins.jshint())
+        .pipe(plugins.jshint.reporter('jshint-stylish'));
 };
+
+pipes.validatedResultsScripts = function() {
+    return gulp.src(paths.resultsScripts)
+      .pipe(plugins.order(["**/opResultsApp.js"]))
+      .pipe(plugins.jshint())
+      .pipe(plugins.jshint.reporter('jshint-stylish'));
+};
+
+pipes.validatedIndex = function () {
+    return gulp.src(paths.index)
+        .pipe(plugins.htmlhint())
+        .pipe(plugins.htmlhint.reporter());
+};
+
+pipes.validatedResults = function() {
+    return gulp.src(paths.resultsIndex)
+        .pipe(plugins.htmlhint())
+        .pipe(plugins.htmlhint.reporter());
+};
+
+pipes.validateAppDev = function() {
+    return es.merge(pipes.validatedAppScripts(), pipes.validatedIndex(), pipes.validatedPartials());
+};
+
+// ----- Copy -----
+
+pipes.copyPartialsProd = function() {
+    return pipes.validatedPartials()
+        .pipe(gulp.dest(paths.distProd));
+};
+
+pipes.copyAppScriptsProd = function() {
+    return pipes.validatedAppScripts()
+        .pipe(gulp.dest(paths.distProd));
+};
+
+// ----- Build Minified-----
+
+pipes.builtPartialsScriptProd = function() {
+    return pipes.scriptedPartials()
+        .pipe(plugins.concat('partials.min.js'))
+        .pipe(gulp.dest(paths.distProdScripts));
+};
+
+pipes.builtAppScriptsProd = function () {
+    return pipes.validatedAppScripts()
+        .pipe(plugins.sourcemaps.init())
+        .pipe(plugins.concat('app.min.js'))
+        .pipe(plugins.ngAnnotate())
+        //.pipe(plugins.uglify({mangle:false}))
+        .pipe(plugins.sourcemaps.write())
+        .pipe(gulp.dest(paths.distProdScripts));
+};
+
+pipes.builtResultsScriptsProd = function() {
+    return pipes.validatedResultsScripts()
+      .pipe(debug({title: 'results-scripts'}))
+      .pipe(plugins.concat('results.min.js'))
+      .pipe(plugins.ngAnnotate())
+      //.pipe(plugins.uglify({mangle:false}))
+      .pipe(gulp.dest(paths.distProdScripts));
+};
+
+pipes.builtVendorScriptsProd = function () {
+    return gulp.src(bowerFiles(), {base: paths.vendor})
+        .pipe(gfilter(['**/*.js', '!**/wicket-arcgis.js', '!**/wicket-gmap3.js', '!**/angular-ui-bootstrap-bower/ui-bootstrap-tpls.js']))
+        .pipe(pipes.orderedVendorScripts())
+        .pipe(pipes.minifiedFileName())
+        .pipe(plugins.concat('vendor.min.js'))
+        //.pipe(plugins.uglify({mangle:false}))
+        .pipe(gulp.dest(paths.distProdScripts));
+};
+
+pipes.builtLibScriptsProd = function() {
+    return pipes.orderedLibScripts()
+      .pipe(debug())
+      .pipe(plugins.concat('lib.min.js'))
+      .pipe(plugins.uglify({mangle:false}))
+      .pipe(gulp.dest(paths.distProdScripts));
+};
+
+// ----- Build -----
 
 pipes.builtImages = function (target) {
     return gulp.src(paths.images)
@@ -139,24 +208,17 @@ pipes.builtStylesProd = function () {
         .pipe(browserSync.stream());
 };
 
-pipes.validatedIndex = function () {
-    return gulp.src(paths.index)
-        .pipe(plugins.htmlhint())
-        .pipe(plugins.htmlhint.reporter());
-};
-
 pipes.builtIndexProd = function () {
-
     pipes.builtImages(paths.distProd);
     pipes.builtConfig(paths.distProd + '/config');
 
     var vendorScripts = pipes.builtVendorScriptsProd().pipe(debug({title:'vendorScripts:'}));
 
-    var otherScripts = series(pipes.copyPartialsProd(),pipes.copyAppScriptsProd()).pipe(debug({title:'otherScripts2:'}));
+    var libScripts = pipes.builtLibScriptsProd();
+    var otherScripts = series(pipes.copyPartialsProd(), pipes.builtAppScriptsProd()).pipe(debug({title:'otherScripts:'}));
     // TODO: Come back and get minification working
-    // var otherScripts = series(pipes.copyPartialsProd(), pipes.builtAppScriptsProd()).pipe(debug({title:'otherScripts:'}));
     var appStyles = series(pipes.builtStylesProd()).pipe(debug({title:'appStyles:'}));
-    var scripts = series(vendorScripts, otherScripts).pipe(debug({title:'scripts:'}));
+    var scripts = series(vendorScripts, libScripts, otherScripts).pipe(debug({title:'scripts:'}));
 
     return pipes.validatedIndex()
         .pipe(gulp.dest(paths.distProd)) // write first to get relative path for inject
@@ -166,12 +228,21 @@ pipes.builtIndexProd = function () {
         .pipe(gulp.dest(paths.distProd));
 };
 
-pipes.validateAppDev = function() {
-    return es.merge(pipes.validatedAppScripts(), pipes.validatedIndex(), pipes.validatedPartials())
+pipes.builtResultsProd = function() {
+    
+    var appStyles = series(pipes.builtStylesProd());
+    var scripts = series(pipes.builtVendorScriptsProd(), pipes.builtLibScriptsProd(), pipes.builtResultsScriptsProd());
+    
+    return pipes.validatedResults()
+        .pipe(gulp.dest(paths.distProd)) // write first to get relative path for inject
+        .pipe(plugins.inject(scripts, {relative: true}))
+        .pipe(plugins.inject(appStyles, {relative: true}))
+        .pipe(plugins.htmlmin({collapseWhitespace: true, removeComments: true}))
+        .pipe(gulp.dest(paths.distProd));
 };
 
 pipes.builtAppProd = function () {
-    return pipes.builtIndexProd();
+    return series(pipes.builtIndexProd(), pipes.builtResultsProd());
 };
 
 pipes.buildArtifacts = function () {
@@ -183,9 +254,22 @@ pipes.buildArtifacts = function () {
         .pipe(plugins.tar('ogcpreview.tar'))
         .pipe(gzip())
         .pipe(gulp.dest('./artifacts'));
-
+      
     return es.merge(war, tar);
 };
+
+// ----- Convert -----
+
+pipes.scriptedPartials = function () {
+    return pipes.validatedPartials()
+        .pipe(plugins.htmlhint.failReporter())
+        .pipe(plugins.htmlmin({collapseWhitespace: true, removeComments: true}))
+        .pipe(plugins.ngHtml2js({
+            moduleName: "opApp"
+        }));
+};
+
+
 
 // == TASKS ========
 

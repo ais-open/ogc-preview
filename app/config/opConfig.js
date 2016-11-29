@@ -40,7 +40,7 @@ angular.module('opApp').service('opConfig', ['$http', 'L', 'moment',
         ],
 
         leafletOptions: {
-            center: [20.0, -50.0],
+            center: [10.0, -50.0],
             zoom: 3,
             attributionControl: false,
             crs: L.CRS.EPSG4326
