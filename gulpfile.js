@@ -143,11 +143,11 @@ pipes.builtPartialsScriptProd = function() {
 
 pipes.builtAppScriptsProd = function () {
     return pipes.validatedAppScripts()
-        .pipe(plugins.sourcemaps.init())
+        //.pipe(plugins.sourcemaps.init())
         .pipe(plugins.concat('app.min.js'))
         .pipe(plugins.ngAnnotate())
-        //.pipe(plugins.uglify({mangle:false}))
-        .pipe(plugins.sourcemaps.write())
+        .pipe(plugins.uglify({mangle:false}))
+        //.pipe(plugins.sourcemaps.write())
         .pipe(gulp.dest(paths.distProdScripts));
 };
 
@@ -156,7 +156,7 @@ pipes.builtResultsScriptsProd = function() {
       .pipe(debug({title: 'results-scripts'}))
       .pipe(plugins.concat('results.min.js'))
       .pipe(plugins.ngAnnotate())
-      //.pipe(plugins.uglify({mangle:false}))
+      .pipe(plugins.uglify({mangle:false}))
       .pipe(gulp.dest(paths.distProdScripts));
 };
 
@@ -166,7 +166,7 @@ pipes.builtVendorScriptsProd = function () {
         .pipe(pipes.orderedVendorScripts())
         .pipe(pipes.minifiedFileName())
         .pipe(plugins.concat('vendor.min.js'))
-        //.pipe(plugins.uglify({mangle:false}))
+        .pipe(plugins.uglify({mangle:false}))
         .pipe(gulp.dest(paths.distProdScripts));
 };
 
