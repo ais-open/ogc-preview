@@ -163,6 +163,15 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
                 return _tag;
             };
 
+            self.areAnyTagged = function(tags) {
+                for (var i=0; i < _layers.length; i++) {
+                    if (angular.isDefined(_layers[i].tags) && arrayIntersect(_layers[i].tags, tags)) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
             /**
              * Find if any layers associated with this tag are toggled on
              * @returns {boolean}   true if any layers are on, false otherwise
@@ -343,6 +352,8 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
 
         $scope.layerExpanded = true;
         $scope.filter = '';
+        $scope.selectionFilter = '';
+        $scope.collectionTypeFilter = '';
         $scope.tags = [];
 
         $scope.layersLoading = false;
@@ -551,6 +562,11 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
          */
         $scope.$on('filters-updated', function () {
             var bounds = opStateService.getTimeBoundsFromTemporalFilter();
+            var collectionFilter = opStateService.getCollectionFilter();
+            
+            if (collectionFilter != null && collectionFilter !== undefined) {
+                $scope.collectionTypeFilter = collectionFilter;
+            }
 
             for (var i = 0; i < $scope.layers.length; i++) {
                 var layer = $scope.layers[i];
@@ -559,6 +575,15 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
                 }
             }
         });
+
+        $scope.setSelectionFilter = function (filter) {
+            $scope.selectionFilter = filter;
+        };
+        
+        $scope.setCollectionTypeFilter = function (filter) {
+            $scope.collectionTypeFilter = filter;
+            opStateService.setCollectionFilter(filter);
+        };
 
         /**
          * Set our total known filter scope variable
@@ -574,12 +599,27 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
          * @returns {boolean}   true if layer is on (toggled), false otherwise
          */
         $scope.isLayerVisible = function (layerUid) {
+            var visible = false;
             var layer = getLayerByUid($scope.layers, layerUid);
+            
             if ($scope.filter === 'active') {
-                return layer.active;
+                visible = layer.active;
+            }
+            
+            // Check to see if configured tags for selected collection type
+            // match the metadata tags associated with layer
+            if ($scope.collectionTypeFilter !== '') {
+                visible = arrayIntersect(opConfig.collectionTypes[$scope.collectionTypeFilter], layer.tags);
+            }
+            else {
+                visible = true;
             }
 
-            return true;
+            if ($scope.selectionFilter === 'active') {
+                visible = visible && layer.active;
+            }
+            
+            return visible;
         };
 
 
@@ -640,23 +680,40 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
          * @returns {boolean}   true if any layers in tag are active, false otherwise
          */
         $scope.isGroupVisible = function (groupTag) {
+            var visible = false;
+            var group = $scope.layerGroups.getGroupByTag(groupTag);
             if ($scope.filter === '') {
-                return true;
+                visible = true;
             }
             else if ($scope.filter === 'active') {
-                var group = $scope.layerGroups.getGroupByTag(groupTag);
-
                 if (group) {
                     if (group.areAnyActive()) {
-                        return true;
+                        visible = true;
                     }
                 }
 
-                return false;
+                visible = false;
             } else if (groupTag === $scope.filter) {
-                return true;
+                visible = true;
             }
-            return false;
+            visible = false;
+            
+            // Check to see if configured tags for selected collection type
+            // match the metadata tags for any layer within group
+            if ($scope.collectionTypeFilter !== '')
+            {
+                visible = group.areAnyTagged(opConfig.collectionTypes[$scope.collectionTypeFilter]);
+            }
+            else {
+                visible = true;
+            }
+            
+            if ($scope.selectionFilter === 'active') {
+                if (group) {
+                    visible = visible && group.areAnyActive();
+                }
+            }
+            return visible;
         };
 
         /**
@@ -911,6 +968,10 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
          * @param serverName    server that is associated with layers to get data from
          */
         $scope.updateLayers = function (force, serverName) {
+            var collectionFilter = opStateService.getCollectionFilter();
+            if (collectionFilter !== null && collectionFilter !== undefined) {
+                $scope.collectionTypeFilter = collectionFilter;
+            }
             var server = opStateService.getServer(serverName);
             var previousActiveServerCount = opStateService.getPreviouslyActiveServer().length;
 
