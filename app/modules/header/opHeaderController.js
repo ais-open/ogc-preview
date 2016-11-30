@@ -105,6 +105,17 @@ angular.module('opApp').controller('opHeaderController', ['$scope','$rootScope',
         });
 
         /**
+        * Get the about information
+        */
+        opConfig.getContact().then(function (data) {
+            angular.forEach(data, function(contact) {
+                if (contact.name === 'Contact Us') {
+                    $scope.contact = contact.content;
+                }
+            });
+        });
+
+        /**
          * Create the KML link for a server
          * @param serverName    server name
          * @returns {string}
