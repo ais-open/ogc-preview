@@ -170,18 +170,55 @@ angular.module('opApp').directive('opLocation', ['$q', '$http', '$filter', '$log
                  */
                 scope.uploadFile = function (file) {
                     var upload = Upload.upload({
-                        url: '/shapes/?view=geojson',
+                        url: opConfig.shapeToGeoUrl + '?view=geojson&maxpoints=75',
                         data: {file: file}
                     });
+                    scope.model.shapeLoading = true;
 
-                    upload.then(function (resp) {
-                        $log.log(JSON.stringify(resp.data));
-                        scope.model.shapeGeoJson = JSON.stringify(resp.data);
-                        opStateService.setAttributeBBoxFile(resp.data);
-                    }, function (resp) {
+                    upload.then(function(resp){
+                        scope.uploadComplete(resp.data)
+                    },function(resp){
+                        scope.model.shapeLoading = false;
                         scope.model.shapeGeoJson = 'Error converting shapefile.';
-                        $log.log('error: ' + resp.status);
                     });
+                };
+                
+                scope.uploadComplete = function (resp) {
+                    if (!scope.model.shapeLoading) { return; }
+                    
+                    scope.model.shapeLoading = false;
+                    if (typeof(resp) === 'string'){
+                        scope.model.shapeGeoJson = 'An error occured reading the file.';
+                        return;
+                    }else if (!resp || resp.length === 0){
+                        scope.model.shapeGeoJson = 'There are no shapes in this file.';
+                        return;
+                    }
+                    
+                    // reduce the shape to a less complex version if it's too long
+                    /*var len = _.reduce(resp.data, function (a, item) {
+                        return a + item.points.length;
+                    }, 0);
+                    _.each(resp.data, function (item) {
+                        if (!Configuration.debugShape && (len > 3000 || (scope.msie && len > 1000))) {
+                            item.simple = LeafletUtil.simplifyWKT(item.points);
+                        } else {
+                            item.simple = item.points;
+                        }
+                    });
+                    len = _.reduce(resp.data, function (a, item) {
+                        return a + item.simple.length;
+                    }, 0);
+                    
+                    // still too large too - throw an error.
+                    if (len > 3000 || (scope.msie && len > 1000)) {
+                        $log.error('shape too large');
+                        scope.model.shapeGeoJson = 'This shape is too complex.';
+                        return;
+                    }*/
+                    
+                    scope.model.shapeGeoJson = JSON.stringify(resp);
+                    opStateService.setAttributeBBoxFile(resp);
                 };
 
                 /**
