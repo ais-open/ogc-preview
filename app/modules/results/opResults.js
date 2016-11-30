@@ -88,7 +88,7 @@ angular.module('opApp').directive('opResults', function () {
                 $scope.model.headerError = data.error;
             });
 
-            $scope.$on('selectDisabled', function (disabled) {
+            $scope.$watch('selectDisabled', function(disabled) {
                 $scope.model.selectDisabled = disabled;
             });
             
