@@ -345,8 +345,8 @@ angular.module('opApp').controller('opDateTimeController', ['$scope', '$timeout'
                 }
                 
                 if ((endDate.isValid() && endTime.isValid()) && $scope.dateKey === 'range' && oldEnd !== $scope.endDate + $scope.endTime) {
-                    var date = moment.utc($scope.endDate + $scope.endTime, parseFormat);
-                    if (date.isValid() || ( !$scope.endDate && !$scope.endTime)) {
+                    var date = moment.utc($scope.endDate + $scope.endTime, parseFormat, true);
+                    if (date.isValid()) {
                         oldEnd = $scope.endDate + $scope.endTime;
                         $scope.dateRange = [$scope.dateRange[0], date];
                         
