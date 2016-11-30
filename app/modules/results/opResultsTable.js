@@ -31,7 +31,7 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window', '$ro
                         columnIndex++;
                     }
 
-                    if(scope.opModel[0].id)
+                    if(scope.opModel[0].id && scope.opModel[0].id.indexOf('fid-') < 0)
                     {
                         columns.push({"sTitle": "fid"});
                         selectStyle = {style: 'os'};
