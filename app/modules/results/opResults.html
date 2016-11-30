@@ -8,16 +8,16 @@
     <li class="pull-right"><a ng-href="{{model.shpUrl}}" target="_blank" title="Export all features to SHP">
         <div class="export export-shp"></div>
     </a></li>
-    <li class="pull-right"><a ng-href="{{model.kmlUrl}}" target="_blank" title="Export all features to KML">
+    <li class="pull-right"><a ng-href="{{model.kmlUrl}}" target="_blank" tooltip="Export all features to KML">
         <div class="export export-kml"></div>
     </a></li>
-    <li class="pull-right"><a ng-href="{{model.csvUrl}}" target="_blank" title="Export all features to CSV">
+    <li class="pull-right"><a ng-href="{{model.csvUrl}}" target="_blank" tooltip="Export all features to CSV">
         <div class="export export-csv"></div>
     </a></li>
     <!--<li class="pull-right"><a ng-href="{{model.rssUrl}}" target="_blank" tooltip="GeoRSS"><div class="export export-georss"></div></a></li>-->
     <li class="pull-right"><p class="navbar-text export-text">Export: </p></li>
     <li ng-if="model.currentData.length >= 1000" class="pull-right"><p class="navbar-text">
-        <em>Results are limited to first 1,000 results. Use export to see the full data set.</em>
+        <em>Displaying first 1,000 results. Use export to see the full data set.</em>
     </p></li>
     <li ng-if="model.currentData.length < 1000" class="pull-right"><p class="navbar-text">
         <em>{{model.currentData.length}} results within selected region</em>
