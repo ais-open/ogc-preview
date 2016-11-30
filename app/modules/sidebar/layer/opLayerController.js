@@ -1225,12 +1225,10 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
                             zIndex: maxZIndex + 2,
                             featureId: dataArr,
                             time: layer.params.time,
-                            transparent: true,
-                            //opacity: 0.80,
-                            //bgcolor: '0x000000'
+                            transparent: true
                     })).addTo($scope.map);
                     $scope.selectedLayer.on('tileerror', function(error, tile) {
-                        opPupupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: "Could not highlight selected features. Reduce number of selected rows."});
+                        opPopupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: "Could not highlight selected features. Reduce number of selected rows."});
                     });
                 }
                 else
@@ -1242,12 +1240,10 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
                             tileSize: 512,
                             zIndex: maxZIndex + 2,
                             featureId: dataArr,
-                            transparent: true,
-                            //opacity: 0.80,
-                            //bgcolor: '0x000000'
+                            transparent: true
                     })).addTo($scope.map);
                     $scope.selectedLayer.on('tileerror', function(error, tile) {
-                        opPupupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: "Could not highlight selected features. Reduce number of selected rows."});
+                        opPopupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: "Could not highlight selected features. Reduce number of selected rows."});
                     });
                 }
             }
