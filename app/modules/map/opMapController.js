@@ -445,7 +445,7 @@ angular.module('opApp').controller('opMapController', ['$scope','$rootScope','$t
                     }
                     else
                     {
-                        return '&nbsp;'
+                        return '&nbsp;';
                     }
                 }
 
