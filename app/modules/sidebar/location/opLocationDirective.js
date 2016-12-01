@@ -32,6 +32,7 @@ angular.module('opApp').directive('opLocation', ['$q', '$http', '$filter', '$log
                     distValid: true,
                     countries: '',
                     selectedCountries: {},
+                    shapeLoading: false,
                     shapeGeoJson: '',
                     shapeToGeoUrl: opConfig.shapeToGeoUrl
                 };
