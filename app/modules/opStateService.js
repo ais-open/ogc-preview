@@ -7,6 +7,7 @@ angular.module('opApp').service('opStateService', ['$q', '$rootScope', '$locatio
             var lastBBoxBounds = null;
             var lastDatasetsValue = null;
 
+            var collectionId = 'collection';
             var datasetId = 'datasets';
             var dateId = 'temporal';
             var boundsId = 'map-bounds';
@@ -179,6 +180,11 @@ angular.module('opApp').service('opStateService', ['$q', '$rootScope', '$locatio
             this.getState = function (stateId) {
                 deserializeState();
                 return state[stateId];
+            };
+            
+            this.removeState = function(stateId) {
+                deserializeState();
+                delete state[stateId];
             };
 
             /**
@@ -521,6 +527,25 @@ angular.module('opApp').service('opStateService', ['$q', '$rootScope', '$locatio
 
                     debounceBroadcast('filters-updated', 'temporal');
                 }
+            };
+
+            this.setCollectionFilter = function (type) {
+                var originalValue = this.getState(collectionId);
+
+                if (originalValue !== type) {
+                    if (type === '') {
+                        this.removeState(collectionId);
+                    }
+                    else {
+                        this.setState(collectionId, type);
+                    }
+
+                    debounceBroadcast('filters-updated', 'collection');
+                }
+            };
+
+            this.getCollectionFilter = function () {
+                return this.getState(collectionId);
             };
 
             this.getCustomFilter = function () {

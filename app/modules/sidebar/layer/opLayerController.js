@@ -5,6 +5,8 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
               opWebFeatureService, opStateService, opFilterService, opExportService, opPopupWindow, $log) {
         'use strict';
 
+        $scope.collectionTypes = opConfig.collectionTypes;
+
         /**
          * Hashes the string for use as a poor man's UUID
          * @returns most-likely unique hash
@@ -608,8 +610,8 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
             
             // Check to see if configured tags for selected collection type
             // match the metadata tags associated with layer
-            if ($scope.collectionTypeFilter !== '') {
-                visible = arrayIntersect(opConfig.collectionTypes[$scope.collectionTypeFilter], layer.tags);
+            if ($scope.collectionTypeFilter !== '' && layer.tags !== undefined) {
+                visible = arrayIntersect(opConfig.collectionTypes[$scope.collectionTypeFilter].keywords, layer.tags);
             }
             else {
                 visible = true;
@@ -687,7 +689,8 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
             }
             else if ($scope.filter === 'active') {
                 if (group) {
-                    if (group.areAnyActive()) {
+                    if (group.areAnyActive())
+                    {
                         visible = true;
                     }
                 }
@@ -702,7 +705,7 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
             // match the metadata tags for any layer within group
             if ($scope.collectionTypeFilter !== '')
             {
-                visible = group.areAnyTagged(opConfig.collectionTypes[$scope.collectionTypeFilter]);
+                visible = group.areAnyTagged(opConfig.collectionTypes[$scope.collectionTypeFilter].keywords);
             }
             else {
                 visible = true;

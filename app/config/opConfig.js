@@ -1,5 +1,5 @@
-angular.module('opApp').service('opConfig', ['$http', 'L', 'moment',
-    function($http, L, moment) {
+angular.module('opApp').service('opConfig', ['$http', 'L', 'moment', '$q',
+    function($http, L, moment, $q) {
     'use strict';
 
     return {
@@ -48,6 +48,20 @@ angular.module('opApp').service('opConfig', ['$http', 'L', 'moment',
 
         // shown above the header banner
         classification: 'UNCLASSIFIED',
+
+        collectionTypes: {
+            'filter1': {
+                name: 'Filter 1',
+                keywords: ['archsites'],
+                description: 'Description of filter 1'
+                
+            },
+            'filter2': {
+                name: 'Filter 2',
+                keywords: ['type2'],
+                description: 'Description of filter 2'
+            }
+        },
 
         // file/URL location of the User Guide (for header link)
         docLink: 'OGC-Preview User Guide.pptx',
@@ -111,13 +125,21 @@ angular.module('opApp').service('opConfig', ['$http', 'L', 'moment',
         // List of tags to attempt to match against WMS layer keywords.
         // If a tag cannot be found for any layer it is not added as a selection.
         // Order is important as that is the order they will be rendered in layer control.
-        recognizedTags: [ 'MODIS', 'VIIRS', 'TOPP' ],
+        recognizedTags: [ 'MODIS', 'VIIRS', 'TOPP', 'archsites' ],
 
         // helper function for gulp that bumps version numbers up with each build
         getVersion: function(){
           return $http({ method: 'GET', url: 'config/version.json', timeout: 50000}).then(function (result) {
               return result.data;
           });
+        },
+        
+        getContact: function(){
+            var deferred = $q.defer();
+            
+            deferred.resolve('Contact');
+            
+            return deferred.promise;
         }
     };
 }]);
