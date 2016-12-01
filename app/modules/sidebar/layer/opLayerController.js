@@ -1181,6 +1181,7 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
          * Broadcast receiver for adding maskLayer and selectedLayer to map when attributes are selected
          */
         opPopupWindow.on('resultsSelected', function (layer, rowData) {
+            opPopupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: ""});
             var dataArr = [];
             if(rowData)
             {
