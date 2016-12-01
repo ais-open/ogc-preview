@@ -1232,7 +1232,7 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
                             transparent: true
                     })).addTo($scope.map);
                     $scope.selectedLayer.on('tileerror', function(error, tile) {
-                        opPopupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: "Could not highlight selected features. Reduce number of selected rows."});
+                        opPopupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: "Could not highlight selected features. Please reduce the number of selected rows."});
                     });
                 }
                 else
