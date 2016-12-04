@@ -103,9 +103,9 @@ angular.module('opApp').service('opConfig', ['$http', 'L', 'moment',
         /* Ranges used to prime the pre-selection of ranges */
         dateList: [
             // One based because of a weird issue with falsey values in angular views.
-            {index: 1, name: 'Today', date: [moment().utc().startOf('d'), moment().utc().add('days', 1).startOf('d')]},
+            {index: 1, name: 'Last Two Weeks', date: [moment().utc().subtract('days', 14).startOf('d'), moment().utc().add('days',1).startOf('d')]},
             {index: 2, name: 'Yesterday', date: [moment().utc().subtract('days', 1).startOf('d'), moment().utc().startOf('d')]},
-            {index: 4, name: 'Last Two Weeks', date: [moment().utc().subtract('days', 14).startOf('d'), moment().utc().add('days',1).startOf('d')]}
+            {index: 4, name: 'Today', date: [moment().utc().startOf('d'), moment().utc().add('days', 1).startOf('d')]}
         ],
 
         // List of tags to attempt to match against WMS layer keywords.
