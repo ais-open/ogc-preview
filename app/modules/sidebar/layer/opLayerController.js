@@ -610,8 +610,8 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
             
             // Check to see if configured tags for selected collection type
             // match the metadata tags associated with layer
-            if ($scope.collectionTypeFilter !== '' && layer.tags !== undefined) {
-                visible = arrayIntersect(opConfig.collectionTypes[$scope.collectionTypeFilter].keywords, layer.tags);
+            if ($scope.collectionTypes !== undefined && $scope.collectionTypeFilter !== '' && layer.tags !== undefined) {
+                visible = arrayIntersect($scope.collectionTypes[$scope.collectionTypeFilter].keywords, layer.tags);
             }
             else {
                 visible = true;
@@ -703,9 +703,9 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
             
             // Check to see if configured tags for selected collection type
             // match the metadata tags for any layer within group
-            if ($scope.collectionTypeFilter !== '')
+            if ($scope.collectionTypes !== undefined && $scope.collectionTypeFilter !== '')
             {
-                visible = group.areAnyTagged(opConfig.collectionTypes[$scope.collectionTypeFilter].keywords);
+                visible = group.areAnyTagged($scope.collectionTypes[$scope.collectionTypeFilter].keywords);
             }
             else {
                 visible = true;

@@ -49,19 +49,20 @@ angular.module('opApp').service('opConfig', ['$http', 'L', 'moment', '$q',
         // shown above the header banner
         classification: 'UNCLASSIFIED',
 
-        collectionTypes: {
-            'filter1': {
-                name: 'Filter 1',
-                keywords: ['archsites'],
-                description: 'Description of filter 1'
-                
-            },
-            'filter2': {
-                name: 'Filter 2',
-                keywords: ['type2'],
-                description: 'Description of filter 2'
-            }
-        },
+        // Can be uncommented to support addition collection filter
+        // collectionTypes: {
+        //     'filter1': {
+        //         name: 'Filter 1',
+        //         keywords: ['archsites'],
+        //         description: 'Description of filter 1'
+        //
+        //     },
+        //     'filter2': {
+        //         name: 'Filter 2',
+        //         keywords: ['type2'],
+        //         description: 'Description of filter 2'
+        //     }
+        // },
 
         // file/URL location of the User Guide (for header link)
         docLink: 'OGC-Preview User Guide.pptx',
