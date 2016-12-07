@@ -201,7 +201,7 @@ pipes.builtStylesProd = function () {
     return gulp.src(paths.styles)
         .pipe(plugins.sourcemaps.init())
         .pipe(plugins.less())
-        .pipe(plugins.minifyCss())
+        .pipe(plugins.cleanCss())
         .pipe(plugins.sourcemaps.write())
         .pipe(pipes.minifiedFileName())
         .pipe(gulp.dest(paths.distProd))
@@ -419,7 +419,7 @@ gulp.task('watch-prod', ['clean-build-app-prod'], function () {
 // default task launches build
 gulp.task('default', ['watch-dev']);
 
-gulp.task('build', ['prod-artifacts']);
+gulp.task('build', ['prod-artifacts', 'bump']);
 
 // placeholder for unit test integration
 gulp.task('test', function() {});
