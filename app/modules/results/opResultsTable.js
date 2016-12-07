@@ -13,7 +13,7 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window', '$ro
             error: '=',
             layer: '='
         },
-        link: function (scope, element) {
+        link: function (scope, element) { // jshint ignore:line
             var table = null;
             scope.idColumn = null;
             scope.$watch('opModel', function () {
@@ -25,15 +25,14 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window', '$ro
                 if(scope.opModel.length){
                     
                     var columnKeys = scope.opModel[0].properties;
-                    var columnIndex = 0;
-                    for(var property in columnKeys){
-                        columns.push({"sTitle":property});
-                        columnIndex++;
+                    var index;
+                    for(index=0; index<columnKeys.length; index++) {
+                        columns.push({'sTitle':columnKeys[index]});
                     }
 
                     if(scope.opModel[0].id && scope.opModel[0].id.indexOf('fid-') < 0)
                     {
-                        columns.push({"sTitle": "fid"});
+                        columns.push({'sTitle': 'fid'});
                         selectStyle = {style: 'os'};
                         $rootScope.selectDisabled = false;
                     }
@@ -42,7 +41,7 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window', '$ro
                         $rootScope.selectDisabled = true;
                     }
 
-                    if(table != null){
+                    if(table !== null){
                         table.fnClearTable();
                         table.fnDestroy();
                         $('#table').empty();
@@ -50,22 +49,24 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window', '$ro
                     
                     table = $('#table').dataTable(
                     {
-                        "bPaginate": false,
-                        "bLengthChange": false, 
-                        "bDestroy": true,
-                        "bInfo": false,
+                        'bPaginate': false,
+                        'bLengthChange': false,
+                        'bDestroy': true,
+                        'bInfo': false,
                         select: selectStyle,
                         columns: columns
                     });
 
                     for (var i = 0; i < scope.opModel.length; i++) {
                         var row = scope.opModel[i].properties;
-                        var item = []
+                        var item = [];
                     
-                        for(var property in row)
-                            item.push(row[property]);
-                        if(scope.opModel[i].id)
+                        for(index=0; index<row.length; index++) {
+                            item.push(row[index]);
+                        }
+                        if(scope.opModel[i].id) {
                             item.push(scope.opModel[i].id);
+                        }
                         dataSet.push(item);
                     }
                     $.fn.dataTableExt.sErrMode = 'none';
@@ -76,29 +77,32 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window', '$ro
                     if(selectStyle)
                     {
                         $(document).keydown(function (event) {
+                            var currentRow;
+                            var rowData;
                             switch(event.keyCode)
                             {
                                 //arrow down
                                 case 40:
                                     event.preventDefault();
-                                    var currentRow = $(".selected:last").get(0);
-                                    
+                                    currentRow = $('.selected:last').get(0);
+
                                     if(!currentRow)
                                     {
                                         table.api().row(':first').select();
                                         $(window).scrollTop(0);
-                                        var rowData = table.api().rows( {selected:true, filter: 'applied'} ).data();
+                                        rowData = table.api().rows( {selected:true, filter: 'applied'} ).data();
                                         $window.opener.resultsSelected(scope.layer, rowData);
                                     }
                                     if(currentRow.nextSibling)
                                     {
-                                        if(!event.shiftKey)
+                                        if(!event.shiftKey) {
                                             table.api().rows('.selected').deselect();
+                                        }
                                         $(window).scrollTop(currentRow.offsetTop);
                                         
                                         table.api().row(currentRow.nextSibling).select();
                                         
-                                        var rowData = table.api().rows( {selected:true, filter: 'applied'} ).data();
+                                        rowData = table.api().rows( {selected:true, filter: 'applied'} ).data();
                                         $window.opener.resultsSelected(scope.layer, rowData);
                                         
                                     }
@@ -106,23 +110,24 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window', '$ro
                                 //arrow up
                                 case 38:
                                     event.preventDefault();
-                                    var currentRow = $(".selected:first").get(0);
+                                    currentRow = $('.selected:first').get(0);
 
                                     if(!currentRow)
                                     {
                                         table.api().row(':last').select();
                                         $(window).scrollTop($(document).height());
-                                        var rowData = table.api().rows( {selected:true, filter: 'applied'} ).data();
+                                        rowData = table.api().rows( {selected:true, filter: 'applied'} ).data();
                                         $window.opener.resultsSelected(scope.layer, rowData);
                                     }
                                     if(currentRow.previousSibling)
                                     {
-                                        if(!event.shiftKey)
+                                        if(!event.shiftKey) {
                                             table.api().rows('.selected').deselect();
+                                        }
                                         $(window).scrollTop(currentRow.offsetTop);
                     
                                         table.api().row(currentRow.previousSibling).select();
-                                        var rowData = table.api().rows( {selected:true, filter: 'applied'} ).data();
+                                        rowData = table.api().rows( {selected:true, filter: 'applied'} ).data();
                                         $window.opener.resultsSelected(scope.layer, rowData);
                                         
                                     }

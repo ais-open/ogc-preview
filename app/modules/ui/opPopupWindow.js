@@ -22,7 +22,7 @@ angular.module('opApp').factory('opPopupWindow', ['$q', '$window',
             else {
                 queryWindowHandle.focus();
             }
-            queryWindowHandle.onbeforeunload = function (evt) {
+            queryWindowHandle.onbeforeunload = function (evt) {// jshint ignore:line
                 $window.resultsClosed();
             };
 

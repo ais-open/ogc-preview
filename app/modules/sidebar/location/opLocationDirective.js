@@ -177,8 +177,8 @@ angular.module('opApp').directive('opLocation', ['$q', '$http', '$filter', '$log
                     scope.model.shapeLoading = true;
 
                     upload.then(function(resp){
-                        scope.uploadComplete(resp.data)
-                    },function(resp){
+                        scope.uploadComplete(resp.data);
+                    },function(resp) {// jshint ignore:line
                         scope.model.shapeLoading = false;
                         scope.model.shapeGeoJson = 'Error converting shapefile.';
                     });

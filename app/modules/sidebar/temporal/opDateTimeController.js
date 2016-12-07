@@ -57,17 +57,16 @@ angular.module('opApp').controller('opDateTimeController', ['$scope', '$timeout'
          */
         var enforceDateRangeLimits = function (newDateRange, previousDateRange, maxDaysBack) {
             var compareFormat = 'MM/DD/YYYYHH:mm:ss';
-            var diff = newDateRange[0].diff(newDateRange[1], 'days', true);
+            var message;
             if(newDateRange[0].diff(newDateRange[1], 'days', true) > 0)
             {
-                var message = "Start date cannot be after End date.";
+                message = 'Start date cannot be after End date.';
                 $log.log(message);
                 toaster.pop('note', message);
                 newDateRange[0] = previousDateRange[0];
                 newDateRange[1] = previousDateRange[1];
             }
             if (Math.abs(newDateRange[0].diff(newDateRange[1], 'days', true)) > maxDaysBack) {
-                var message;
                 if (angular.isDefined(previousDateRange)) {
                     if (previousDateRange[0].format(compareFormat) !== newDateRange[0].format(compareFormat) &&
                         previousDateRange[1].format(compareFormat) === newDateRange[1].format(compareFormat)) {

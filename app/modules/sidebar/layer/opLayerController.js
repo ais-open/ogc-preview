@@ -566,7 +566,7 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
             var bounds = opStateService.getTimeBoundsFromTemporalFilter();
             var collectionFilter = opStateService.getCollectionFilter();
             
-            if (collectionFilter != null && collectionFilter !== undefined) {
+            if (collectionFilter !== null && collectionFilter !== undefined) {
                 $scope.collectionTypeFilter = collectionFilter;
             }
 
@@ -1181,7 +1181,7 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
          * Broadcast receiver for adding maskLayer and selectedLayer to map when attributes are selected
          */
         opPopupWindow.on('resultsSelected', function (layer, rowData) {
-            opPopupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: ""});
+            opPopupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: ''});
             var dataArr = [];
             if(rowData)
             {
@@ -1231,8 +1231,8 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
                             time: layer.params.time,
                             transparent: true
                     })).addTo($scope.map);
-                    $scope.selectedLayer.on('tileerror', function(error, tile) {
-                        opPopupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: "Could not highlight selected features. Please reduce the number of selected rows."});
+                    $scope.selectedLayer.on('tileerror', function(error, tile) {// jshint ignore:line
+                        opPopupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: 'Could not highlight selected features. Please reduce the number of selected rows.'});
                     });
                 }
                 else
@@ -1246,17 +1246,19 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
                             featureId: dataArr,
                             transparent: true
                     })).addTo($scope.map);
-                    $scope.selectedLayer.on('tileerror', function(error, tile) {
-                        opPopupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: "Could not highlight selected features. Reduce number of selected rows."});
+                    $scope.selectedLayer.on('tileerror', function(error, tile) {// jshint ignore:line
+                        opPopupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: 'Could not highlight selected features. Reduce number of selected rows.'});
                     });
                 }
             }
             else
             {
-                if($scope.maskLayer)
+                if($scope.maskLayer) {
                     $scope.map.removeLayer($scope.maskLayer);
-                if($scope.selectedLayer)
+                }
+                if($scope.selectedLayer) {
                     $scope.map.removeLayer($scope.selectedLayer);
+                }
                 $scope.maskLayer = null;
                 $scope.seletedLayer = null;
             }
