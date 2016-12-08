@@ -391,6 +391,7 @@ angular.module('opApp').controller('opMapController', ['$scope','$rootScope','$t
                 }
                 if (!initialBaseLayer) {
                     initialBaseLayer = baseLayers[layer.prettyName];
+                    opStateService.setLeafletMaskLayer(layer);
                 }
             }
 
@@ -399,6 +400,17 @@ angular.module('opApp').controller('opMapController', ['$scope','$rootScope','$t
             initialBaseLayer.addTo(map);
             layerControl = L.control.layers(baseLayers).addTo(map);
 
+            map.on('baselayerchange', function(baseLayer){
+                for (var i = 0; i < opConfig.leafletLayers.length; i++) {
+                    var layer = opConfig.leafletLayers[i];
+                    if(layer.prettyName === baseLayer.name)
+                    {
+                        opStateService.setLeafletMaskLayer(layer);
+                        $rootScope.$broadcast('baseLayerChanged');
+                    }
+                 }
+            });
+            
             opStateService.setLeafletMapCRS(opConfig.leafletOptions.crs.code);
             opStateService.setLeafletMap(map);
             opStateService.setLayerControl(layerControl);
@@ -425,9 +437,16 @@ angular.module('opApp').controller('opMapController', ['$scope','$rootScope','$t
 
                 valFormatter: function (pos) {
                     var latLng = opCoordinateConversionService.prepForDDBroadcast(pos.lat, pos.lng);
-                    var ns = latLng.dd[0] > 0 ? ' N' : ' S';
-                    var ew = latLng.dd[1] > 0 ? ' E' : ' W';
-                    return (('    ' + pos.lat.toFixed(3)).slice(-7) + ns + ', ' + ('    ' + pos.lng.toFixed(3)).slice(-8) + ew).replace(/ /g, '&nbsp;');
+                    if(latLng)
+                    {
+                        var ns = latLng.dd[0] > 0 ? ' N' : ' S';
+                        var ew = latLng.dd[1] > 0 ? ' E' : ' W';
+                        return (('    ' + pos.lat.toFixed(3)).slice(-7) + ns + ', ' + ('    ' + pos.lng.toFixed(3)).slice(-8) + ew).replace(/ /g, '&nbsp;');
+                    }
+                    else
+                    {
+                        return '&nbsp;';
+                    }
                 }
 
             }).addTo(map);

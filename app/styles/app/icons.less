@@ -47,6 +47,12 @@
   background-image: url("../images/icon-sprite2.png");
 }
 
+//handle retina display for leaflet drawing tools to use the old spritesheet because we don't have spritesheet-2x
+.leaflet-retina .leaflet-draw-toolbar a {
+    background-image: url('../images/spritesheet.png');
+    background-size: 270px 30px;
+}
+
 // generate icon classes
 // format: class='icon-md icon-white-md-fire'
 

@@ -14,9 +14,28 @@
             <div class="text-center" ng-if="layersLoading" style="padding: 15px">Identifying server layers...&nbsp;&nbsp;
                 <div class="layer-loading-spinner"></div>
             </div>
+            <div class="layer-options" ng-if="!layersLoading && collectionTypes !== undefined">
+                <a ng-repeat="(colKey, colValue) in collectionTypes" ng-click="setCollectionTypeFilter(colKey)" href="" ng-class="{active: collectionTypeFilter === colKey}">{{colValue.name}}</a>
+                <a ng-click="setCollectionTypeFilter('')" href="" ng-class="{active: collectionTypeFilter === ''}">Any</a>
+                <span class="icons">
+                    <button uib-popover-template="'fb-popover.html'" popover-title="" popover-placement="right" popover-append-to-body="true" popover-is-open="isOpen" type="button" class="btn icon-help" href=""></button>
+                    <script id="fb-popover.html" type="text/ng-template">
+                        <div>
+                            <div class="close" ng-click="$parent.isOpen = false">&times;</div>
+                            <span ng-repeat="collectionType in collectionTypes" >
+                                <b>{{collectionType.name}}</b><br/>
+                                <p>{{collectionType.description}}</p>
+                            </span>
+                            
+                            <b>Any</b>
+                            <p>No filtering of layers based on collection method.</p>
+                        </div>
+                    </script>
+                </span>
+            </div>
             <div class="layer-options" ng-if="!layersLoading">
-                <a ng-click="setFilter('')" href="" ng-class="{active: filter === ''}">All</a>
-                <a ng-click="setFilter('active')" href="" ng-class="{active: filter === 'active'}">Selected</a>
+                <a ng-click="setSelectionFilter('')" href="" ng-class="{active: selectionFilter === ''}">All</a>
+                <a ng-click="setSelectionFilter('active')" href="" ng-class="{active: selectionFilter === 'active'}">Selected</a>
                 <!--<a ng-repeat="tag in tags" ng-click="setFilter(tag)" ng-class="{active: filter==='{{tag}}'}" href="">{{tag}}</a>-->
             </div>
 
@@ -39,8 +58,8 @@
                              <div class="spinner-image"></div>
                          </div>
 
-                           <button ng-click="refreshSlider(); isOpen = !isOpen" uib-popover-template="'popover.html'" popover-trigger="outsideClick" popover-title=""
-                                   popover-placement="auto bottom-right" popover-append-to-body="true" popover-is-open="isOpen"
+                           <button ng-click="refreshSlider(layer.uid); isOpen = !isOpen" uib-popover-template="'popover.html'" popover-trigger="outsideClick" popover-title=""
+                                   popover-placement="auto bottom-right" popover-append-to-body="true" popover-is-open="isOpen" popover-popup-delay="1000"
                                    type="button" class="btn icon-help" href=""></button>
                            <script id="popover.html" type="text/ng-template">
                                <div>

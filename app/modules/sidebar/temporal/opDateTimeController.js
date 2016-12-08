@@ -21,8 +21,10 @@ angular.module('opApp').controller('opDateTimeController', ['$scope', '$timeout'
         $scope.dateExpanded = false;
         $scope.valid = {
             duration: false,
-            startRange: false,
-            endRange: false
+            startRange: true,
+            startTimeRange: true,
+            endRange: true,
+            endTimeRange: true
         };
 
         $scope.validationError = 'sup';
@@ -43,7 +45,8 @@ angular.module('opApp').controller('opDateTimeController', ['$scope', '$timeout'
 
         var oldStart = '', oldEnd = '';
         var oldRange;
-        var dateFormat = 'MM/DD/YY';
+        var dateFormat = 'MM/DD/YYYY';
+        var timeFormat = 'HH:mm:ss';
         var parseFormat = 'MM/DD/YYYYHH:mm:ss';
 
         /**
@@ -54,9 +57,16 @@ angular.module('opApp').controller('opDateTimeController', ['$scope', '$timeout'
          */
         var enforceDateRangeLimits = function (newDateRange, previousDateRange, maxDaysBack) {
             var compareFormat = 'MM/DD/YYYYHH:mm:ss';
-
+            var message;
+            if(newDateRange[0].diff(newDateRange[1], 'days', true) > 0)
+            {
+                message = 'Start date cannot be after End date.';
+                $log.log(message);
+                toaster.pop('note', message);
+                newDateRange[0] = previousDateRange[0];
+                newDateRange[1] = previousDateRange[1];
+            }
             if (Math.abs(newDateRange[0].diff(newDateRange[1], 'days', true)) > maxDaysBack) {
-                var message;
                 if (angular.isDefined(previousDateRange)) {
                     if (previousDateRange[0].format(compareFormat) !== newDateRange[0].format(compareFormat) &&
                         previousDateRange[1].format(compareFormat) === newDateRange[1].format(compareFormat)) {
@@ -272,24 +282,44 @@ angular.module('opApp').controller('opDateTimeController', ['$scope', '$timeout'
                 $timeout.cancel($scope.rangeTimeout);
             }
             $scope.rangeTimeout = $timeout(function () {
-                if ($scope.dateKey === 'range' && oldStart !== $scope.startDate + $scope.startTime) {
-                    var date = moment.utc($scope.startDate + $scope.startTime, parseFormat);
+                $scope.valid.startRange = true;
+                $scope.valid.startTimeRange = true;
+
+                var startDate = moment($scope.startDate, dateFormat, true);
+                if(!startDate.isValid()){
+                    $scope.valid.startRange = false;
+                }
+                var startTime = moment($scope.startTime, timeFormat, true);
+                if(!startTime.isValid()){
+                    $scope.valid.startTimeRange = false;
+                }
+                
+                if ((startDate.isValid() && startTime.isValid()) && $scope.dateKey === 'range' && oldStart !== $scope.startDate + $scope.startTime) {
+                    var date = moment.utc($scope.startDate + $scope.startTime, parseFormat, true);
                     if (date.isValid()) {
                         oldStart = $scope.startDate + $scope.startTime;
                         $scope.dateRange = [date, $scope.dateRange[1]];
-                        $scope.valid.startRange = true;
 
                         enforceDateRangeLimits($scope.dateRange, oldRange, opConfig.maxDaysBack);
 
                         if (!$scope.initializing) {
+                            drpOptions.startDate = $scope.dateRange[0];
+                            drpOptions.endDate = $scope.dateRange[1];
+                            updateDatePicker($scope.dateRange[0], $scope.dateRange[1]);
                             opStateService.setTimeRange($scope.dateRange[0], $scope.dateRange[1]);
+
+                            if(dateRangeCreated) {
+                                angular.element('.start, .end').daterangepicker({
+                                    action: 'update',
+                                    startDate: $scope.dateRange[0],
+                                    endDate: $scope.dateRange[1]
+                                });
+                            }
+                            $scope.setDateRange($scope.dateRange);
                         }
                     }
-                    else {
-                        $scope.valid.startRange = false;
-                    }
                 }
-            }, 1000);
+            }, 200);
         };
 
         /**
@@ -299,25 +329,46 @@ angular.module('opApp').controller('opDateTimeController', ['$scope', '$timeout'
             if ($scope.rangeTimeout) {
                 $timeout.cancel($scope.rangeTimeout);
             }
+            
             $scope.rangeTimeout = $timeout(function () {
-                if ($scope.dateKey === 'range' && oldEnd !== $scope.endDate + $scope.endTime) {
-                    var date = moment.utc($scope.endDate + $scope.endTime, parseFormat);
-                    if (date.isValid() || ( !$scope.endDate && !$scope.endTime)) {
+                $scope.valid.endRange = true;
+                $scope.valid.endTimeRange = true;
+
+                var endDate = moment($scope.endDate, dateFormat, true);
+                if(!endDate.isValid()){
+                    $scope.valid.endRange = false;
+                }
+                var endTime = moment($scope.endTime, timeFormat, true);
+                if(!endTime.isValid()){
+                    $scope.valid.endTimeRange = false;
+                }
+                
+                if ((endDate.isValid() && endTime.isValid()) && $scope.dateKey === 'range' && oldEnd !== $scope.endDate + $scope.endTime) {
+                    var date = moment.utc($scope.endDate + $scope.endTime, parseFormat, true);
+                    if (date.isValid()) {
                         oldEnd = $scope.endDate + $scope.endTime;
                         $scope.dateRange = [$scope.dateRange[0], date];
-                        $scope.valid.endRange = true;
-
+                        
                         enforceDateRangeLimits($scope.dateRange, oldRange, opConfig.maxDaysBack);
 
                         if (!$scope.initializing) {
+                            drpOptions.startDate = $scope.dateRange[0];
+                            drpOptions.endDate = $scope.dateRange[1];
+                            updateDatePicker($scope.dateRange[0], $scope.dateRange[1]);
                             opStateService.setTimeRange($scope.dateRange[0], $scope.dateRange[1]);
+
+                            if(dateRangeCreated) {
+                                angular.element('.start, .end').daterangepicker({
+                                    action: 'update',
+                                    startDate: $scope.dateRange[0],
+                                    endDate: $scope.dateRange[1]
+                                });
+                            }
+                            $scope.setDateRange($scope.dateRange);
                         }
                     }
-                    else {
-                        $scope.valid.endRange = false;
-                    }
                 }
-            }, 1000);
+            }, 200);
         };
 
         /**

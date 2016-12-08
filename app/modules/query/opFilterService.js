@@ -35,8 +35,8 @@ angular.module('opApp').service('opFilterService', ['opStateService',
                     cqlFilter = startField + ' BETWEEN ' + startString + ' AND ' + stopString;
                 }
                 else {
-                    cqlFilter = startField + ' >= ' + startString + ' AND ' +
-                        stopField + ' <= ' + stopString;
+                    cqlFilter = stopField + ' >= ' + startString + ' AND ' +
+                        startField + ' <= ' + stopString;
                 }
 
                 return cqlFilter;

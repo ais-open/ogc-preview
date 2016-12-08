@@ -5,6 +5,8 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
               opWebFeatureService, opStateService, opFilterService, opExportService, opPopupWindow, $log) {
         'use strict';
 
+        $scope.collectionTypes = opConfig.collectionTypes;
+
         /**
          * Hashes the string for use as a poor man's UUID
          * @returns most-likely unique hash
@@ -163,6 +165,15 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
                 return _tag;
             };
 
+            self.areAnyTagged = function(tags) {
+                for (var i=0; i < _layers.length; i++) {
+                    if (angular.isDefined(_layers[i].tags) && arrayIntersect(_layers[i].tags, tags)) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
             /**
              * Find if any layers associated with this tag are toggled on
              * @returns {boolean}   true if any layers are on, false otherwise
@@ -202,8 +213,8 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
 
                 for (var i = 0; i < _layers.length; i++) {
                     if (_layers[i].active !== setCheckedState) {
-                        $scope.datasetStateChanged(_layers[i].uid);
                         _layers[i].active = setCheckedState;
+                        $scope.datasetStateChanged(_layers[i].uid);
                     }
                 }
             };
@@ -343,6 +354,8 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
 
         $scope.layerExpanded = true;
         $scope.filter = '';
+        $scope.selectionFilter = '';
+        $scope.collectionTypeFilter = '';
         $scope.tags = [];
 
         $scope.layersLoading = false;
@@ -353,6 +366,9 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
         $scope.map = null;
         $scope.leafletGroup = null;
         $scope.layerControl = null;
+
+        $scope.maskLayer = null;
+        $scope.selectedLayer = null;
 
         var zIndex = 50;
         var maxZIndex = 100;
@@ -548,6 +564,11 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
          */
         $scope.$on('filters-updated', function () {
             var bounds = opStateService.getTimeBoundsFromTemporalFilter();
+            var collectionFilter = opStateService.getCollectionFilter();
+            
+            if (collectionFilter !== null && collectionFilter !== undefined) {
+                $scope.collectionTypeFilter = collectionFilter;
+            }
 
             for (var i = 0; i < $scope.layers.length; i++) {
                 var layer = $scope.layers[i];
@@ -556,6 +577,15 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
                 }
             }
         });
+
+        $scope.setSelectionFilter = function (filter) {
+            $scope.selectionFilter = filter;
+        };
+        
+        $scope.setCollectionTypeFilter = function (filter) {
+            $scope.collectionTypeFilter = filter;
+            opStateService.setCollectionFilter(filter);
+        };
 
         /**
          * Set our total known filter scope variable
@@ -571,12 +601,27 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
          * @returns {boolean}   true if layer is on (toggled), false otherwise
          */
         $scope.isLayerVisible = function (layerUid) {
+            var visible = false;
             var layer = getLayerByUid($scope.layers, layerUid);
+            
             if ($scope.filter === 'active') {
-                return layer.active;
+                visible = layer.active;
+            }
+            
+            // Check to see if configured tags for selected collection type
+            // match the metadata tags associated with layer
+            if ($scope.collectionTypes !== undefined && $scope.collectionTypeFilter !== '' && layer.tags !== undefined) {
+                visible = arrayIntersect($scope.collectionTypes[$scope.collectionTypeFilter].keywords, layer.tags);
+            }
+            else {
+                visible = true;
             }
 
-            return true;
+            if ($scope.selectionFilter === 'active') {
+                visible = visible && layer.active;
+            }
+            
+            return visible;
         };
 
 
@@ -637,23 +682,41 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
          * @returns {boolean}   true if any layers in tag are active, false otherwise
          */
         $scope.isGroupVisible = function (groupTag) {
+            var visible = false;
+            var group = $scope.layerGroups.getGroupByTag(groupTag);
             if ($scope.filter === '') {
-                return true;
+                visible = true;
             }
             else if ($scope.filter === 'active') {
-                var group = $scope.layerGroups.getGroupByTag(groupTag);
-
                 if (group) {
-                    if (group.areAnyActive()) {
-                        return true;
+                    if (group.areAnyActive())
+                    {
+                        visible = true;
                     }
                 }
 
-                return false;
+                visible = false;
             } else if (groupTag === $scope.filter) {
-                return true;
+                visible = true;
             }
-            return false;
+            visible = false;
+            
+            // Check to see if configured tags for selected collection type
+            // match the metadata tags for any layer within group
+            if ($scope.collectionTypes !== undefined && $scope.collectionTypeFilter !== '')
+            {
+                visible = group.areAnyTagged($scope.collectionTypes[$scope.collectionTypeFilter].keywords);
+            }
+            else {
+                visible = true;
+            }
+            
+            if ($scope.selectionFilter === 'active') {
+                if (group) {
+                    visible = visible && group.areAnyActive();
+                }
+            }
+            return visible;
         };
 
         /**
@@ -851,6 +914,12 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
             var startTime = moment(stopTime).subtract(1, 'd');
             var times = [startTime, stopTime];
             $rootScope.$broadcast('latest-data-button', times);
+
+            //ensure layer is active
+            if(!layer.active){
+                layer.active = true;
+                $scope.datasetStateChanged(layer.uid);
+            }
             $rootScope.$broadcast('latest-data-button-zoom', layer);
         };
 
@@ -859,7 +928,38 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
          * this forces the slider to render correctly on load.
          */
 
-        $scope.refreshSlider = function () {
+        $scope.refreshSlider = function (layerUid) {
+            var layer = getLayerByUid($scope.layers, layerUid);
+
+            // Is this layer time enabled?  Set relevant time values if so.
+            opLayerService.getFields(layer).then(
+                function (result) {
+                    layer.fields = result;
+
+                    // Verify time was set for this layer.. result will be undefined if not
+                    if (result.time) {
+                        $log.log('Time fields identified. ' +
+                            'Start: \'' + result.time.start.field + '\', ' +
+                            'Stop: \'' + result.time.stop.field + '\'');
+                        if (result.time.start.value && result.time.stop.value) {
+                            $log.log('Time values identified. ' +
+                                'Start: \'' + result.time.start.value + '\', ' +
+                                'Stop: \'' + result.time.stop.value + '\'');
+                            layer.timeEnabled = true;
+                        }
+                        else {
+                            $log.log('Time values were not identified as layer is not configured for WMS time');
+                            layer.timeEnabled = false;
+                        }
+                    }
+                },
+                function (reason) {
+                    $log.log('Couldn\'t identify time values for this layer... how embarrassing: ' + reason);
+                    toaster.pop('note', 'Date/Time', 'Unable to detect time fields for layer \'' + layer.title + '\'.  Date/Time filtering will not be applied to this layer.');
+                    layer.timeEnabled = false;
+                }
+            );
+
             $timeout(function () {
                 $scope.$broadcast('rzSliderForceRender');
             });
@@ -871,6 +971,10 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
          * @param serverName    server that is associated with layers to get data from
          */
         $scope.updateLayers = function (force, serverName) {
+            var collectionFilter = opStateService.getCollectionFilter();
+            if (collectionFilter !== null && collectionFilter !== undefined) {
+                $scope.collectionTypeFilter = collectionFilter;
+            }
             var server = opStateService.getServer(serverName);
             var previousActiveServerCount = opStateService.getPreviouslyActiveServer().length;
 
@@ -1011,6 +1115,30 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
             clearServerSpecificLayers(server);
         };
 
+        $scope.$on('baseLayerChanged', function () {
+            if($scope.maskLayer) {
+                $scope.map.removeLayer($scope.maskLayer);
+                $scope.maskLayer = null;
+            }
+
+            opStateService.getLeafletMaskLayer()
+            .then(function(layer){
+                // We have to manually set zIndex as the layer control screws up basemaps with
+                // overlays when switching between them
+                layer.params['zIndex'] = maxZIndex + 1;
+                layer.params['opacity'] = 0.8;
+
+                if (layer.params['type'] && layer.params['type'].toLowerCase() === 'wmts') {
+                    $scope.maskLayer = L.tileLayer(layer.url, {z: '0'});
+                }
+                else {
+                    $scope.maskLayer = L.tileLayer.wms(layer.url,
+		      opWebMapService.getLeafletWmsBasemapParams(layer.name, layer.params));
+                }
+                $scope.maskLayer.addTo($scope.map);
+            });
+        });
+
         /**
          * Broadcast receiver for getting heartbeats from the popup window to keep sync
          */
@@ -1033,5 +1161,106 @@ angular.module('opApp').controller('opLayerController', ['$rootScope', '$scope',
                 _.filter($scope.layers, function (l) {
                     return _.contains(opStateService.getDatasets(), l.server + ':' + l.workspace + ':' + l.name);
                 }));
+        });
+
+         /**
+          * Broadcast receiver for removing maskLayer and selectedLayer when the popup closes
+          */
+         opPopupWindow.on('resultsClosed', function () {
+             if($scope.maskLayer) {
+                 $scope.map.removeLayer($scope.maskLayer);
+                 $scope.maskLayer = null;
+             }
+             if($scope.selectedLayer) {
+                 $scope.map.removeLayer($scope.selectedLayer);
+                 $scope.selectedLayer = null;
+             }
+         });
+
+        /**
+         * Broadcast receiver for adding maskLayer and selectedLayer to map when attributes are selected
+         */
+        opPopupWindow.on('resultsSelected', function (layer, rowData) {
+            opPopupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: ''});
+            var dataArr = [];
+            if(rowData)
+            {
+                //add layer from wms with selected ids    
+                $.each($(rowData),function(key,value){
+                    dataArr.push(value[value.length-1]);
+                });
+            }
+            
+            if(layer && dataArr.length > 0)
+            {
+                var server = opStateService.getServer(layer.server);
+                //make wms call to build layer
+                if($scope.selectedLayer)
+                {
+                    $scope.map.removeLayer($scope.selectedLayer);
+                    $scope.selectedLayer = null;
+                }
+                
+                if(!$scope.maskLayer){
+                    opStateService.getLeafletMaskLayer()
+                    .then(function(layer){
+                        // We have to manually set zIndex as the layer control screws up basemaps with
+                        // overlays when switching between them
+                        layer.params['zIndex'] = maxZIndex + 1;
+                        layer.params['opacity'] = 0.8;
+
+                        if (layer.params['type'] && layer.params['type'].toLowerCase() === 'wmts') {
+                            $scope.maskLayer = L.tileLayer(layer.url, {z: '0'});
+                        }
+                        else {
+                            $scope.maskLayer = L.tileLayer.wms(layer.url,
+			        opWebMapService.getLeafletWmsBasemapParams(layer.name, layer.params));
+                        }
+                        $scope.maskLayer.addTo($scope.map);
+                    });
+                }
+                
+                if(layer.timeEnabled){
+                    
+                    $scope.selectedLayer = L.tileLayer.wms(server.url + '/wms', 
+                        opWebMapService.getLeafletWmsParams(layer.server, layer.name, 
+                        layer.workspace, {
+                            tileSize: 512,
+                            zIndex: maxZIndex + 2,
+                            featureId: dataArr,
+                            time: layer.params.time,
+                            transparent: true
+                    })).addTo($scope.map);
+                    $scope.selectedLayer.on('tileerror', function(error, tile) {// jshint ignore:line
+                        opPopupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: 'Could not highlight selected features. Please reduce the number of selected rows.'});
+                    });
+                }
+                else
+                {
+                    
+                    $scope.selectedLayer = L.tileLayer.wms(server.url + '/wms', 
+                        opWebMapService.getLeafletWmsParams(layer.server, layer.name, 
+                        layer.workspace, {
+                            tileSize: 512,
+                            zIndex: maxZIndex + 2,
+                            featureId: dataArr,
+                            transparent: true
+                    })).addTo($scope.map);
+                    $scope.selectedLayer.on('tileerror', function(error, tile) {// jshint ignore:line
+                        opPopupWindow.broadcast(opStateService.getResultsWindow(), 'selectedRowsError', {error: 'Could not highlight selected features. Reduce number of selected rows.'});
+                    });
+                }
+            }
+            else
+            {
+                if($scope.maskLayer) {
+                    $scope.map.removeLayer($scope.maskLayer);
+                }
+                if($scope.selectedLayer) {
+                    $scope.map.removeLayer($scope.selectedLayer);
+                }
+                $scope.maskLayer = null;
+                $scope.seletedLayer = null;
+            }
         });
     }]);

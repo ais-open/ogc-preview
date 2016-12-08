@@ -7,6 +7,7 @@ angular.module('opApp').service('opStateService', ['$q', '$rootScope', '$locatio
             var lastBBoxBounds = null;
             var lastDatasetsValue = null;
 
+            var collectionId = 'collection';
             var datasetId = 'datasets';
             var dateId = 'temporal';
             var boundsId = 'map-bounds';
@@ -20,6 +21,7 @@ angular.module('opApp').service('opStateService', ['$q', '$rootScope', '$locatio
             var leafletMap;
             var leafletMapCRS;
             var leafletLayerControl;
+            var leafletMaskLayer;
 
             var activeServer = [];
             var previousActiveServer = [];
@@ -101,6 +103,34 @@ angular.module('opApp').service('opStateService', ['$q', '$rootScope', '$locatio
             };
 
             /**
+             * Set the leaflet mask layer object we're using
+             * @param layer
+             */
+            this.setLeafletMaskLayer = function (layer) {
+                leafletMaskLayer = layer;
+            };
+
+            /**
+             * Get the leaflet mask layer object we're using
+             * @returns {*}
+             */
+            this.getLeafletMaskLayer = function () {
+                var deferred = $q.defer();
+                var self = this;
+
+                if (!angular.isDefined(leafletMaskLayer)) {
+                    $timeout(function () {
+                        deferred.resolve(self.getLeafletMaskLayer());
+                    }, 500);
+                }
+                else {
+                    deferred.resolve(leafletMaskLayer);
+                }
+
+                return deferred.promise;
+            };
+
+            /**
              * Set the leaflet layer control (L.control object)
              * @param control
              */
@@ -150,6 +180,11 @@ angular.module('opApp').service('opStateService', ['$q', '$rootScope', '$locatio
             this.getState = function (stateId) {
                 deserializeState();
                 return state[stateId];
+            };
+            
+            this.removeState = function(stateId) {
+                deserializeState();
+                delete state[stateId];
             };
 
             /**
@@ -484,14 +519,33 @@ angular.module('opApp').service('opStateService', ['$q', '$rootScope', '$locatio
             this.setTimeRange = function (startTime, stopTime) {
                 var originalValue = this.getState(dateId);
                 var filter =
-                    'R' + startTime.format('YYYY-MM-DDTHH:mm:ss\\Z') + ',' +
-                    stopTime.format('YYYY-MM-DDTHH:mm:ss\\Z');
+                    'R' + startTime.utc().format('YYYY-MM-DDTHH:mm:ss\\Z') + ',' +
+                    stopTime.utc().format('YYYY-MM-DDTHH:mm:ss\\Z');
 
                 if (originalValue !== filter) {
                     this.setState(dateId, filter);
 
                     debounceBroadcast('filters-updated', 'temporal');
                 }
+            };
+
+            this.setCollectionFilter = function (type) {
+                var originalValue = this.getState(collectionId);
+
+                if (originalValue !== type) {
+                    if (type === '') {
+                        this.removeState(collectionId);
+                    }
+                    else {
+                        this.setState(collectionId, type);
+                    }
+
+                    debounceBroadcast('filters-updated', 'collection');
+                }
+            };
+
+            this.getCollectionFilter = function () {
+                return this.getState(collectionId);
             };
 
             this.getCustomFilter = function () {

@@ -41,12 +41,14 @@
                     <div class="float-label white">
                         <input type="text" ng-model="startDate" required ng-change="updateStart($event)"/>
                         <label>Start Date</label>
+                        <div class="bg" ng-class="{invalid: !valid.startRange && startDate}"></div>
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="float-label white">
                         <input type="text" ng-model="startTime" required ng-change="updateStart($event)"/>
                         <label>Start Time</label>
+                        <div class="bg" ng-class="{invalid: !valid.startTimeRange && startTime}"></div>
                     </div>
                 </div>
             </div>
@@ -55,12 +57,14 @@
                     <div class="float-label white">
                         <input type="text" ng-model="endDate" required ng-change="updateEnd($event)"/>
                         <label>End Date</label>
+                        <div class="bg" ng-class="{invalid: !valid.endRange && endDate}"></div>
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="float-label white">
                         <input type="text" ng-model="endTime" required ng-change="updateEnd($event)"/>
                         <label>End Time</label>
+                        <div class="bg" ng-class="{invalid: !valid.endTimeRange && endTime}"></div>
                     </div>
                 </div>
             </div>
