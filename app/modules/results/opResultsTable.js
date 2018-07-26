@@ -25,11 +25,9 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window', '$ro
                 if(scope.opModel.length){
                     
                     var columnKeys = scope.opModel[0].properties;
-                    var index;
-                    for(index=0; index<columnKeys.length; index++) {
-                        columns.push({'sTitle':columnKeys[index]});
-                    }
-
+                    Object.keys(columnKeys).forEach(function(key) {
+                        columns.push({'sTitle':key});
+                    });
                     if(scope.opModel[0].id && scope.opModel[0].id.indexOf('fid-') < 0)
                     {
                         columns.push({'sTitle': 'fid'});
@@ -61,9 +59,10 @@ angular.module('opApp').directive('opResultsTable', ['$timeout', '$window', '$ro
                         var row = scope.opModel[i].properties;
                         var item = [];
                     
-                        for(index=0; index<row.length; index++) {
-                            item.push(row[index]);
-                        }
+                        /*jshint loopfunc:true */
+                        Object.keys(columnKeys).forEach(function(key) {
+                            item.push(row[key]);
+                        });
                         if(scope.opModel[i].id) {
                             item.push(scope.opModel[i].id);
                         }
