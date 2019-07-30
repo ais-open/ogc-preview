@@ -273,13 +273,14 @@ pipes.scriptedPartials = function () {
 
 // == TASKS ========
 
-gulp.task('bump', function() {
+gulp.task('bump', function(done) {
     gulp.src(paths.versionTargets, {base: './'})
     .pipe(bump())
     .pipe(gulp.dest('./'));
+    done();
 });
 
-gulp.task('tag-build', function() {
+gulp.task('tag-build', function(done) {
     // Removed logic expecting version.json to contain build number
     // Only add build number and add to packaged artifacts, never commmit back to repo
     var build_num = null;
@@ -300,24 +301,17 @@ gulp.task('tag-build', function() {
       .pipe(bump({version: newVerBuild}))
       .pipe(gulp.dest('./'));
     }
+    done();
 });
 
 // removes all compiled dev files
 gulp.task('clean-dev', function () {
-    var deferred = Q.defer();
-    del(paths.distDev, function () {
-        deferred.resolve();
-    });
-    return deferred.promise;
+    return del(paths.distDev);
 });
 
 // removes all compiled production files
 gulp.task('clean-prod', function () {
-    var deferred = Q.defer();
-    del(paths.distProd, function () {
-        deferred.resolve();
-    });
-    return deferred.promise;
+    return del(paths.distProd);
 });
 
 // checks html source files for syntax errors
@@ -354,12 +348,12 @@ gulp.task('build-index-prod', pipes.builtIndexProd);
 gulp.task('build-app-prod', pipes.builtAppProd);
 
 // cleans and builds a complete prod environment
-gulp.task('clean-build-app-prod', ['clean-prod'], pipes.builtAppProd);
+gulp.task('clean-build-app-prod', gulp.series('clean-prod', pipes.builtAppProd));
 
-gulp.task('prod-artifacts', ['tag-build', 'clean-build-app-prod'], pipes.buildArtifacts);
+gulp.task('prod-artifacts', gulp.series('tag-build', 'clean-build-app-prod', pipes.buildArtifacts));
 
 // clean, build, and watch live changes to the dev environment
-gulp.task('watch-dev', ['build-styles-dev', 'validate-app-scripts'], function () {
+gulp.task('watch-dev', gulp.series('build-styles-dev', 'validate-app-scripts', function (done) {
     var proxy = proxyMiddleware('/geoserver', {target: 'http://demo.boundlessgeo.com'});
     var proxy2 = proxyMiddleware('/shapes/', {target: 'http://10.3.2.136:8000/'});
     var proxy3 = proxyMiddleware('/geoserver2', {target: 'http://172.17.0.3'});
@@ -374,10 +368,11 @@ gulp.task('watch-dev', ['build-styles-dev', 'validate-app-scripts'], function ()
 
     gulp.watch(paths.stylesAll, ['build-styles-dev']);
     gulp.watch(['./app/**/*.*', '!./app/**/*.+(css|less)']).on('change', browserSync.reload);
-});
+    done();
+}));
 
 // clean, build, and watch live changes to the prod environment
-gulp.task('watch-prod', ['clean-build-app-prod'], function () {
+gulp.task('watch-prod', gulp.series('clean-build-app-prod', function (done) {
     var proxy = proxyMiddleware('/geoserver', {target: 'http://demo.boundlessgeo.com'});
 
     browserSync.init({
@@ -414,12 +409,13 @@ gulp.task('watch-prod', ['clean-build-app-prod'], function () {
             .pipe(browserSync.reload);
     });
 
-});
+    done();
+}));
 
 // default task launches build
-gulp.task('default', ['watch-dev']);
+gulp.task('default', gulp.series('watch-dev'));
 
-gulp.task('build', ['prod-artifacts', 'bump']);
+gulp.task('build', gulp.series('prod-artifacts', 'bump'));
 
 // placeholder for unit test integration
 gulp.task('test', function() {});
