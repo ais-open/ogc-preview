@@ -348,7 +348,7 @@ gulp.task('build-index-prod', pipes.builtIndexProd);
 gulp.task('build-app-prod', pipes.builtAppProd);
 
 // cleans and builds a complete prod environment
-gulp.task('clean-build-app-prod', gulp.series('clean-prod', pipes.builtAppProd));
+gulp.task('clean-build-app-prod', gulp.series('clean-prod', 'build-app-prod'));
 
 gulp.task('prod-artifacts', gulp.series('tag-build', 'clean-build-app-prod', pipes.buildArtifacts));
 
